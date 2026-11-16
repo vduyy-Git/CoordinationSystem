@@ -1,4 +1,4 @@
-package com.combinedculture.dtorequest;
+package com.coordinationsystem.dtoresponse;
 
 import java.util.List;
 
