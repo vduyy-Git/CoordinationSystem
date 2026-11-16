@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="850" viewBox="0 0 1280 850" role="img" aria-labelledby="title desc">
+  <title id="title">Use Case UML — Coordination System</title>
+  <desc id="desc">Sơ đồ UML với năm tác nhân bên ngoài hệ thống và các use case về quyên góp, yêu cầu hỗ trợ, phân bổ và giao nhận.</desc>
+  <defs>
+    <style>
+      text { font-family: Arial, "DejaVu Sans", sans-serif; fill: #000; }
+      .title { font-size: 25px; font-weight: 700; }
+      .sys { fill: #fff; stroke: #000; stroke-width: 2; }
+      .usecase { fill: #fff; stroke: #000; stroke-width: 1.8; }
+      .uc-label { font-size: 16px; text-anchor: middle; dominant-baseline: middle; }
+      .actor { stroke: #000; stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .actor-label { font-size: 15px; text-anchor: middle; }
+      .assoc { stroke: #000; stroke-width: 1.35; fill: none; }
+      .system-label { font-size: 19px; font-weight: 700; }
+    </style>
+    <g id="person" class="actor">
+      <circle cx="0" cy="0" r="12" />
+      <path d="M0 12 L0 54 M-24 30 L24 30 M0 54 L-21 82 M0 54 L21 82" />
+    </g>
+  </defs>
+  <text class="title" x="640" y="38" text-anchor="middle">Sơ đồ Use Case UML — Coordination System</text>
+
+  <!-- System boundary -->
+  <rect class="sys" x="285" y="75" width="710" height="730" rx="4" />
+  <text class="system-label" x="305" y="108">Coordination System</text>
+
+  <!-- Associations behind use cases -->
+  <g class="assoc">
+    <!-- USER -->
+    <path d="M134 180 L435 190"/><path d="M134 190 L435 285"/><path d="M134 200 L435 380"/><path d="M134 210 L435 665"/>
+    <!-- Coordinator -->
+    <path d="M134 410 L435 380"/><path d="M134 420 L435 475"/><path d="M134 430 L435 570"/><path d="M134 440 L435 665"/><path d="M134 450 L435 760"/>
+    <!-- Admin -->
+    <path d="M134 660 L435 190"/><path d="M134 680 L435 760"/>
+    <!-- Carrier -->
+    <path d="M1146 268 L845 570"/>
+    <!-- Recipient -->
+    <path d="M1146 553 L845 665"/>
+  </g>
+
+  <!-- Use cases -->
+  <g>
+    <ellipse class="usecase" cx="640" cy="190" rx="205" ry="38"/>
+    <text class="uc-label" x="640" y="190">Đăng nhập, quản lý hồ sơ</text>
+
+    <ellipse class="usecase" cx="640" cy="285" rx="205" ry="38"/>
+    <text class="uc-label" x="640" y="285">Gửi và theo dõi quyên góp</text>
+
+    <ellipse class="usecase" cx="640" cy="380" rx="205" ry="38"/>
+    <text class="uc-label" x="640" y="380">Duyệt quyên góp</text>
+
+    <ellipse class="usecase" cx="640" cy="475" rx="205" ry="38"/>
+    <text class="uc-label" x="640" y="475">Duyệt yêu cầu hỗ trợ</text>
+
+    <ellipse class="usecase" cx="640" cy="570" rx="205" ry="38"/>
+    <text class="uc-label" x="640" y="570">Phân bổ vật tư</text>
+
+    <ellipse class="usecase" cx="640" cy="665" rx="205" ry="38"/>
+    <text class="uc-label" x="640" y="665">Lập và theo dõi giao hàng</text>
+
+    <ellipse class="usecase" cx="640" cy="760" rx="205" ry="38"/>
+    <text class="uc-label" x="640" y="760">Quản trị / tra cứu hệ thống</text>
+  </g>
+
+  <!-- Actors -->
+  <g transform="translate(110 150)"><use href="#person"/><text class="actor-label" x="0" y="108">Người dùng</text></g>
+  <g transform="translate(110 378)"><use href="#person"/><text class="actor-label" x="0" y="108">Điều phối viên</text></g>
+  <g transform="translate(110 628)"><use href="#person"/><text class="actor-label" x="0" y="108">Quản trị viên</text></g>
+  <g transform="translate(1170 238)"><use href="#person"/><text class="actor-label" x="0" y="108">Đối tác vận chuyển</text></g>
+  <g transform="translate(1170 523)"><use href="#person"/><text class="actor-label" x="0" y="108">Người nhận</text></g>
+</svg>
