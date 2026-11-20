@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoordSystem — Hệ thống Điều phối An sinh</title>
+  <link rel="stylesheet" href="src/assets/styles.css" />
+  <style>
+    /* ---- Login Page specific ---- */
+    .login-bg {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+      padding: 20px;
+    }
+    .login-bg .sparkle { position: absolute; }
+    .login-bg .sparkle:nth-child(1) { top: -80px; left: -80px; width: 400px; height: 400px; }
+    .login-bg .sparkle:nth-child(2) { bottom: -100px; right: -60px; width: 350px; height: 350px; }
+    .login-bg .sparkle:nth-child(3) { top: 40%; left: 30%; width: 200px; height: 200px; opacity: 0.07; }
+
+    .login-card {
+      width: 100%; max-width: 440px;
+      padding: 48px 44px;
+      background: rgba(30,15,55,0.85);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(212,175,55,0.3);
+      border-radius: 28px;
+      box-shadow: 0 20px 80px rgba(10,5,20,0.6), 0 0 60px rgba(212,175,55,0.1);
+      animation: fadeInUp 0.7s ease;
+      position: relative; z-index: 2;
+    }
+
+    .login-logo {
+      text-align: center; margin-bottom: 36px;
+    }
+    .login-logo .logo-ring {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--gradient-gold);
+      background-size: 200% auto;
+      animation: shimmer 3s linear infinite, glow-pulse 2s ease infinite;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 16px;
+      box-shadow: var(--shadow-gold);
+    }
+    .login-logo h1 {
+      font-size: 1.5rem; font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .login-logo p { font-size: 0.82rem; color: var(--text-light); }
+
+    .login-tabs {
+      display: flex; gap: 4px;
+      background: rgba(255,255,255,0.05);
+      border-radius: var(--radius-sm); padding: 4px;
+      margin-bottom: 28px;
+    }
+    .login-tab {
+      flex: 1; padding: 10px;
+      text-align: center; font-size: 0.88rem; font-weight: 600;
+      border-radius: 4px; cursor: pointer;
+      transition: var(--transition);
+      border: none; background: transparent; color: var(--text-light);
+    }
+    .login-tab.active {
+      background: var(--gradient-gold);
+      background-size: 200% auto;
+      animation: shimmer 3s linear infinite;
+      color: var(--purple-dark);
+    }
+
+    .or-divider {
+      text-align: center; margin: 20px 0;
+      position: relative; color: var(--text-light); font-size: 0.82rem;
+    }
+    .or-divider::before, .or-divider::after {
+      content: '';
+      position: absolute; top: 50%; width: 42%;
+      height: 1px; background: rgba(212,175,55,0.2);
+    }
+    .or-divider::before { left: 0; }
+    .or-divider::after  { right: 0; }
+
+    .forgot-link {
+      font-size: 0.82rem; color: var(--gold-2);
+      text-align: right; display: block; margin-top: -10px; margin-bottom: 20px;
+      cursor: pointer; transition: color 0.2s;
+    }
+    .forgot-link:hover { color: var(--gold-1); }
+
+    .login-footer {
+      text-align: center; margin-top: 24px;
+      font-size: 0.8rem; color: var(--text-light);
+    }
+    .login-footer a { color: var(--gold-2); cursor: pointer; }
+    .login-footer a:hover { color: var(--gold-1); }
+
+    /* password toggle */
+    .input-wrapper { position: relative; }
+    .input-wrapper .form-input { padding-right: 44px; }
+    .input-toggle {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer; color: var(--text-light); font-size: 0.95rem;
+      transition: color 0.2s; border: none; background: transparent;
+    }
+    .input-toggle:hover { color: var(--gold-2); }
+  </style>
+</head>
+<body>
+  <div class="login-bg">
+    <!-- Background decorations -->
+    <div class="sparkle sparkle-gold"></div>
+    <div class="sparkle sparkle-purple"></div>
+    <div class="sparkle sparkle-gold"></div>
+
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-ring">🌿</div>
+        <h1 class="text-gold">CoordSystem</h1>
+        <p>Hệ thống Điều phối Cứu trợ &amp; An sinh</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="login-tabs">
+        <button class="login-tab active" onclick="switchTab('login', this)">Đăng nhập</button>
+        <button class="login-tab" onclick="switchTab('register', this)">Đăng ký</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label">📧 Email</label>
+          <input type="email" class="form-input" placeholder="email@example.com" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">🔒 Mật khẩu</label>
+          <div class="input-wrapper">
+            <input type="password" id="pwdInput" class="form-input" placeholder="Nhập mật khẩu..." required />
+            <button type="button" class="input-toggle" onclick="togglePwd()">👁</button>
+          </div>
+        </div>
+        <a class="forgot-link">Quên mật khẩu?</a>
+        <button type="submit" class="btn-gold" style="width:100%; justify-content:center;">
+          🚀 Đăng nhập
+        </button>
+        <div class="or-divider">hoặc</div>
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn-outline" style="flex:1; justify-content:center; font-size:0.82rem;" onclick="demoLogin('USER')">
+            👤 Demo USER
+          </button>
+          <button type="button" class="btn-outline" style="flex:1; justify-content:center; font-size:0.82rem;" onclick="demoLogin('COORDINATOR')">
+            🎯 Demo COORD
+          </button>
+          <button type="button" class="btn-outline" style="flex:1; justify-content:center; font-size:0.82rem;" onclick="demoLogin('ADMIN')">
+            ⚙️ Demo ADMIN
+          </button>
+        </div>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" style="display:none;" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label class="form-label">👤 Họ và tên</label>
+          <input type="text" class="form-input" placeholder="Nguyễn Văn A" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">📧 Email</label>
+          <input type="email" class="form-input" placeholder="email@example.com" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">📱 Số điện thoại</label>
+          <input type="tel" class="form-input" placeholder="0901234567" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">🔒 Mật khẩu</label>
+          <div class="input-wrapper">
+            <input type="password" class="form-input" placeholder="Tối thiểu 8 ký tự" required />
+            <button type="button" class="input-toggle">👁</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">🔑 Xác nhận mật khẩu</label>
+          <input type="password" class="form-input" placeholder="Nhập lại mật khẩu" required />
+        </div>
+        <button type="submit" class="btn-gold" style="width:100%; justify-content:center;">
+          ✨ Tạo tài khoản
+        </button>
+      </form>
+
+      <div class="login-footer">
+        Bằng cách đăng nhập, bạn đồng ý với
+        <a>Điều khoản sử dụng</a> và <a>Chính sách bảo mật</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tab, btn) {
+      document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('loginForm').style.display    = tab === 'login' ? '' : 'none';
+      document.getElementById('registerForm').style.display = tab === 'register' ? '' : 'none';
+    }
+    function togglePwd() {
+      const inp = document.getElementById('pwdInput');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+    function handleLogin(e) {
+      e.preventDefault();
+      // Redirect to dashboard
+      window.location.href = 'src/pages/dashboard.html';
+    }
+    function handleRegister(e) {
+      e.preventDefault();
+      alert('Đăng ký thành công! Vui lòng kiểm tra email xác nhận.');
+    }
+    function demoLogin(role) {
+      sessionStorage.setItem('demoRole', role);
+      window.location.href = 'src/pages/dashboard.html';
+    }
+  </script>
+</body>
+</html>
+

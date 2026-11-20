@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hồ sơ cá nhân — CoordSystem</title>
+  <link rel="stylesheet" href="../assets/styles.css"/>
+  <style>
+    .profile-hero {
+      position: relative; border-radius: var(--radius-xl);
+      background: linear-gradient(135deg, rgba(45,27,78,0.8), rgba(74,103,65,0.3));
+      border: 1px solid rgba(212,175,55,0.3);
+      padding: 40px; margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .profile-hero::before {
+      content: ''; position: absolute; top: -100px; right: -80px;
+      width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,175,55,0.08), transparent);
+    }
+    .profile-avatar {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: var(--gradient-gold); background-size: 200% auto;
+      animation: shimmer 3s linear infinite, glow-pulse 2s ease infinite;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; font-weight: 800; color: var(--purple-dark);
+      margin-bottom: 16px; box-shadow: var(--shadow-gold);
+      position: relative; z-index: 1;
+    }
+    .profile-name { font-size: 1.8rem; font-weight: 800; position: relative; z-index: 1; }
+    .profile-info { font-size: 0.9rem; color: var(--text-light); margin-top: 4px; position: relative; z-index: 1; }
+    .profile-badges { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; position: relative; z-index: 1; }
+    .edit-section {
+      background: rgba(45,27,78,0.4); border: 1px solid rgba(212,175,55,0.15);
+      border-radius: var(--radius-lg); padding: 28px;
+    }
+    .activity-history {
+      background: rgba(45,27,78,0.4); border: 1px solid rgba(212,175,55,0.15);
+      border-radius: var(--radius-lg); padding: 24px;
+    }
+    .history-row {
+      display: flex; align-items: center; gap: 12px; padding: 12px 0;
+      border-bottom: 1px solid rgba(212,175,55,0.08); font-size: 0.85rem;
+    }
+    .history-row:last-child { border-bottom: none; }
+    .h-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
+    .pwd-strength { height: 4px; border-radius: 2px; margin-top: 6px; transition: all 0.5s ease; }
+    .pwd-weak   { background: var(--red); width: 25%; }
+    .pwd-medium { background: var(--gold-1); width: 60%; }
+    .pwd-strong { background: var(--moss-green); width: 100%; }
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="sidebar-logo"><h1 class="text-gold">🌿 CoordSystem</h1><p>Điều phối An sinh Xã hội</p></div>
+    <div class="sidebar-nav">
+      <div class="sidebar-section-title">Tổng quan</div>
+      <a class="sidebar-link" href="dashboard.html"><span class="icon">📊</span> Dashboard</a>
+      <a class="sidebar-link" href="donations.html"><span class="icon">🎁</span> Quyên góp</a>
+      <a class="sidebar-link" href="requests.html"><span class="icon">📋</span> Yêu cầu hỗ trợ</a>
+      <div class="sidebar-section-title" style="margin-top:8px;">Điều phối</div>
+      <a class="sidebar-link" href="allocations.html"><span class="icon">⚖️</span> Phân bổ nguồn lực</a>
+      <a class="sidebar-link" href="shipments.html"><span class="icon">🚚</span> Giao hàng</a>
+      <div class="sidebar-section-title" style="margin-top:8px;">Hệ thống</div>
+      <a class="sidebar-link" href="admin.html"><span class="icon">⚙️</span> Quản trị</a>
+      <a class="sidebar-link active" href="profile.html"><span class="icon">👤</span> Hồ sơ cá nhân</a>
+      <a class="sidebar-link" href="../../index.html" style="margin-top:16px; color:rgba(155,35,53,0.8);"><span class="icon">🚪</span> Đăng xuất</a>
+    </div>
+  </nav>
+
+  <header class="topbar">
+    <span class="topbar-title">👤 Hồ sơ Cá nhân</span>
+    <div class="topbar-actions">
+      <div class="avatar-ring">ND</div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="page-wrapper">
+
+      <!-- Profile Hero -->
+      <div class="profile-hero">
+        <div style="display:flex; gap:28px; align-items:flex-start; flex-wrap:wrap;">
+          <div class="profile-avatar">ND</div>
+          <div>
+            <div class="profile-name text-gold">Nguyễn Duy</div>
+            <div class="profile-info">📧 nguyenduy@email.com · 📱 0901234567</div>
+            <div class="profile-info">📅 Tham gia: 01/01/2026 · 🕐 Hoạt động lần cuối: Vừa xong</div>
+            <div class="profile-badges">
+              <span class="badge" style="background:rgba(155,35,53,0.2);color:#FF7A8A;border:1px solid var(--red);">⚙️ ADMIN</span>
+              <span class="badge badge-approved">✅ ACTIVE</span>
+              <span class="badge" style="background:rgba(212,175,55,0.1);color:var(--gold-2);border:1px solid rgba(212,175,55,0.3);">🌟 Tài khoản đã xác thực</span>
+            </div>
+          </div>
+          <div style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn-gold" onclick="document.getElementById('editTab').click()">✏️ Chỉnh sửa hồ sơ</button>
+          </div>
+        </div>
+
+        <!-- Personal stats -->
+        <div class="divider-gold" style="margin:24px 0;"></div>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px;">
+          <div style="text-align:center;">
+            <div style="font-size:1.6rem; font-weight:800;" class="text-gold">12</div>
+            <div style="font-size:0.8rem; color:var(--text-light);">Quyên góp đã thực hiện</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:1.6rem; font-weight:800; color:#8FC87C;">5</div>
+            <div style="font-size:0.8rem; color:var(--text-light);">Yêu cầu đã gửi</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:1.6rem; font-weight:800; color:var(--brown-light);">48</div>
+            <div style="font-size:0.8rem; color:var(--text-light);">Phân bổ điều phối</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:1.6rem; font-weight:800; color:#C4A8FF;">320</div>
+            <div style="font-size:0.8rem; color:var(--text-light);">Người được hỗ trợ</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex; gap:4px; background:rgba(255,255,255,0.05); border-radius:var(--radius-sm); padding:4px; margin-bottom:24px; width:fit-content;">
+        <button class="admin-tab active" id="editTab" onclick="showProfileTab('edit', this)" style="padding:9px 20px; border-radius:4px; font-size:0.88rem; font-weight:600; border:none; background:var(--gradient-gold); background-size:200% auto; animation:shimmer 3s linear infinite; color:var(--purple-dark); cursor:pointer;">✏️ Chỉnh sửa</button>
+        <button onclick="showProfileTab('security', this)" style="padding:9px 20px; border-radius:4px; font-size:0.88rem; font-weight:600; border:none; background:transparent; color:var(--text-light); cursor:pointer; transition:var(--transition);" onmouseenter="this.style.color='var(--gold-2)'" onmouseleave="this.style.color='var(--text-light)'">🔒 Bảo mật</button>
+        <button onclick="showProfileTab('history', this)" style="padding:9px 20px; border-radius:4px; font-size:0.88rem; font-weight:600; border:none; background:transparent; color:var(--text-light); cursor:pointer; transition:var(--transition);" onmouseenter="this.style.color='var(--gold-2)'" onmouseleave="this.style.color='var(--text-light)'">📋 Lịch sử hoạt động</button>
+      </div>
+
+      <!-- Edit Panel -->
+      <div id="tab-edit">
+        <div class="edit-section">
+          <div style="font-weight:800; font-size:1.05rem; margin-bottom:20px;">📝 Thông tin cá nhân</div>
+          <form onsubmit="saveProfile(event)">
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">👤 Họ và tên</label>
+                <input type="text" class="form-input" value="Nguyễn Duy"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">📧 Email</label>
+                <input type="email" class="form-input" value="nguyenduy@email.com"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">📱 Số điện thoại</label>
+                <input type="tel" class="form-input" value="0901234567"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">🌐 Địa chỉ</label>
+                <input type="text" class="form-input" placeholder="Địa chỉ của bạn..."/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">🖼 Ảnh đại diện</label>
+              <div style="display:flex; gap:16px; align-items:center;">
+                <div class="profile-avatar" style="width:60px; height:60px; font-size:1.5rem; margin-bottom:0; animation:none;">ND</div>
+                <button type="button" class="btn-outline" style="padding:10px 20px;">📷 Thay ảnh đại diện</button>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; justify-content:flex-end;">
+              <button type="button" class="btn-outline" style="padding:10px 24px;">Hủy thay đổi</button>
+              <button type="submit" class="btn-gold" style="padding:10px 24px;">💾 Lưu thông tin</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Security Panel -->
+      <div id="tab-security" style="display:none;">
+        <div class="edit-section">
+          <div style="font-weight:800; font-size:1.05rem; margin-bottom:20px;">🔒 Đổi mật khẩu</div>
+          <form onsubmit="changePwd(event)" style="max-width:480px;">
+            <div class="form-group">
+              <label class="form-label">🔑 Mật khẩu hiện tại</label>
+              <input type="password" class="form-input" placeholder="Nhập mật khẩu hiện tại..."/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">🔒 Mật khẩu mới</label>
+              <input type="password" class="form-input" placeholder="Tối thiểu 8 ký tự..." oninput="checkPwd(this)"/>
+              <div class="pwd-strength pwd-medium" id="pwdStrength"></div>
+              <div style="font-size:0.75rem; color:var(--text-light); margin-top:4px;" id="pwdHint">Độ mạnh: Trung bình</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">✅ Xác nhận mật khẩu mới</label>
+              <input type="password" class="form-input" placeholder="Nhập lại mật khẩu mới..."/>
+            </div>
+            <button type="submit" class="btn-gold" style="padding:10px 24px;">🔒 Cập nhật mật khẩu</button>
+          </form>
+          <div class="divider-gold" style="margin:28px 0;"></div>
+          <div style="font-weight:800; font-size:1.05rem; margin-bottom:16px;">🛡 Bảo mật tài khoản</div>
+          <div class="notif notif-info">
+            🔑 Xác thực 2 bước (2FA) chưa được kích hoạt. Hãy kích hoạt để bảo mật tài khoản tốt hơn.
+          </div>
+          <button class="btn-green" style="margin-top:14px; padding:10px 24px;">🛡 Bật xác thực 2 bước</button>
+        </div>
+      </div>
+
+      <!-- History Panel -->
+      <div id="tab-history" style="display:none;">
+        <div class="activity-history">
+          <div style="font-weight:800; font-size:1.05rem; margin-bottom:16px;">📋 Lịch sử hoạt động gần đây</div>
+          <div class="history-row">
+            <div class="h-icon ai-gold">🎁</div>
+            <div style="flex:1;"><div style="font-weight:600;">Tạo quyên góp DON-2026-0247</div><div style="font-size:0.75rem; color:var(--text-light);">50 thùng Mì ăn liền + 100kg Gạo · Hôm nay 08:30</div></div>
+            <span class="badge badge-pending">Chờ duyệt</span>
+          </div>
+          <div class="history-row">
+            <div class="h-icon ai-purple">⚖️</div>
+            <div style="flex:1;"><div style="font-weight:600;">Phê duyệt phân bổ ALLOC-2026-0096</div><div style="font-size:0.75rem; color:var(--text-light);">200 chai Nước uống → REQ-183 · Hôm nay 06:15</div></div>
+            <span class="badge badge-approved">Thành công</span>
+          </div>
+          <div class="history-row">
+            <div class="h-icon ai-green">✅</div>
+            <div style="flex:1;"><div style="font-weight:600;">Duyệt yêu cầu REQ-2026-0180</div><div style="font-size:0.75rem; color:var(--text-light);">70 bộ Quần áo cho mái ấm · Hôm qua 14:20</div></div>
+            <span class="badge badge-approved">Đã duyệt</span>
+          </div>
+          <div class="history-row">
+            <div class="h-icon ai-red">🔒</div>
+            <div style="flex:1;"><div style="font-weight:600;">Đăng nhập hệ thống</div><div style="font-size:0.75rem; color:var(--text-light);">Từ IP 192.168.1.1 · Hôm qua 08:00</div></div>
+            <span class="badge badge-approved">Thành công</span>
+          </div>
+          <div class="history-row" style="border:none;">
+            <div class="h-icon ai-gold">🎁</div>
+            <div style="flex:1;"><div style="font-weight:600;">Tạo quyên góp DON-2026-0238</div><div style="font-size:0.75rem; color:var(--text-light);">30 hộp Khẩu trang · 3 ngày trước</div></div>
+            <span class="badge badge-completed">Hoàn thành</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    function showProfileTab(tab, btn) {
+      ['edit','security','history'].forEach(t => {
+        const el = document.getElementById('tab-' + t);
+        if(el) el.style.display = t === tab ? 'block' : 'none';
+      });
+      document.querySelectorAll('.topbar ~ * button[onclick^="showProfileTab"]').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = 'var(--text-light)';
+      });
+    }
+    function saveProfile(e) { e.preventDefault(); alert('Thông tin đã được lưu thành công!'); }
+    function changePwd(e) { e.preventDefault(); alert('Mật khẩu đã được cập nhật!'); }
+    function checkPwd(input) {
+      const len = input.value.length;
+      const bar = document.getElementById('pwdStrength');
+      const hint = document.getElementById('pwdHint');
+      if(len < 6) { bar.className = 'pwd-strength pwd-weak'; hint.textContent = 'Độ mạnh: Yếu'; }
+      else if(len < 10) { bar.className = 'pwd-strength pwd-medium'; hint.textContent = 'Độ mạnh: Trung bình'; }
+      else { bar.className = 'pwd-strength pwd-strong'; hint.textContent = 'Độ mạnh: Mạnh ✓'; }
+    }
+  </script>
+</body>
+</html>
+
