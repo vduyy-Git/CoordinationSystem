@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dịch vụ & Thiết bị — Admin CoordSystem</title>
+  <link rel="stylesheet" href="assets/admin.css"/>
+</head>
+<body>
+  <nav class="admin-sidebar">
+    <div class="sidebar-brand">
+      <h1 class="text-gold">🏛 Admin Panel</h1>
+      <p>An sinh Xã hội — Cấp Xã/Phường</p>
+    </div>
+    <div class="sidebar-menu">
+      <div class="sidebar-section">Tổng quan</div>
+      <a class="sidebar-item " href="dashboard.html">
+        <span class="si-icon">📊</span> Dashboard
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Quản lý</div>
+      <a class="sidebar-item " href="accounts.html">
+        <span class="si-icon">👥</span> Quản lý tài khoản
+      </a>
+      <a class="sidebar-item " href="citizens.html">
+        <span class="si-icon">🏘</span> Người dân &amp; Nhu cầu
+        <span class="si-badge">12</span>
+      </a>
+      <a class="sidebar-item active" href="services.html">
+        <span class="si-icon">🔧</span> Dịch vụ &amp; Thiết bị
+      </a>
+      <a class="sidebar-item " href="resources.html">
+        <span class="si-icon">📦</span> Quản lý nguồn lực
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Xử lý</div>
+      <a class="sidebar-item " href="requests.html">
+        <span class="si-icon">📋</span> Tiếp nhận &amp; Xử lý
+        <span class="si-badge">8</span>
+      </a>
+      <a class="sidebar-item " href="allocations.html">
+        <span class="si-icon">⚖️</span> Phân bổ &amp; Theo dõi
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Báo cáo</div>
+      <a class="sidebar-item " href="reports.html">
+        <span class="si-icon">📈</span> Thống kê &amp; Báo cáo
+      </a>
+      <div class="sidebar-section" style="margin-top:12px;"></div>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(180,42,58,0.85); font-weight:600;">
+        <span class="si-icon">🏠</span> Về Trang Chủ / Dashboard
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">AD</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Nguyễn Duy</div>
+          <div class="sidebar-user-role">Cán bộ Quản trị / Điều phối</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <header class="admin-topbar">
+    <div class="topbar-left">
+      <div class="topbar-breadcrumb">
+        🏛 Admin <span style="color:var(--beige-mid);">›</span> <span class="bc-active">Dịch vụ & Thiết bị</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-search">
+        🔍 <input type="text" placeholder="Tìm kiếm nhanh..." />
+      </div>
+      <button class="topbar-icon-btn" title="Thông báo">🔔<span class="notif-dot"></span></button>
+      <button class="topbar-icon-btn" title="Về trang chủ" onclick="location.href='../index.html'">🏠</button>
+    </div>
+  </header>
+  <main class="admin-main">
+    <div class="admin-page">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>🔧 Quản lý Dịch vụ &amp; Thiết bị</h2>
+          <p>Danh mục dịch vụ an sinh, danh mục thiết bị hỗ trợ và cập nhật thông tin, trạng thái hoạt động</p>
+        </div>
+        <button class="btn btn-primary" onclick="document.getElementById('addModal').style.display='flex'">＋ Thêm mới</button>
+      </div>
+
+      <div class="tab-nav">
+        <button class="tab-btn active" id="btnTabSvc" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.getElementById('panelSvc').style.display='block';document.getElementById('panelDev').style.display='none';">📋 Danh mục Dịch vụ An sinh</button>
+        <button class="tab-btn" id="btnTabDev" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.getElementById('panelSvc').style.display='none';document.getElementById('panelDev').style.display='block';">🔧 Danh mục Thiết bị Cứu trợ</button>
+      </div>
+
+      <!-- Services Panel -->
+      <div id="panelSvc">
+        <div class="grid-3">
+          <div class="card"><div class="card-body" style="text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:8px;">🏥</div><div style="font-weight:800;font-size:1rem;">Y tế & Cấp cứu</div>
+            <div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">Khám sức khỏe lưu động, cấp phát thuốc, sơ cứu khẩn cấp</div>
+            <div class="divider-gold"></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>Trạng thái</span><span class="badge badge-active">Đang hoạt động</span></div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:8px;">🍚</div><div style="font-weight:800;font-size:1rem;">Cung cấp Lương thực</div>
+            <div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">Phân phát gạo, mì ăn liền, nước sạch tận nhà cho hộ cô lập</div>
+            <div class="divider-gold"></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>Trạng thái</span><span class="badge badge-active">Đang hoạt động</span></div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:8px;">👕</div><div style="font-weight:800;font-size:1rem;">Quần áo &amp; Chăn ấm</div>
+            <div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">Tiếp nhận và phân phát quần áo trẻ em, người già, chăn màn</div>
+            <div class="divider-gold"></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>Trạng thái</span><span class="badge badge-active">Đang hoạt động</span></div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:8px;">🏠</div><div style="font-weight:800;font-size:1rem;">Hỗ trợ Tạm cư & Nhà ở</div>
+            <div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">Bố trí điểm tạm cư vùng ngập, gia cố nhà dột nát</div>
+            <div class="divider-gold"></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>Trạng thái</span><span class="badge badge-active">Đang hoạt động</span></div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:8px;">📚</div><div style="font-weight:800;font-size:1rem;">Hỗ trợ Giáo dục</div>
+            <div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">Cấp phát tập vở, sách giáo khoa, học bổng an sinh</div>
+            <div class="divider-gold"></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>Trạng thái</span><span class="badge badge-active">Đang hoạt động</span></div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:8px;">⚖️</div><div style="font-weight:800;font-size:1rem;">Tư vấn Pháp lý & Chính sách</div>
+            <div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">Hướng dẫn thủ tục trợ cấp xã hội, giấy tờ tùy thân</div>
+            <div class="divider-gold"></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>Trạng thái</span><span class="badge badge-active">Đang hoạt động</span></div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- Equipment Panel -->
+      <div id="panelDev" style="display:none;">
+        <div class="card"><div class="card-body" style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead><tr><th>Thiết bị</th><th>Phân loại</th><th>Tổng số</th><th>Khả dụng</th><th>Tình trạng kỹ thuật</th><th>Vị trí lưu kho</th><th>Thao tác</th></tr></thead>
+            <tbody>
+              <tr><td style="font-weight:700;">🔌 Máy phát điện công nghiệp 5kW</td><td>Nguồn điện</td><td>3 máy</td><td>2 máy</td><td><span class="badge badge-active">Tốt, sẵn sàng</span></td><td>Điểm tập kết số 1</td><td><button class="btn btn-ghost btn-icon">✏️</button></td></tr>
+              <tr><td style="font-weight:700;">💧 Hệ thống lọc nước RO dã chiến</td><td>Nước sạch</td><td>5 bộ</td><td>5 bộ</td><td><span class="badge badge-active">Hoạt động tốt</span></td><td>Kho trung tâm Xã</td><td><button class="btn btn-ghost btn-icon">✏️</button></td></tr>
+              <tr><td style="font-weight:700;">🏕 Lều bạt cứu hộ chống bão</td><td>Tạm cư</td><td>20 bộ</td><td>5 bộ</td><td><span class="badge badge-pending">Đang sử dụng: 15</span></td><td>Khu tạm cư Tổ 2</td><td><button class="btn btn-ghost btn-icon">✏️</button></td></tr>
+              <tr><td style="font-weight:700;">🛏 Giường gấp y tế cơ động</td><td>Y tế</td><td>50 chiếc</td><td>30 chiếc</td><td><span class="badge badge-active">Sẵn sàng điều phối</span></td><td>Trạm y tế Xã</td><td><button class="btn btn-ghost btn-icon">✏️</button></td></tr>
+              <tr><td style="font-weight:700;">📡 Bộ đàm liên lạc cứu trợ VHF</td><td>Viễn thông</td><td>12 chiếc</td><td>10 chiếc</td><td><span class="badge badge-locked">2 máy đang bảo dưỡng</span></td><td>Trụ sở UBND Xã</td><td><button class="btn btn-ghost btn-icon">✏️</button></td></tr>
+            </tbody>
+          </table>
+        </div></div>
+      </div>
+
+      <!-- Add Modal -->
+      <div class="modal-overlay" id="addModal" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal">
+          <div class="modal-header"><div class="modal-title text-gold">＋ Thêm Dịch vụ / Thiết bị</div><button class="modal-close" onclick="this.closest('.modal-overlay').style.display='none'">✕</button></div>
+          <div class="divider-gold"></div>
+          <form onsubmit="event.preventDefault();this.closest('.modal-overlay').style.display='none';alert('Thêm thành công!');">
+            <div class="form-group"><label class="form-label">Phân loại</label><select class="form-control"><option>Dịch vụ an sinh</option><option>Thiết bị cứu trợ</option></select></div>
+            <div class="form-group"><label class="form-label">Tên gọi</label><input class="form-control" placeholder="Tên dịch vụ hoặc thiết bị..." required/></div>
+            <div class="form-group"><label class="form-label">Mô tả & Hướng dẫn</label><textarea class="form-control" placeholder="Chi tiết thông số, quy trình phục vụ..."></textarea></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;"><button type="button" class="btn btn-ghost" onclick="this.closest('.modal-overlay').style.display='none'">Hủy</button><button type="submit" class="btn btn-primary">✅ Lưu dữ liệu</button></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

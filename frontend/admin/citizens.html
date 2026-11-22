@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Người dân & Nhu cầu — Admin CoordSystem</title>
+  <link rel="stylesheet" href="assets/admin.css"/>
+</head>
+<body>
+  <nav class="admin-sidebar">
+    <div class="sidebar-brand">
+      <h1 class="text-gold">🏛 Admin Panel</h1>
+      <p>An sinh Xã hội — Cấp Xã/Phường</p>
+    </div>
+    <div class="sidebar-menu">
+      <div class="sidebar-section">Tổng quan</div>
+      <a class="sidebar-item " href="dashboard.html">
+        <span class="si-icon">📊</span> Dashboard
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Quản lý</div>
+      <a class="sidebar-item " href="accounts.html">
+        <span class="si-icon">👥</span> Quản lý tài khoản
+      </a>
+      <a class="sidebar-item active" href="citizens.html">
+        <span class="si-icon">🏘</span> Người dân &amp; Nhu cầu
+        <span class="si-badge">12</span>
+      </a>
+      <a class="sidebar-item " href="services.html">
+        <span class="si-icon">🔧</span> Dịch vụ &amp; Thiết bị
+      </a>
+      <a class="sidebar-item " href="resources.html">
+        <span class="si-icon">📦</span> Quản lý nguồn lực
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Xử lý</div>
+      <a class="sidebar-item " href="requests.html">
+        <span class="si-icon">📋</span> Tiếp nhận &amp; Xử lý
+        <span class="si-badge">8</span>
+      </a>
+      <a class="sidebar-item " href="allocations.html">
+        <span class="si-icon">⚖️</span> Phân bổ &amp; Theo dõi
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Báo cáo</div>
+      <a class="sidebar-item " href="reports.html">
+        <span class="si-icon">📈</span> Thống kê &amp; Báo cáo
+      </a>
+      <div class="sidebar-section" style="margin-top:12px;"></div>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(180,42,58,0.85); font-weight:600;">
+        <span class="si-icon">🏠</span> Về Trang Chủ / Dashboard
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">AD</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Nguyễn Duy</div>
+          <div class="sidebar-user-role">Cán bộ Quản trị / Điều phối</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <header class="admin-topbar">
+    <div class="topbar-left">
+      <div class="topbar-breadcrumb">
+        🏛 Admin <span style="color:var(--beige-mid);">›</span> <span class="bc-active">Người dân & Nhu cầu</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-search">
+        🔍 <input type="text" placeholder="Tìm kiếm nhanh..." />
+      </div>
+      <button class="topbar-icon-btn" title="Thông báo">🔔<span class="notif-dot"></span></button>
+      <button class="topbar-icon-btn" title="Về trang chủ" onclick="location.href='../index.html'">🏠</button>
+    </div>
+  </header>
+  <main class="admin-main">
+    <div class="admin-page">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>🏘 Quản lý Người dân &amp; Nhu cầu</h2>
+          <p>Hồ sơ người dân, phân nhóm đối tượng (người già, trẻ em, khuyết tật, hộ nghèo) và nhu cầu trợ cấp</p>
+        </div>
+        <button class="btn btn-primary" onclick="document.getElementById('addCitizenModal').style.display='flex'">＋ Thêm hồ sơ người dân</button>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card sc-gold"><div class="stat-icon">🏘</div><div class="stat-val text-gold">1,840</div><div class="stat-label">Tổng hồ sơ người dân</div></div>
+        <div class="stat-card sc-red"><div class="stat-icon">👴</div><div class="stat-val" style="color:#B02A3A;">420</div><div class="stat-label">Người cao tuổi</div></div>
+        <div class="stat-card sc-blue"><div class="stat-icon">👶</div><div class="stat-val" style="color:#2A5FAA;">350</div><div class="stat-label">Trẻ em có hoàn cảnh</div></div>
+        <div class="stat-card sc-green"><div class="stat-icon">♿</div><div class="stat-val" style="color:#2E6B28;">180</div><div class="stat-label">Người khuyết tật</div></div>
+      </div>
+
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">Tất cả (1,840)</button>
+        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">👴 Cao tuổi (420)</button>
+        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">👶 Trẻ em (350)</button>
+        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">♿ Khuyết tật (180)</button>
+        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">🏠 Hộ nghèo (580)</button>
+        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">🤰 Phụ nữ mang thai (85)</button>
+      </div>
+
+      <div class="filter-bar">
+        <input type="search" placeholder="🔍 Tìm theo họ tên, số CCCD, số điện thoại, địa chỉ..." />
+        <select><option value="">Tất cả khu vực / Tổ dân phố</option><option>Tổ 1</option><option>Tổ 2</option><option>Tổ 3</option><option>Tổ 4</option></select>
+        <select><option value="">Mức ưu tiên nhu cầu</option><option>Ưu tiên 1 — Khẩn cấp</option><option>Ưu tiên 2 — Cao</option><option>Ưu tiên 3 — Thường</option></select>
+        <button class="btn btn-primary btn-sm">Tìm kiếm</button>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead><tr><th></th><th>Họ tên & SĐT</th><th>CCCD</th><th>Nhóm đối tượng</th><th>Khu vực</th><th>Nhu cầu hiện tại</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><div class="avatar avatar-sm avatar-brown">NB</div></td>
+                <td style="font-weight:700;">Nguyễn Văn Bình<div style="font-size:0.75rem;color:var(--text-light);">📱 0911222333</div></td>
+                <td style="font-family:monospace;font-size:0.82rem;">079123456789</td>
+                <td><span class="badge badge-urgent">👴 Cao tuổi</span></td>
+                <td>Tổ 2, KP.3</td>
+                <td><span style="font-size:0.82rem;font-weight:600;">Lương thực khô, thuốc huyết áp</span></td>
+                <td><span class="badge badge-pending">Chờ hỗ trợ</span></td>
+                <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon" title="Xem chi tiết">👁</button><button class="btn btn-ghost btn-icon" title="Chỉnh sửa">✏️</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="avatar avatar-sm avatar-green">TL</div></td>
+                <td style="font-weight:700;">Trần Thị Lan<div style="font-size:0.75rem;color:var(--text-light);">📱 0922333444</div></td>
+                <td style="font-family:monospace;font-size:0.82rem;">079234567890</td>
+                <td><span class="badge badge-high">🤰 Phụ nữ MT</span></td>
+                <td>Tổ 1, KP.1</td>
+                <td><span style="font-size:0.82rem;font-weight:600;">Sữa dinh dưỡng, vitamin, tã em bé</span></td>
+                <td><span class="badge badge-approved">Đang hỗ trợ</span></td>
+                <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon">👁</button><button class="btn btn-ghost btn-icon">✏️</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="avatar avatar-sm avatar-purple">LH</div></td>
+                <td style="font-weight:700;">Lê Phước Hậu<div style="font-size:0.75rem;color:var(--text-light);">📱 0933444555</div></td>
+                <td style="font-family:monospace;font-size:0.82rem;">079345678901</td>
+                <td><span class="badge badge-normal">♿ Khuyết tật</span></td>
+                <td>Tổ 3, KP.5</td>
+                <td><span style="font-size:0.82rem;font-weight:600;">Xe lăn tay, hỗ trợ điều trị</span></td>
+                <td><span class="badge badge-completed">Đã hỗ trợ</span></td>
+                <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon">👁</button><button class="btn btn-ghost btn-icon">✏️</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="avatar avatar-sm avatar-gold">HM</div></td>
+                <td style="font-weight:700;">Hoàng Nhật Minh<div style="font-size:0.75rem;color:var(--text-light);">📱 0944555666</div></td>
+                <td style="font-family:monospace;font-size:0.82rem;">079456789012</td>
+                <td><span class="badge badge-low">👶 Trẻ em</span></td>
+                <td>Tổ 4, KP.2</td>
+                <td><span style="font-size:0.82rem;font-weight:600;">Quần áo ấm, sách vở học tập</span></td>
+                <td><span class="badge badge-pending">Chờ hỗ trợ</span></td>
+                <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon">👁</button><button class="btn btn-ghost btn-icon">✏️</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal-overlay" id="addCitizenModal" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal modal-lg">
+          <div class="modal-header"><div class="modal-title text-gold">＋ Thêm Hồ sơ Người dân</div><button class="modal-close" onclick="this.closest('.modal-overlay').style.display='none'">✕</button></div>
+          <div class="divider-gold"></div>
+          <form onsubmit="event.preventDefault();this.closest('.modal-overlay').style.display='none';alert('Thêm hồ sơ thành công!');">
+            <div class="grid-2">
+              <div class="form-group"><label class="form-label">👤 Họ và tên</label><input class="form-control" placeholder="Họ và tên người dân..." required/></div>
+              <div class="form-group"><label class="form-label">🆔 Số CCCD</label><input class="form-control" placeholder="12 chữ số..."/></div>
+              <div class="form-group"><label class="form-label">📱 Số điện thoại</label><input class="form-control" placeholder="09xxxxxxxxx"/></div>
+              <div class="form-group"><label class="form-label">📅 Ngày sinh</label><input type="date" class="form-control"/></div>
+            </div>
+            <div class="form-group"><label class="form-label">📍 Địa chỉ cư trú</label><input class="form-control" placeholder="Số nhà, tổ dân phố, ấp/khu phố..."/></div>
+            <div class="grid-2">
+              <div class="form-group"><label class="form-label">👥 Nhóm đối tượng</label><select class="form-control"><option>Cao tuổi</option><option>Trẻ em</option><option>Khuyết tật</option><option>Hộ nghèo</option><option>Phụ nữ mang thai</option><option>Khác</option></select></div>
+              <div class="form-group"><label class="form-label">🗺 Khu vực</label><select class="form-control"><option>Tổ 1</option><option>Tổ 2</option><option>Tổ 3</option><option>Tổ 4</option></select></div>
+            </div>
+            <div class="form-group"><label class="form-label">📋 Nhu cầu hỗ trợ cụ thể</label><textarea class="form-control" placeholder="Mô tả nhu cầu cần hỗ trợ: vật tư, mức độ cấp thiết, người phụ thuộc..."></textarea></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;"><button type="button" class="btn btn-ghost" onclick="this.closest('.modal-overlay').style.display='none'">Hủy</button><button type="submit" class="btn btn-primary">✅ Lưu hồ sơ</button></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

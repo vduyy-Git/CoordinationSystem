@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Thống kê & Báo cáo — Admin CoordSystem</title>
+  <link rel="stylesheet" href="assets/admin.css"/>
+</head>
+<body>
+  <nav class="admin-sidebar">
+    <div class="sidebar-brand">
+      <h1 class="text-gold">🏛 Admin Panel</h1>
+      <p>An sinh Xã hội — Cấp Xã/Phường</p>
+    </div>
+    <div class="sidebar-menu">
+      <div class="sidebar-section">Tổng quan</div>
+      <a class="sidebar-item " href="dashboard.html">
+        <span class="si-icon">📊</span> Dashboard
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Quản lý</div>
+      <a class="sidebar-item " href="accounts.html">
+        <span class="si-icon">👥</span> Quản lý tài khoản
+      </a>
+      <a class="sidebar-item " href="citizens.html">
+        <span class="si-icon">🏘</span> Người dân &amp; Nhu cầu
+        <span class="si-badge">12</span>
+      </a>
+      <a class="sidebar-item " href="services.html">
+        <span class="si-icon">🔧</span> Dịch vụ &amp; Thiết bị
+      </a>
+      <a class="sidebar-item " href="resources.html">
+        <span class="si-icon">📦</span> Quản lý nguồn lực
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Xử lý</div>
+      <a class="sidebar-item " href="requests.html">
+        <span class="si-icon">📋</span> Tiếp nhận &amp; Xử lý
+        <span class="si-badge">8</span>
+      </a>
+      <a class="sidebar-item " href="allocations.html">
+        <span class="si-icon">⚖️</span> Phân bổ &amp; Theo dõi
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Báo cáo</div>
+      <a class="sidebar-item active" href="reports.html">
+        <span class="si-icon">📈</span> Thống kê &amp; Báo cáo
+      </a>
+      <div class="sidebar-section" style="margin-top:12px;"></div>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(180,42,58,0.85); font-weight:600;">
+        <span class="si-icon">🏠</span> Về Trang Chủ / Dashboard
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">AD</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Nguyễn Duy</div>
+          <div class="sidebar-user-role">Cán bộ Quản trị / Điều phối</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <header class="admin-topbar">
+    <div class="topbar-left">
+      <div class="topbar-breadcrumb">
+        🏛 Admin <span style="color:var(--beige-mid);">›</span> <span class="bc-active">Thống kê & Báo cáo</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-search">
+        🔍 <input type="text" placeholder="Tìm kiếm nhanh..." />
+      </div>
+      <button class="topbar-icon-btn" title="Thông báo">🔔<span class="notif-dot"></span></button>
+      <button class="topbar-icon-btn" title="Về trang chủ" onclick="location.href='../index.html'">🏠</button>
+    </div>
+  </header>
+  <main class="admin-main">
+    <div class="admin-page">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>📈 Thống kê &amp; Báo cáo</h2>
+          <p>Dashboard tổng quan, phân tích dữ liệu theo kỳ, theo nhóm đối tượng, khu vực xã/phường và xuất file báo cáo</p>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <select class="form-control" style="width:auto;padding:8px 14px;font-size:0.84rem;"><option>Tháng 11/2026</option><option>Tháng 10/2026</option><option>Quý 4/2026</option><option>Cả năm 2026</option></select>
+          <button class="btn btn-primary" onclick="alert('Đang tải xuống báo cáo tổng hợp dạng Excel/PDF!');">📥 Xuất file báo cáo</button>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card sc-gold"><div class="stat-icon">🎁</div><div class="stat-val text-gold">247</div><div class="stat-label">Lượt quyên góp tiếp nhận</div><div class="stat-delta up">↑ +18% kỳ này</div></div>
+        <div class="stat-card sc-green"><div class="stat-icon">✅</div><div class="stat-val" style="color:#2E6B28;">312</div><div class="stat-label">Chuyến giao thành công</div><div class="stat-delta up">↑ +12% kỳ này</div></div>
+        <div class="stat-card sc-blue"><div class="stat-icon">👥</div><div class="stat-val" style="color:#2A5FAA;">1,840</div><div class="stat-label">Người dân được hỗ trợ</div><div class="stat-delta up">↑ +85 hộ mới</div></div>
+        <div class="stat-card sc-brown"><div class="stat-icon">📦</div><div class="stat-val" style="color:var(--brown-mid);">12.5t</div><div class="stat-label">Tổng tấn hàng điều phối</div><div class="stat-delta up">↑ 98% minh bạch</div></div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:18px;">
+        <!-- Region breakdown -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">🗺 Tỷ trọng Hỗ trợ theo Khu vực</div></div>
+          <div class="card-body">
+            <div style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>Khu vực ngập lụt An Giang</span><span style="font-weight:700;color:var(--red);">45% (5.6 tấn)</span></div>
+              <div class="progress-bar"><div class="progress-fill pf-red" style="width:45%;"></div></div>
+            </div>
+            <div style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>Khu phố 1, 2, 3 (Nội bộ Xã)</span><span style="font-weight:700;color:var(--gold-1);">28% (3.5 tấn)</span></div>
+              <div class="progress-bar"><div class="progress-fill pf-gold" style="width:28%;"></div></div>
+            </div>
+            <div style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>Vùng giáp ranh Đồng Tháp</span><span style="font-weight:700;color:#2A5FAA;">15% (1.9 tấn)</span></div>
+              <div class="progress-bar"><div class="progress-fill pf-blue" style="width:15%;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>Điểm tập kết dự phòng khác</span><span style="font-weight:700;color:var(--text-light);">12% (1.5 tấn)</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:12%;background:#bbb;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Beneficiary breakdown -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">👥 Đối tượng Thụ hưởng An sinh</div></div>
+          <div class="card-body">
+            <div style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>👴 Người cao tuổi neo đơn</span><span style="font-weight:700;">420 người</span></div>
+              <div class="progress-bar"><div class="progress-fill pf-gold" style="width:35%;"></div></div>
+            </div>
+            <div style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>👶 Trẻ em có hoàn cảnh khó khăn</span><span style="font-weight:700;">350 em</span></div>
+              <div class="progress-bar"><div class="progress-fill pf-green" style="width:28%;"></div></div>
+            </div>
+            <div style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>🏠 Hộ nghèo, cận nghèo</span><span style="font-weight:700;">580 hộ</span></div>
+              <div class="progress-bar"><div class="progress-fill pf-blue" style="width:48%;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>♿ Người khuyết tật</span><span style="font-weight:700;">180 người</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:15%;background:var(--purple-light);"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Export Cards -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">📥 Xuất Báo cáo theo Định dạng Chuẩn</div></div>
+        <div class="card-body">
+          <div class="grid-3">
+            <button class="btn btn-primary" style="justify-content:center;padding:16px;" onclick="alert('Đang kết xuất Báo cáo Quyên góp!');">📄 Báo cáo Nguồn Quyên góp</button>
+            <button class="btn btn-success" style="justify-content:center;padding:16px;" onclick="alert('Đang kết xuất Báo cáo Yêu cầu!');">📋 Báo cáo Tiếp nhận Nhu cầu</button>
+            <button class="btn btn-purple" style="justify-content:center;padding:16px;" onclick="alert('Đang kết xuất Báo cáo Phân bổ!');">⚖️ Báo cáo Điều phối & Cấp phát</button>
+            <button class="btn btn-outline" style="justify-content:center;padding:16px;" onclick="alert('Đang kết xuất Báo cáo Vận chuyển!');">🚚 Báo cáo Logistics & Giao nhận</button>
+            <button class="btn btn-outline" style="justify-content:center;padding:16px;" onclick="alert('Đang kết xuất Danh sách Đối tượng!');">👥 Danh sách Hộ thụ hưởng</button>
+            <button class="btn btn-primary" style="justify-content:center;padding:16px;" onclick="alert('Đang xuất sổ cái toàn diện Excel!');">📊 Báo cáo Tổng hợp (Excel)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
