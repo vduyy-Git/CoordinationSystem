@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gửi Yêu cầu Hỗ trợ — Cổng Người Dân</title>
+  <link rel="stylesheet" href="assets/citizen.css"/>
+</head>
+<body>
+  <nav class="citizen-sidebar">
+    <div class="sidebar-brand">
+      <h1 class="text-gold">🌿 Cổng Người Dân</h1>
+      <p>An sinh Xã hội — Cấp Xã/Phường</p>
+    </div>
+    <div class="sidebar-menu">
+      <div class="sidebar-section">Trung tâm cá nhân</div>
+      <a class="sidebar-item " href="dashboard.html">
+        <span class="si-icon">📊</span> Tổng quan
+      </a>
+      <a class="sidebar-item " href="profile.html">
+        <span class="si-icon">👤</span> Tài khoản &amp; Hồ sơ
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Dịch vụ an sinh</div>
+      <a class="sidebar-item " href="needs.html">
+        <span class="si-icon">📝</span> Khai báo nhu cầu
+      </a>
+      <a class="sidebar-item active" href="requests.html">
+        <span class="si-icon">📤</span> Gửi yêu cầu hỗ trợ
+        <span class="si-badge">Mới</span>
+      </a>
+      <a class="sidebar-item " href="tracking.html">
+        <span class="si-icon">🔍</span> Theo dõi yêu cầu
+        <span class="si-badge">2</span>
+      </a>
+      <a class="sidebar-item " href="feedback.html">
+        <span class="si-icon">🔔</span> Thông báo &amp; Phản hồi
+        <span class="si-badge" style="background:var(--red);color:#fff;">1</span>
+      </a>
+      <div class="sidebar-section" style="margin-top:14px;"></div>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(255,255,255,0.7); font-weight:600;">
+        <span class="si-icon">🏠</span> Về Trang Chủ / Dashboard
+      </a>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(245,160,170,0.85);">
+        <span class="si-icon">🚪</span> Đăng xuất
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="location.href='profile.html'">
+        <div class="sidebar-avatar">LH</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Lê Thị Hoa</div>
+          <div class="sidebar-user-role">Người dân (Tổ 2, KP.3)</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <header class="citizen-topbar">
+    <div class="topbar-breadcrumb">
+      🌿 Cổng Người Dân <span style="color:var(--beige-mid);">›</span> <span class="bc-active">Gửi Yêu cầu Hỗ trợ</span>
+    </div>
+    <div class="topbar-right">
+      <a href="requests.html" class="btn btn-primary btn-sm" style="box-shadow:none;">
+        🚨 Gửi Yêu Cầu Hỗ Trợ
+      </a>
+      <button class="btn btn-ghost btn-sm" onclick="location.href='feedback.html'" title="Thông báo">
+        🔔 Thông báo <span class="badge badge-urgent" style="font-size:0.65rem;">1</span>
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="location.href='../index.html'" title="Trang chủ">
+        🏠 Trang chủ
+      </button>
+    </div>
+  </header>
+  <main class="citizen-main">
+    <div class="citizen-page">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>📤 Tạo Yêu Cầu Dịch Vụ &amp; Thiết Bị</h2>
+          <p>Tạo yêu cầu cứu trợ, đính kèm hình ảnh/minh chứng khó khăn, quản lý và sửa/hủy yêu cầu chưa xử lý</p>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:24px;">
+        <!-- Form Create Request -->
+        <div class="card" style="grid-column:span 2;">
+          <div class="card-header" style="background:var(--moss-pale);">
+            <div class="card-title" style="color:var(--moss-dark);">
+              <span>✍️</span> Điền Đơn Yêu Cầu Hỗ Trợ
+            </div>
+          </div>
+          <div class="card-body">
+            <form onsubmit="event.preventDefault(); alert('Yêu cầu hỗ trợ đã được tạo thành công với Mã REQ-184! Hệ thống AI đang phân tích ưu tiên.'); location.href='tracking.html';">
+              <div class="form-group">
+                <label class="form-label">Tiêu đề yêu cầu cứu trợ</label>
+                <input type="text" class="form-control" placeholder="Ví dụ: Nước uống và mì tôm cho gia đình bị cô lập..." required/>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Hạng mục hỗ trợ</label>
+                  <select class="form-control">
+                    <option>Lương thực & Nước uống</option>
+                    <option>Vật tư y tế & Chăm sóc người bệnh</option>
+                    <option>Thiết bị cơ động (Lều, Xe lăn, Máy phát)</option>
+                    <option>Quần áo & Đồ dùng sinh hoạt</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Mức độ ưu tiên yêu cầu</label>
+                  <select class="form-control">
+                    <option>URGENT — Khẩn cấp (nguy cơ đói/nước ngập)</option>
+                    <option>HIGH — Ưu tiên cao</option>
+                    <option>NORMAL — Bình thường</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Địa chỉ nhận hàng / Nơi cần tiếp cận</label>
+                <input type="text" class="form-control" value="Số 45/12 đường Mỹ Hòa, Tổ 2, Khu phố 3, Phường Mỹ Hòa" required/>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Chi tiết số lượng & Danh sách vật tư mong muốn</label>
+                <textarea class="form-control" placeholder="Ví dụ: 3 thùng mì ăn liền, 2 bình nước 20L, thuốc hạ sốt cho 2 cháu nhỏ..." required></textarea>
+              </div>
+
+              <!-- Attachment / Evidence upload -->
+              <div class="form-group">
+                <label class="form-label">📸 Đính kèm hình ảnh minh chứng (nước ngập, đơn thuốc, hiện trạng nhà cửa)</label>
+                <div class="upload-dropzone" onclick="document.getElementById('fileInput').click();">
+                  <input type="file" id="fileInput" style="display:none;" multiple onchange="document.getElementById('fileList').innerText = 'Đã chọn: ' + this.files.length + ' tệp ảnh.';"/>
+                  <div style="font-size:2rem; margin-bottom:6px;">📷</div>
+                  <div style="font-weight:700; color:var(--moss-dark); font-size:0.9rem;">Bấm để chụp ảnh hoặc tải tệp lên từ điện thoại / máy tính</div>
+                  <div style="font-size:0.78rem; color:var(--text-light); margin-top:4px;">Chấp nhận ảnh JPG, PNG, file PDF giấy xác nhận (Tối đa 15MB)</div>
+                  <div id="fileList" style="margin-top:8px; font-weight:700; color:var(--moss-green); font-size:0.84rem;"></div>
+                </div>
+              </div>
+
+              <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button type="reset" class="btn btn-ghost">Làm lại</button>
+                <button type="submit" class="btn btn-primary" style="padding:12px 28px; font-size:0.95rem;">
+                  🚀 Gửi Yêu Cầu Hỗ Trợ
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Guide & Pending actions -->
+        <div>
+          <div class="card" style="margin-bottom:18px;">
+            <div class="card-header">
+              <div class="card-title">ℹ️ Lưu Ý Dành Cho Người Dân</div>
+            </div>
+            <div class="card-body" style="font-size:0.84rem; color:var(--text-mid); line-height:1.6;">
+              <p>• Các yêu cầu <strong>Khẩn cấp</strong> sẽ được hệ thống AI kích hoạt cảnh báo lập tức đến điện thoại cán bộ trực ban.</p>
+              <p style="margin-top:8px;">• Bạn có thể sửa hoặc hủy yêu cầu khi hồ sơ còn ở trạng thái <em>Chờ tiếp nhận</em>.</p>
+              <p style="margin-top:8px;">• Khi hàng giao tới nơi, hãy bấm xác nhận để hệ thống lưu bằng chứng minh bạch.</p>
+            </div>
+          </div>
+
+          <!-- Unprocessed requests that can be edited/cancelled -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">⏳ Yêu Cầu Chưa Xử Lý (Có thể Sửa/Hủy)</div>
+            </div>
+            <div class="card-body">
+              <div style="padding:10px 0; border-bottom:1px solid var(--beige-dark);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <strong style="font-family:monospace; color:var(--moss-dark);">REQ-184</strong>
+                  <span class="badge badge-pending">Chờ cán bộ duyệt</span>
+                </div>
+                <div style="font-size:0.84rem; margin-top:4px;">Xin bổ sung bạt che mái tôn bị gió lật</div>
+                <div style="display:flex; gap:6px; margin-top:10px;">
+                  <button class="btn btn-outline btn-sm" onclick="alert('Mở giao diện chỉnh sửa yêu cầu REQ-184!');">✏️ Chỉnh sửa</button>
+                  <button class="btn btn-danger btn-sm" onclick="if(confirm('Bạn có chắc chắn muốn hủy yêu cầu này?')) alert('Đã hủy yêu cầu REQ-184 thành công.');">✕ Hủy đơn</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

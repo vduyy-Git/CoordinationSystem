@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Khai báo Nhu cầu — Cổng Người Dân</title>
+  <link rel="stylesheet" href="assets/citizen.css"/>
+</head>
+<body>
+  <nav class="citizen-sidebar">
+    <div class="sidebar-brand">
+      <h1 class="text-gold">🌿 Cổng Người Dân</h1>
+      <p>An sinh Xã hội — Cấp Xã/Phường</p>
+    </div>
+    <div class="sidebar-menu">
+      <div class="sidebar-section">Trung tâm cá nhân</div>
+      <a class="sidebar-item " href="dashboard.html">
+        <span class="si-icon">📊</span> Tổng quan
+      </a>
+      <a class="sidebar-item " href="profile.html">
+        <span class="si-icon">👤</span> Tài khoản &amp; Hồ sơ
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Dịch vụ an sinh</div>
+      <a class="sidebar-item active" href="needs.html">
+        <span class="si-icon">📝</span> Khai báo nhu cầu
+      </a>
+      <a class="sidebar-item " href="requests.html">
+        <span class="si-icon">📤</span> Gửi yêu cầu hỗ trợ
+        <span class="si-badge">Mới</span>
+      </a>
+      <a class="sidebar-item " href="tracking.html">
+        <span class="si-icon">🔍</span> Theo dõi yêu cầu
+        <span class="si-badge">2</span>
+      </a>
+      <a class="sidebar-item " href="feedback.html">
+        <span class="si-icon">🔔</span> Thông báo &amp; Phản hồi
+        <span class="si-badge" style="background:var(--red);color:#fff;">1</span>
+      </a>
+      <div class="sidebar-section" style="margin-top:14px;"></div>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(255,255,255,0.7); font-weight:600;">
+        <span class="si-icon">🏠</span> Về Trang Chủ / Dashboard
+      </a>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(245,160,170,0.85);">
+        <span class="si-icon">🚪</span> Đăng xuất
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="location.href='profile.html'">
+        <div class="sidebar-avatar">LH</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Lê Thị Hoa</div>
+          <div class="sidebar-user-role">Người dân (Tổ 2, KP.3)</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <header class="citizen-topbar">
+    <div class="topbar-breadcrumb">
+      🌿 Cổng Người Dân <span style="color:var(--beige-mid);">›</span> <span class="bc-active">Khai báo Nhu cầu</span>
+    </div>
+    <div class="topbar-right">
+      <a href="requests.html" class="btn btn-primary btn-sm" style="box-shadow:none;">
+        🚨 Gửi Yêu Cầu Hỗ Trợ
+      </a>
+      <button class="btn btn-ghost btn-sm" onclick="location.href='feedback.html'" title="Thông báo">
+        🔔 Thông báo <span class="badge badge-urgent" style="font-size:0.65rem;">1</span>
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="location.href='../index.html'" title="Trang chủ">
+        🏠 Trang chủ
+      </button>
+    </div>
+  </header>
+  <main class="citizen-main">
+    <div class="citizen-page">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>📝 Khai Báo Nhu Cầu An Sinh</h2>
+          <p>Khai báo nhu cầu cần hỗ trợ, xem danh mục dịch vụ &amp; thiết bị có sẵn tại Xã/Phường, cập nhật nhu cầu</p>
+        </div>
+        <button class="btn btn-primary" onclick="document.getElementById('modalNeed').style.display='flex'">
+          ＋ Khai báo nhu cầu mới
+        </button>
+      </div>
+
+      <!-- Current Declared Needs -->
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-header">
+          <div class="card-title">📋 Nhu Cầu Hộ Gia Đình Đang Được Ghi Nhận</div>
+          <span class="badge badge-approved">3 nhu cầu đang theo dõi</span>
+        </div>
+        <div class="card-body" style="overflow-x:auto;">
+          <table class="citizen-table">
+            <thead>
+              <tr>
+                <th>Vật tư / Dịch vụ</th>
+                <th>Số lượng mong muốn</th>
+                <th>Mức độ cần thiết</th>
+                <th>Thời điểm khai báo</th>
+                <th>Tình trạng tiếp nhận</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:700;">💧 Nước uống đóng chai (500ml)</td>
+                <td>200 chai (dùng cho 50 hộ lân cận)</td>
+                <td><span class="badge badge-urgent">🚨 Cực kỳ khẩn cấp</span></td>
+                <td>22/11/2026</td>
+                <td><span class="badge badge-approved">Đã chuyển sang đợt cấp REQ-183</span></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="alert('Nhu cầu đang trong chuyến giao!');">✏️ Cập nhật</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;">🌾 Gạo ăn thiết yếu</td>
+                <td>50 kg</td>
+                <td><span class="badge badge-high" style="background:#FFF3E0;color:#A05500;">🔴 Cao</span></td>
+                <td>20/11/2026</td>
+                <td><span class="badge badge-pending">Chờ cán bộ ghép nguồn</span></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="alert('Mở form sửa nhu cầu!');">✏️ Cập nhật</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;">💊 Thuốc men huyết áp & sơ cứu</td>
+                <td>1 gói thuốc cơ bản</td>
+                <td><span class="badge badge-normal" style="background:#FEF9E7;color:#8B6914;">🟡 Thường</span></td>
+                <td>18/11/2026</td>
+                <td><span class="badge badge-completed">Đã tiếp nhận</span></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="alert('Đã hoàn tất!');">👁 Xem</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Available Services & Equipments Catalog -->
+      <h3 style="font-size:1.2rem; font-weight:800; color:var(--text-dark); margin-bottom:14px;">
+        🏛 Danh Mục Dịch Vụ &amp; Thiết Bị Sẵn Sàng Phục Vụ Tại Xã/Phường
+      </h3>
+      <div class="grid-3">
+        <div class="service-card">
+          <div>
+            <div style="font-size:2rem; margin-bottom:8px;">🏥</div>
+            <h4 style="font-size:1rem; font-weight:800; color:var(--text-dark);">Khám Sức Khỏe Lưu Động</h4>
+            <p style="font-size:0.82rem; color:var(--text-mid); margin-top:4px;">Đội ngũ y bác sĩ đến tận nhà khám bệnh và cấp thuốc miễn phí cho người già, phụ nữ mang thai, bệnh nhân hiểm nghèo.</p>
+          </div>
+          <div style="margin-top:14px;">
+            <button class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="registerService('Khám sức khỏe lưu động')">
+              👉 Đăng ký dịch vụ này
+            </button>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div>
+            <div style="font-size:2rem; margin-bottom:8px;">💧</div>
+            <h4 style="font-size:1rem; font-weight:800; color:var(--text-dark);">Cấp Nước Sạch Dã Chiến</h4>
+            <p style="font-size:0.82rem; color:var(--text-mid); margin-top:4px;">Xe bồn chở nước lọc tinh khiết RO phục vụ các khu vực bị ngập lũ hoặc nhiễm phèn, cấp phát can/thùng miễn phí.</p>
+          </div>
+          <div style="margin-top:14px;">
+            <button class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="registerService('Cấp nước sạch dã chiến')">
+              👉 Đăng ký dịch vụ này
+            </button>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div>
+            <div style="font-size:2rem; margin-bottom:8px;">🔌</div>
+            <h4 style="font-size:1rem; font-weight:800; color:var(--text-dark);">Mượn Máy Phát Điện & Sạc</h4>
+            <p style="font-size:0.82rem; color:var(--text-mid); margin-top:4px;">Cung cấp trạm sạc điện thoại công cộng và máy phát điện mini cho các hộ bị cô lập mất điện trên 24 giờ.</p>
+          </div>
+          <div style="margin-top:14px;">
+            <button class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="registerService('Mượn máy phát điện')">
+              👉 Mượn thiết bị này
+            </button>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div>
+            <div style="font-size:2rem; margin-bottom:8px;">🏕</div>
+            <h4 style="font-size:1rem; font-weight:800; color:var(--text-dark);">Bạt &amp; Lều Cứu Trợ Tạm Cư</h4>
+            <p style="font-size:0.82rem; color:var(--text-mid); margin-top:4px;">Hỗ trợ gia đình có nhà tốc mái, sạt lở hoặc ngập sâu dựng lều tạm cư an toàn trong thời gian nước rút.</p>
+          </div>
+          <div style="margin-top:14px;">
+            <button class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="registerService('Lều bạt cứu trợ')">
+              👉 Mượn thiết bị này
+            </button>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div>
+            <div style="font-size:2rem; margin-bottom:8px;">♿</div>
+            <h4 style="font-size:1rem; font-weight:800; color:var(--text-dark);">Hỗ Trợ Xe Lăn Cơ Động</h4>
+            <p style="font-size:0.82rem; color:var(--text-mid); margin-top:4px;">Cấp phát hoặc cho mượn dài hạn xe lăn tay, nạng chống cho người khuyết tật, thương binh và người già yếu.</p>
+          </div>
+          <div style="margin-top:14px;">
+            <button class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="registerService('Xe lăn cơ động')">
+              👉 Đăng ký nhận xe lăn
+            </button>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div>
+            <div style="font-size:2rem; margin-bottom:8px;">📚</div>
+            <h4 style="font-size:1rem; font-weight:800; color:var(--text-dark);">Gói Sách Vở & Quần Áo Trẻ Em</h4>
+            <p style="font-size:0.82rem; color:var(--text-mid); margin-top:4px;">Tặng tập vở, cặp sách, đồng phục học sinh cho con em các gia đình khó khăn chuẩn bị bước vào kỳ học mới.</p>
+          </div>
+          <div style="margin-top:14px;">
+            <button class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="registerService('Gói sách vở trẻ em')">
+              👉 Đăng ký nhận gói
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Khai báo nhu cầu -->
+      <div class="modal-overlay" id="modalNeed" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal">
+          <div class="modal-header">
+            <div class="modal-title text-gold">📝 Khai Báo Nhu Cầu An Sinh Mới</div>
+            <button class="modal-close" onclick="document.getElementById('modalNeed').style.display='none'">✕</button>
+          </div>
+          <div class="divider-gold"></div>
+          <form onsubmit="event.preventDefault(); document.getElementById('modalNeed').style.display='none'; alert('Khai báo nhu cầu thành công! Cán bộ xã sẽ liên hệ sớm nhất.');">
+            <div class="form-group">
+              <label class="form-label">Loại nhu cầu cần hỗ trợ</label>
+              <select class="form-control">
+                <option>Nước uống sạch & lọc nước</option>
+                <option>Lương thực (Gạo, Mì, Đồ hộp)</option>
+                <option>Thuốc men y tế & Chăm sóc sức khỏe</option>
+                <option>Quần áo & Chăn ấm gia đình</option>
+                <option>Thiết bị hỗ trợ (Xe lăn, Máy phát, Đèn pin)</option>
+                <option>Hỗ trợ sửa chữa nhà cửa dột nát</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Số lượng ước tính</label>
+              <input type="text" class="form-control" placeholder="Ví dụ: 20kg gạo, 2 thùng mì, 1 xe lăn..." required/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mức độ khẩn thiết</label>
+              <select class="form-control">
+                <option>Khẩn cấp (Cần ngay trong 24h do cạn kiệt/ngập lụt)</option>
+                <option>Cao (Cần trong 2-3 ngày tới)</option>
+                <option>Bình thường (Đăng ký định kỳ theo tháng)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ghi chú bổ sung hoàn cảnh</label>
+              <textarea class="form-control" placeholder="Mô tả cụ thể để cán bộ chuẩn bị đúng loại vật phẩm..."></textarea>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+              <button type="button" class="btn btn-ghost" onclick="document.getElementById('modalNeed').style.display='none'">Hủy</button>
+              <button type="submit" class="btn btn-primary">Gửi Khai Báo</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <script>
+        function registerService(name) {
+          alert('Bạn đã chọn dịch vụ: ' + name + '. Đang mở đơn gửi yêu cầu!');
+          location.href = 'requests.html?service=' + encodeURIComponent(name);
+        }
+      </script>
+    </div>
+  </main>
+</body>
+</html>

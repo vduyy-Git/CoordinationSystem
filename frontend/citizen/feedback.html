@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Thông báo & Phản hồi — Cổng Người Dân</title>
+  <link rel="stylesheet" href="assets/citizen.css"/>
+</head>
+<body>
+  <nav class="citizen-sidebar">
+    <div class="sidebar-brand">
+      <h1 class="text-gold">🌿 Cổng Người Dân</h1>
+      <p>An sinh Xã hội — Cấp Xã/Phường</p>
+    </div>
+    <div class="sidebar-menu">
+      <div class="sidebar-section">Trung tâm cá nhân</div>
+      <a class="sidebar-item " href="dashboard.html">
+        <span class="si-icon">📊</span> Tổng quan
+      </a>
+      <a class="sidebar-item " href="profile.html">
+        <span class="si-icon">👤</span> Tài khoản &amp; Hồ sơ
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Dịch vụ an sinh</div>
+      <a class="sidebar-item " href="needs.html">
+        <span class="si-icon">📝</span> Khai báo nhu cầu
+      </a>
+      <a class="sidebar-item " href="requests.html">
+        <span class="si-icon">📤</span> Gửi yêu cầu hỗ trợ
+        <span class="si-badge">Mới</span>
+      </a>
+      <a class="sidebar-item " href="tracking.html">
+        <span class="si-icon">🔍</span> Theo dõi yêu cầu
+        <span class="si-badge">2</span>
+      </a>
+      <a class="sidebar-item active" href="feedback.html">
+        <span class="si-icon">🔔</span> Thông báo &amp; Phản hồi
+        <span class="si-badge" style="background:var(--red);color:#fff;">1</span>
+      </a>
+      <div class="sidebar-section" style="margin-top:14px;"></div>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(255,255,255,0.7); font-weight:600;">
+        <span class="si-icon">🏠</span> Về Trang Chủ / Dashboard
+      </a>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(245,160,170,0.85);">
+        <span class="si-icon">🚪</span> Đăng xuất
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="location.href='profile.html'">
+        <div class="sidebar-avatar">LH</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Lê Thị Hoa</div>
+          <div class="sidebar-user-role">Người dân (Tổ 2, KP.3)</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <header class="citizen-topbar">
+    <div class="topbar-breadcrumb">
+      🌿 Cổng Người Dân <span style="color:var(--beige-mid);">›</span> <span class="bc-active">Thông báo & Phản hồi</span>
+    </div>
+    <div class="topbar-right">
+      <a href="requests.html" class="btn btn-primary btn-sm" style="box-shadow:none;">
+        🚨 Gửi Yêu Cầu Hỗ Trợ
+      </a>
+      <button class="btn btn-ghost btn-sm" onclick="location.href='feedback.html'" title="Thông báo">
+        🔔 Thông báo <span class="badge badge-urgent" style="font-size:0.65rem;">1</span>
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="location.href='../index.html'" title="Trang chủ">
+        🏠 Trang chủ
+      </button>
+    </div>
+  </header>
+  <main class="citizen-main">
+    <div class="citizen-page">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>🔔 Thông Báo &amp; Phản Hồi</h2>
+          <p>Nhận thông báo kết quả phê duyệt từ cán bộ, xác nhận đã nhận hàng hóa và gửi phản hồi, đánh giá chất lượng phục vụ</p>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:24px;">
+        <!-- Notification list -->
+        <div class="card" style="grid-column:span 2;">
+          <div class="card-header">
+            <div class="card-title">📬 Hộp Thư Thông Báo Kết Quả</div>
+            <span class="badge badge-urgent">1 thông báo mới</span>
+          </div>
+          <div class="card-body">
+            <!-- Item 1: Action required -->
+            <div style="background:#FFFDF8; border:1.5px solid var(--gold-2); border-radius:var(--radius-md); padding:16px; margin-bottom:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div style="font-weight:800; color:var(--text-dark); font-size:1rem;">
+                  🎁 Chuyến giao hàng <strong>REQ-183</strong> sắp đến địa chỉ của bạn!
+                </div>
+                <span class="badge badge-pending">Cần xác nhận</span>
+              </div>
+              <p style="font-size:0.84rem; color:var(--text-mid); margin:6px 0 12px;">
+                Cán bộ điều phối đã phê duyệt xuất 200 chai nước từ Kho Điểm 1. Xin vui lòng kiểm tra khi shipper giao tới và bấm nút xác nhận nhận hàng bên dưới hoặc điền form đánh giá.
+              </p>
+              <div style="display:flex; gap:8px;">
+                <button class="btn btn-primary btn-sm" onclick="document.getElementById('confirmSection').scrollIntoView({behavior:'smooth'});">
+                  ✍️ Xác nhận đã nhận hàng
+                </button>
+              </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div style="padding:12px 0; border-bottom:1px solid var(--beige-dark);">
+              <div style="display:flex; justify-content:space-between;">
+                <strong>✅ Đơn REQ-175 đã được lưu hồ sơ hoàn tất</strong>
+                <span style="font-size:0.75rem; color:var(--text-light);">12/11/2026</span>
+              </div>
+              <p style="font-size:0.82rem; color:var(--text-light); margin-top:3px;">
+                Cảm ơn bạn đã phản hồi đánh giá 5 sao cho cán bộ hỗ trợ khu phố 3.
+              </p>
+            </div>
+
+            <!-- Item 3 -->
+            <div style="padding:12px 0;">
+              <div style="display:flex; justify-content:space-between;">
+                <strong>📢 Kế hoạch phát quà Tết An sinh Xã hội 2027</strong>
+                <span style="font-size:0.75rem; color:var(--text-light);">01/11/2026</span>
+              </div>
+              <p style="font-size:0.82rem; color:var(--text-light); margin-top:3px;">
+                UBND Xã sẽ tổ chức phát quà Tết cho các hộ gia đình chính sách và khó khăn từ ngày 15/12.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Confirm receipt box -->
+        <div id="confirmSection">
+          <div class="card" style="border: 2px solid var(--gold-2);">
+            <div class="card-header" style="background:var(--gold-pale);">
+              <div class="card-title" style="color:#7A5A10;">
+                <span>✍️</span> Xác Nhận Đã Nhận Hàng
+              </div>
+            </div>
+            <div class="card-body">
+              <form onsubmit="event.preventDefault(); alert('Cảm ơn bạn! Đã ghi nhận xác nhận nhận hàng và cập nhật hệ thống an sinh xã hội.'); location.href='tracking.html';">
+                <div class="form-group">
+                  <label class="form-label">Chọn yêu cầu nhận</label>
+                  <select class="form-control">
+                    <option selected>REQ-183 (200 chai nước uống)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Tình trạng hàng nhận được</label>
+                  <select class="form-control">
+                    <option>Đầy đủ, nguyên vẹn, đúng số lượng</option>
+                    <option>Đầy đủ nhưng bao bì bị ướt</option>
+                    <option>Thiếu số lượng (Ghi rõ bên dưới)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Đánh giá chất lượng phục vụ</label>
+                  <div style="font-size:1.6rem; color:var(--gold-1); cursor:pointer;">
+                    ⭐⭐⭐⭐⭐
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Ý kiến đóng góp / Phản hồi</label>
+                  <textarea class="form-control" placeholder="Cảm nhận của bạn về sự hỗ trợ của cán bộ và tình nguyện viên..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center;">
+                  ✅ Ký Nhận &amp; Gửi Phản Hồi
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

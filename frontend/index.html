@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CoordSystem — Cổng Thông tin & Điều phối An sinh Xã hội</title>
+  <title>CoordSystem — Dashboard Thống Kê &amp; Báo Cáo An Sinh Xã Hội</title>
   <link rel="stylesheet" href="src/assets/styles.css"/>
   <style>
-    /* Portal Specific Styles */
+    /* Clean Navbar */
     .portal-header {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(16px);
@@ -37,146 +37,19 @@
       font-size: 0.76rem; color: var(--text-light); font-weight: 600;
     }
     .portal-nav-actions {
-      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-    }
-    .btn-portal-citizen {
-      background: linear-gradient(135deg, var(--moss-green), var(--moss-light));
-      color: #fff; padding: 10px 22px; border-radius: var(--radius-md);
-      font-weight: 700; font-size: 0.9rem; display: inline-flex;
-      align-items: center; gap: 8px; border: none; cursor: pointer;
-      box-shadow: 0 3px 12px rgba(74, 122, 66, 0.28);
-      transition: var(--transition);
-    }
-    .btn-portal-citizen:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(74, 122, 66, 0.45);
-    }
-    .btn-portal-admin {
-      background: linear-gradient(135deg, var(--purple-dark), var(--purple-mid));
-      color: #fff; padding: 10px 22px; border-radius: var(--radius-md);
-      font-weight: 700; font-size: 0.9rem; display: inline-flex;
-      align-items: center; gap: 8px; border: none; cursor: pointer;
-      box-shadow: 0 3px 12px rgba(74, 46, 138, 0.28);
-      transition: var(--transition);
-    }
-    .btn-portal-admin:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(74, 46, 138, 0.45);
+      display: flex; align-items: center; gap: 12px;
     }
 
     /* Main Container */
     .portal-main {
-      max-width: 1380px; margin: 0 auto; padding: 28px 24px 60px;
-    }
-
-    /* Architecture Visual Switcher */
-    .arch-banner {
-      background: linear-gradient(135deg, #FFFFFF 0%, var(--beige) 100%);
-      border: 1.5px solid var(--beige-mid);
-      border-radius: var(--radius-xl);
-      padding: 24px 28px; margin-bottom: 32px;
-      box-shadow: var(--shadow-sm);
-      position: relative; overflow: hidden;
-    }
-    .arch-banner::before {
-      content: ''; position: absolute; right: -40px; top: -40px;
-      width: 180px; height: 180px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(212,175,55,0.12), transparent);
-    }
-    .arch-title {
-      font-size: 0.85rem; font-weight: 800; letter-spacing: 1px;
-      text-transform: uppercase; color: var(--purple-mid);
-      margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
-    }
-    .arch-headline {
-      font-size: 1.5rem; font-weight: 800; color: var(--text-dark);
-      margin-bottom: 6px;
-    }
-    .arch-sub {
-      font-size: 0.88rem; color: var(--text-light); max-width: 820px;
-      line-height: 1.5; margin-bottom: 22px;
-    }
-
-    /* 3 Portal Selection Cards */
-    .gateway-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
-    }
-    .gateway-card {
-      border-radius: var(--radius-lg); padding: 24px;
-      background: #FFFFFF; border: 2px solid transparent;
-      box-shadow: var(--shadow-card);
-      transition: var(--transition);
-      display: flex; flex-direction: column; justify-content: space-between;
-      position: relative; overflow: hidden;
-    }
-    .gateway-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-lg);
-    }
-    .gateway-citizen {
-      border-color: #A3D49B;
-      background: linear-gradient(160deg, #FFFFFF 0%, #F1F9F0 100%);
-    }
-    .gateway-citizen:hover {
-      border-color: var(--moss-green);
-      box-shadow: 0 8px 30px rgba(74, 122, 66, 0.2);
-    }
-    .gateway-admin {
-      border-color: #C0B0E5;
-      background: linear-gradient(160deg, #FFFFFF 0%, #F4F0FA 100%);
-    }
-    .gateway-admin:hover {
-      border-color: var(--purple-mid);
-      box-shadow: 0 8px 30px rgba(107, 77, 175, 0.2);
-    }
-    .gateway-dashboard {
-      border-color: #E8D5B0;
-      background: linear-gradient(160deg, #FFFFFF 0%, #FCF7ED 100%);
-    }
-    .gateway-dashboard:hover {
-      border-color: var(--gold-2);
-      box-shadow: 0 8px 30px rgba(212, 175, 55, 0.25);
-    }
-
-    .gateway-icon-badge {
-      width: 52px; height: 52px; border-radius: 16px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.7rem; margin-bottom: 16px;
-    }
-    .gib-green { background: var(--moss-pale); color: var(--moss-green); border: 1px solid #C4E2BD; }
-    .gib-purple{ background: var(--purple-pale); color: var(--purple-mid); border: 1px solid #D6CAEE; }
-    .gib-gold  { background: var(--gold-pale); color: var(--gold-1); border: 1px solid var(--beige-mid); }
-
-    .gateway-tag {
-      display: inline-block; padding: 3px 10px; border-radius: 999px;
-      font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
-      letter-spacing: 0.5px; margin-bottom: 8px; width: fit-content;
-    }
-    .gt-citizen { background: #E2F2E0; color: #2E6B28; }
-    .gt-admin   { background: #EDE5F8; color: #4A2E8A; }
-    .gt-dash    { background: #FEF3D8; color: #8A6414; }
-
-    .gateway-card h3 {
-      font-size: 1.25rem; font-weight: 800; color: var(--text-dark);
-      margin-bottom: 8px;
-    }
-    .gateway-card p {
-      font-size: 0.85rem; color: var(--text-mid); line-height: 1.5;
-      margin-bottom: 20px;
-    }
-    .gateway-features {
-      list-style: none; padding: 0; margin: 0 0 20px 0;
-      font-size: 0.82rem; color: var(--text-light);
-    }
-    .gateway-features li {
-      margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+      max-width: 1380px; margin: 0 auto; padding: 24px 24px 60px;
     }
 
     /* Live Ticker Bar */
     .live-ticker {
-      background: #FFFFFF; border: 1px solid var(--beige-mid);
+      background: #FFFFFF; border: 1.5px solid var(--beige-mid);
       border-radius: var(--radius-md); padding: 12px 20px;
-      margin-bottom: 28px; display: flex; align-items: center; gap: 14px;
+      margin-bottom: 24px; display: flex; align-items: center; gap: 14px;
       box-shadow: var(--shadow-sm); flex-wrap: wrap;
     }
     .ticker-badge {
@@ -192,24 +65,46 @@
       flex: 1; font-size: 0.85rem; color: var(--text-dark);
     }
 
-    /* Dashboard Section */
-    .section-title-wrap {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 18px; flex-wrap: wrap; gap: 12px;
+    /* Dashboard Header */
+    .dashboard-hero-header {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-bottom: 22px; flex-wrap: wrap; gap: 14px;
     }
-    .section-title-wrap h2 {
-      font-size: 1.45rem; font-weight: 800; color: var(--text-dark);
+    .dashboard-hero-header h2 {
+      font-size: 1.7rem; font-weight: 800; color: var(--text-dark);
       display: flex; align-items: center; gap: 10px;
     }
+    .dashboard-hero-header p {
+      font-size: 0.88rem; color: var(--text-light); margin-top: 3px;
+    }
 
-    @media (max-width: 992px) {
-      .gateway-grid { grid-template-columns: 1fr; }
+    /* Modal Login Tab Switcher */
+    .login-role-tabs {
+      display: flex; gap: 6px; background: var(--beige);
+      border-radius: var(--radius-sm); padding: 4px;
+      margin-bottom: 20px;
+    }
+    .login-role-tab {
+      flex: 1; padding: 10px 14px; text-align: center;
+      font-size: 0.88rem; font-weight: 700; border: none;
+      border-radius: var(--radius-sm); cursor: pointer;
+      background: transparent; color: var(--text-light);
+      transition: var(--transition); display: flex;
+      align-items: center; justify-content: center; gap: 6px;
+    }
+    .login-role-tab.active-citizen {
+      background: linear-gradient(135deg, var(--moss-green), var(--moss-light));
+      color: #fff; box-shadow: 0 2px 8px rgba(74,122,66,0.3);
+    }
+    .login-role-tab.active-admin {
+      background: linear-gradient(135deg, var(--purple-dark), var(--purple-mid));
+      color: #fff; box-shadow: 0 2px 8px rgba(74,46,138,0.3);
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation & Direct Gateways -->
+  <!-- Top Navigation Bar -->
   <header class="portal-header">
     <div class="header-container">
       <div class="brand-box">
@@ -220,16 +115,13 @@
         </div>
       </div>
 
-      <!-- Quick Switch to Admin or Citizen Portal -->
+      <!-- Integrated Login / Authentication Button -->
       <div class="portal-nav-actions">
-        <a href="src/pages/dashboard.html" class="btn-portal-citizen" title="Dành cho người dân">
-          <span>👥</span> Cổng Người Dân
-        </a>
-        <a href="admin/dashboard.html" class="btn-portal-admin" title="Dành cho cán bộ quản lý">
-          <span>🏛</span> Cổng Admin (Cán bộ)
-        </a>
-        <button class="btn-outline btn-sm" onclick="document.getElementById('loginModal').style.display='flex'">
-          🔑 Đăng nhập
+        <span class="badge badge-approved" style="font-size:0.75rem; padding:6px 12px;">
+          ● Dữ liệu công khai trực tuyến
+        </span>
+        <button class="btn-gold" onclick="openLoginModal()" style="font-size:0.9rem;">
+          🔑 Đăng nhập / Chọn vai trò
         </button>
       </div>
     </div>
@@ -237,114 +129,27 @@
 
   <main class="portal-main">
 
-    <!-- ARCHITECTURE SWITCHER BANNER -->
-    <div class="arch-banner">
-      <div class="arch-title">
-        <span>🏛</span> Kiến trúc Hệ thống &amp; Tầng Giao diện (Frontend Web)
-      </div>
-      <h2 class="arch-headline">Chào mừng đến với Cổng An sinh Xã hội</h2>
-      <p class="arch-sub">
-        Hệ thống tích hợp mô hình Multi-Agent tự động hoá phân loại, chấm điểm ưu tiên khẩn cấp và minh bạch hóa dòng phân bổ nguồn lực. Vui lòng chọn cổng truy cập phù hợp với vai trò của bạn:
-      </p>
-
-      <!-- 3 Gateway Boxes corresponding directly to the user's diagram -->
-      <div class="gateway-grid">
-        <!-- Gateway 1: Cổng Người dùng (Người dân) -->
-        <div class="gateway-card gateway-citizen">
-          <div>
-            <div class="gateway-icon-badge gib-green">👥</div>
-            <span class="gateway-tag gt-citizen">Dành Cho Người Dân</span>
-            <h3>Cổng Người Dùng</h3>
-            <p>Gửi yêu cầu hỗ trợ nhu yếu phẩm, tra cứu tiến độ tiếp nhận, quyên góp nguồn lực và quản lý hồ sơ an sinh gia đình.</p>
-            <ul class="gateway-features">
-              <li>✓ Gửi yêu cầu trợ cấp / cứu trợ khẩn cấp</li>
-              <li>✓ Khai báo quyên góp nguồn lực & vật tư</li>
-              <li>✓ Tra cứu tiến độ giao nhận theo thời gian thực</li>
-              <li>✓ Tương tác trực tiếp với điều phối viên</li>
-            </ul>
-          </div>
-          <div style="display:flex; gap:8px;">
-            <a href="src/pages/dashboard.html" class="btn-portal-citizen" style="flex:1; justify-content:center;">
-              👉 Vào Cổng Người Dân
-            </a>
-            <a href="src/pages/requests.html" class="btn-outline" style="padding:10px 14px;" title="Gửi yêu cầu nhanh">
-              🚨 Cứu trợ
-            </a>
-          </div>
-        </div>
-
-        <!-- Gateway 2: Cổng Admin (Cán bộ quản lý) -->
-        <div class="gateway-card gateway-admin">
-          <div>
-            <div class="gateway-icon-badge gib-purple">🏛</div>
-            <span class="gateway-tag gt-admin">Cán Bộ Quản Lý / Điều Phối</span>
-            <h3>Cổng Admin</h3>
-            <p>Phân hệ điều hành dành riêng cho Cán bộ Xã/Phường: quản lý tài khoản, đối tượng thụ hưởng, kho nguồn lực và duyệt phân bổ AI.</p>
-            <ul class="gateway-features">
-              <li>✓ Quản trị tài khoản & phân quyền cán bộ</li>
-              <li>✓ Hồ sơ người dân (người già, trẻ em, khuyết tật)</li>
-              <li>✓ Tiếp nhận & AI chấm điểm ưu tiên tự động</li>
-              <li>✓ Ghép kho thông minh & duyệt phân bổ hàng</li>
-            </ul>
-          </div>
-          <div style="display:flex; gap:8px;">
-            <a href="admin/dashboard.html" class="btn-portal-admin" style="flex:1; justify-content:center;">
-              👉 Vào Cổng Admin
-            </a>
-            <a href="admin/allocations.html" class="btn-outline" style="padding:10px 14px;" title="Phân bổ nguồn lực">
-              ⚖️ Phân bổ
-            </a>
-          </div>
-        </div>
-
-        <!-- Gateway 3: Dashboard thống kê & báo cáo -->
-        <div class="gateway-card gateway-dashboard">
-          <div>
-            <div class="gateway-icon-badge gib-gold">📊</div>
-            <span class="gateway-tag gt-dash">Dữ Liệu Công Khai</span>
-            <h3>Dashboard Thống Kê</h3>
-            <p>Toàn cảnh dữ liệu an sinh xã hội: số hộ đã hỗ trợ, nguồn cung ứng khả dụng, tỷ lệ đáp ứng và bản đồ phân bổ minh bạch.</p>
-            <ul class="gateway-features">
-              <li>✓ 100% công khai, cập nhật liên tục</li>
-              <li>✓ Phân tích theo từng Tổ dân phố & Khu vực</li>
-              <li>✓ Giám sát biến động kho vật tư cứu trợ</li>
-              <li>✓ Báo cáo định kỳ & xuất dữ liệu chuẩn hóa</li>
-            </ul>
-          </div>
-          <div style="display:flex; gap:8px;">
-            <a href="#public-dashboard" class="btn-gold" style="flex:1; justify-content:center;">
-              📊 Xem Số Liệu Trực Tiếp
-            </a>
-            <a href="admin/reports.html" class="btn-outline" style="padding:10px 14px;" title="Báo cáo chuyên sâu">
-              📄 Báo cáo
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Live Updates Ticker -->
+    <!-- Live Ticker Bar -->
     <div class="live-ticker">
       <span class="ticker-badge"><span class="ticker-pulse"></span> TRỰC TIẾP</span>
       <div class="ticker-text">
         <strong>Vừa cập nhật:</strong> 200 chai nước uống sạch đã bàn giao tận tay 50 hộ dân cô lập vùng lũ An Giang (Mã: <em>ALLOC-096</em>) · Kho Điểm tập kết số 1 sẵn sàng tiếp nhận thêm 500 thùng mì ăn liền.
       </div>
-      <a href="src/pages/shipments.html" style="font-size:0.82rem; color:var(--purple-dark); font-weight:700; text-decoration:underline;">
-        Theo dõi hành trình →
-      </a>
+      <button class="btn-ghost btn-sm" onclick="openLoginModal()" style="color:var(--purple-dark); font-weight:700; text-decoration:underline;">
+        Đăng nhập để gửi yêu cầu →
+      </button>
     </div>
 
-    <!-- MAIN PUBLIC DASHBOARD (DASHBOARD THỐNG KÊ & BÁO CÁO CÔNG KHAI) -->
-    <section id="public-dashboard">
-      <div class="section-title-wrap">
-        <h2>
-          <span>📊</span> Dashboard Thống Kê &amp; Báo Cáo An Sinh Xã Hội
-        </h2>
+    <!-- MAIN DASHBOARD THỐNG KÊ & BÁO CÁO (TRỰC TIẾP NGAY KHI MỞ TRANG) -->
+    <section id="dashboard-section">
+      <div class="dashboard-hero-header">
+        <div>
+          <h2>📊 Dashboard Thống Kê &amp; Báo Cáo An Sinh Xã Hội</h2>
+          <p>Bảng số liệu thời gian thực — Minh bạch hóa tiếp nhận, phân bổ nguồn lực và hỗ trợ người dân</p>
+        </div>
         <div style="display:flex; gap:8px;">
-          <span class="badge badge-approved" style="font-size:0.8rem; padding:6px 14px;">
-            ● Dữ liệu thời gian thực
-          </span>
           <button class="btn-outline btn-sm" onclick="window.print()">🖨 In báo cáo</button>
+          <button class="btn-outline btn-sm" onclick="alert('Đang tải file Excel thống kê an sinh!');">📥 Xuất Excel</button>
         </div>
       </div>
 
@@ -466,7 +271,7 @@
         <div class="glass-card" style="padding:22px; overflow-x:auto;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
             <h3 style="font-size:1.05rem; font-weight:800;">📋 Yêu Cầu Hỗ Trợ Mới Nhất</h3>
-            <a href="src/pages/requests.html" class="btn-ghost btn-sm" style="font-weight:700;">Xem tất cả →</a>
+            <span class="badge badge-urgent">8 khẩn cấp</span>
           </div>
 
           <table class="data-table">
@@ -511,7 +316,7 @@
         <div class="glass-card" style="padding:22px; overflow-x:auto;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
             <h3 style="font-size:1.05rem; font-weight:800;">🚚 Chuyến Giao Vận Đang Thực Hiện</h3>
-            <a href="src/pages/shipments.html" class="btn-ghost btn-sm" style="font-weight:700;">Xem hành trình →</a>
+            <span class="badge badge-transit">Trực tuyến</span>
           </div>
 
           <table class="data-table">
@@ -556,26 +361,78 @@
 
   </main>
 
-  <!-- Login / Switch Modal -->
+  <!-- MODAL ĐĂNG NHẬP / CHỌN VAI TRÒ (NGƯỜI DÂN HOẶC CÁN BỘ ADMIN) -->
   <div class="modal-overlay" id="loginModal" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
-    <div class="modal" style="max-width:440px;">
+    <div class="modal" style="max-width:460px;">
       <div class="modal-header">
-        <div class="modal-title text-gold">🔑 Chọn Cổng Truy Cập</div>
+        <div>
+          <div class="modal-title text-gold" style="font-size:1.25rem;">🔑 Đăng Nhập Hệ Thống</div>
+          <p style="font-size:0.8rem; color:var(--text-light); margin-top:2px;">Chọn vai trò của bạn để truy cập phân hệ tương ứng</p>
+        </div>
         <button class="modal-close" onclick="document.getElementById('loginModal').style.display='none'">✕</button>
       </div>
-      <div class="divider-gold"></div>
 
-      <div style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
-        <button class="btn-portal-citizen" style="width:100%; justify-content:center; padding:14px;" onclick="location.href='src/pages/dashboard.html'">
-          👥 Vào Cổng Người Dân (Người nhận & Quyên góp)
+      <!-- Tab chọn vai trò: Người dân hoặc Cán bộ quản lý -->
+      <div class="login-role-tabs">
+        <button class="login-role-tab active-citizen" id="tabCitizenBtn" onclick="switchLoginRole('citizen')">
+          👤 Người Dân
         </button>
-        <button class="btn-portal-admin" style="width:100%; justify-content:center; padding:14px;" onclick="location.href='admin/dashboard.html'">
-          🏛 Vào Cổng Admin (Cán bộ quản lý & Điều phối)
+        <button class="login-role-tab" id="tabAdminBtn" onclick="switchLoginRole('admin')">
+          🏛 Cán Bộ Quản Lý (Admin)
         </button>
       </div>
 
-      <div style="text-align:center; margin-top:20px; font-size:0.8rem; color:var(--text-light);">
-        Hệ thống hỗ trợ phân quyền tự động theo tài khoản đã được cấp.
+      <!-- Form Đăng Nhập Người Dân -->
+      <form id="formCitizen" onsubmit="handleCitizenLogin(event)">
+        <div class="form-group">
+          <label class="form-label">Số điện thoại hoặc Số CCCD</label>
+          <input type="text" class="form-control" placeholder="0912345678 hoặc 079xxxxxxxx" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" class="form-control" placeholder="Nhập mật khẩu..." required/>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; font-size:0.82rem;">
+          <a href="#" style="color:var(--moss-green); font-weight:600;">Quên mật khẩu?</a>
+          <a href="#" style="color:var(--gold-1); font-weight:600;" onclick="alert('Mở form đăng ký tài khoản người dân mới!');">Đăng ký mới</a>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:12px;">
+          👉 Đăng Nhập Vào Cổng Người Dân
+        </button>
+      </form>
+
+      <!-- Form Đăng Nhập Cán Bộ Admin -->
+      <form id="formAdmin" style="display:none;" onsubmit="handleAdminLogin(event)">
+        <div class="form-group">
+          <label class="form-label">Email công vụ cán bộ</label>
+          <input type="email" class="form-control" placeholder="nguyenduy@email.com" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu quản trị</label>
+          <input type="password" class="form-control" placeholder="Nhập mật khẩu..." required/>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; font-size:0.82rem;">
+          <span style="color:var(--text-light);">Cán bộ trực ban / Điều phối xã</span>
+          <a href="#" style="color:var(--purple-dark); font-weight:600;">Hỗ trợ kỹ thuật</a>
+        </div>
+        <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center; padding:12px;">
+          👉 Đăng Nhập Vào Cổng Admin
+        </button>
+      </form>
+
+      <!-- Quick Demo Login Buttons -->
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--beige-mid);">
+        <div style="font-size:0.75rem; text-align:center; color:var(--text-light); text-transform:uppercase; font-weight:700; margin-bottom:8px;">
+          Truy cập nhanh (Chế độ Demo)
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-outline btn-sm" style="flex:1; justify-content:center;" onclick="location.href='citizen/dashboard.html'">
+            👤 Demo Người Dân
+          </button>
+          <button class="btn btn-outline btn-sm" style="flex:1; justify-content:center; border-color:var(--purple-mid); color:var(--purple-dark);" onclick="location.href='admin/dashboard.html'">
+            🏛 Demo Admin
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -585,7 +442,40 @@
   </footer>
 
   <script>
-    // Public Chart Data Generation
+    function openLoginModal() {
+      document.getElementById('loginModal').style.display = 'flex';
+    }
+
+    function switchLoginRole(role) {
+      const citizenBtn = document.getElementById('tabCitizenBtn');
+      const adminBtn = document.getElementById('tabAdminBtn');
+      const formCitizen = document.getElementById('formCitizen');
+      const formAdmin = document.getElementById('formAdmin');
+
+      if (role === 'citizen') {
+        citizenBtn.className = 'login-role-tab active-citizen';
+        adminBtn.className = 'login-role-tab';
+        formCitizen.style.display = 'block';
+        formAdmin.style.display = 'none';
+      } else {
+        citizenBtn.className = 'login-role-tab';
+        adminBtn.className = 'login-role-tab active-admin';
+        formCitizen.style.display = 'none';
+        formAdmin.style.display = 'block';
+      }
+    }
+
+    function handleCitizenLogin(e) {
+      e.preventDefault();
+      location.href = 'citizen/dashboard.html';
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      location.href = 'admin/dashboard.html';
+    }
+
+    // Chart Data Generation
     const chartData = [
       { day: 'T2', don: 35, req: 25, ship: 20 },
       { day: 'T3', don: 48, req: 32, ship: 28 },

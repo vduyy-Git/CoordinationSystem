@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Theo dõi Yêu cầu — Cổng Người Dân</title>
+  <link rel="stylesheet" href="assets/citizen.css"/>
+</head>
+<body>
+  <nav class="citizen-sidebar">
+    <div class="sidebar-brand">
+      <h1 class="text-gold">🌿 Cổng Người Dân</h1>
+      <p>An sinh Xã hội — Cấp Xã/Phường</p>
+    </div>
+    <div class="sidebar-menu">
+      <div class="sidebar-section">Trung tâm cá nhân</div>
+      <a class="sidebar-item " href="dashboard.html">
+        <span class="si-icon">📊</span> Tổng quan
+      </a>
+      <a class="sidebar-item " href="profile.html">
+        <span class="si-icon">👤</span> Tài khoản &amp; Hồ sơ
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Dịch vụ an sinh</div>
+      <a class="sidebar-item " href="needs.html">
+        <span class="si-icon">📝</span> Khai báo nhu cầu
+      </a>
+      <a class="sidebar-item " href="requests.html">
+        <span class="si-icon">📤</span> Gửi yêu cầu hỗ trợ
+        <span class="si-badge">Mới</span>
+      </a>
+      <a class="sidebar-item active" href="tracking.html">
+        <span class="si-icon">🔍</span> Theo dõi yêu cầu
+        <span class="si-badge">2</span>
+      </a>
+      <a class="sidebar-item " href="feedback.html">
+        <span class="si-icon">🔔</span> Thông báo &amp; Phản hồi
+        <span class="si-badge" style="background:var(--red);color:#fff;">1</span>
+      </a>
+      <div class="sidebar-section" style="margin-top:14px;"></div>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(255,255,255,0.7); font-weight:600;">
+        <span class="si-icon">🏠</span> Về Trang Chủ / Dashboard
+      </a>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(245,160,170,0.85);">
+        <span class="si-icon">🚪</span> Đăng xuất
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="location.href='profile.html'">
+        <div class="sidebar-avatar">LH</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Lê Thị Hoa</div>
+          <div class="sidebar-user-role">Người dân (Tổ 2, KP.3)</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <header class="citizen-topbar">
+    <div class="topbar-breadcrumb">
+      🌿 Cổng Người Dân <span style="color:var(--beige-mid);">›</span> <span class="bc-active">Theo dõi Yêu cầu</span>
+    </div>
+    <div class="topbar-right">
+      <a href="requests.html" class="btn btn-primary btn-sm" style="box-shadow:none;">
+        🚨 Gửi Yêu Cầu Hỗ Trợ
+      </a>
+      <button class="btn btn-ghost btn-sm" onclick="location.href='feedback.html'" title="Thông báo">
+        🔔 Thông báo <span class="badge badge-urgent" style="font-size:0.65rem;">1</span>
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="location.href='../index.html'" title="Trang chủ">
+        🏠 Trang chủ
+      </button>
+    </div>
+  </header>
+  <main class="citizen-main">
+    <div class="citizen-page">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>🔍 Theo Dõi Tiến Trình Yêu Cầu</h2>
+          <p>Xem trạng thái xử lý từng bước, thông tin cung cấp vận chuyển và tra cứu lịch sử các đợt hỗ trợ</p>
+        </div>
+      </div>
+
+      <!-- Active Ongoing Tracker Card -->
+      <div class="card" style="border: 2px solid var(--moss-green); margin-bottom:24px;">
+        <div class="card-header" style="background:var(--moss-pale);">
+          <div>
+            <span class="badge badge-urgent" style="font-size:0.7rem;">ƯU TIÊN KHẨN CẤP</span>
+            <h3 style="font-size:1.15rem; font-weight:800; color:var(--text-dark); margin-top:6px;">
+              Mã hồ sơ: <span style="font-family:monospace; color:var(--moss-dark);">REQ-183</span> — Cấp 200 chai nước uống sạch
+            </h3>
+          </div>
+          <span class="badge badge-delivering" style="font-size:0.82rem; padding:6px 14px;">🚚 Đang trên đường giao</span>
+        </div>
+        <div class="card-body">
+          <div class="stepper-wrap">
+            <div class="step-item completed">
+              <div class="step-dot">✓</div>
+              <div class="step-label">1. Gửi đơn<br/><small style="color:var(--text-light);">22/11 08:15</small></div>
+            </div>
+            <div class="step-item completed">
+              <div class="step-dot">✓</div>
+              <div class="step-label">2. Đã phê duyệt<br/><small style="color:var(--text-light);">22/11 08:45</small></div>
+            </div>
+            <div class="step-item completed">
+              <div class="step-dot">✓</div>
+              <div class="step-label">3. Xuất kho #096<br/><small style="color:var(--text-light);">22/11 09:30</small></div>
+            </div>
+            <div class="step-item active">
+              <div class="step-dot">🚚</div>
+              <div class="step-label">4. Đang giao hàng<br/><small style="color:var(--moss-green);">Hiện tại</small></div>
+            </div>
+            <div class="step-item">
+              <div class="step-dot">5</div>
+              <div class="step-label">5. Ký nhận<br/><small style="color:var(--text-light);">Dự kiến 17:30</small></div>
+            </div>
+          </div>
+
+          <div class="grid-3" style="background:#F9FBF8; border:1px solid #D7EAD3; border-radius:var(--radius-md); padding:16px; margin-top:16px;">
+            <div>
+              <div style="font-size:0.75rem; color:var(--text-light); text-transform:uppercase; font-weight:700;">Đơn vị vận chuyển</div>
+              <div style="font-weight:700; font-size:0.95rem; margin-top:2px;">🏢 Giao Hàng Nhanh (GHN)</div>
+              <div style="font-size:0.8rem; color:var(--text-mid);">Vận đơn: GHN20261120XY</div>
+            </div>
+            <div>
+              <div style="font-size:0.75rem; color:var(--text-light); text-transform:uppercase; font-weight:700;">Người giao hàng / Tình nguyện viên</div>
+              <div style="font-weight:700; font-size:0.95rem; margin-top:2px;">🛵 Nguyễn Văn Hưng</div>
+              <div style="font-size:0.8rem; color:var(--text-mid);">Số điện thoại: 0938.123.456</div>
+            </div>
+            <div style="display:flex; flex-direction:column; justify-content:center;">
+              <a href="feedback.html" class="btn btn-primary btn-sm" style="justify-content:center;">
+                ✅ Bấm Xác Nhận Khi Đã Nhận
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- History of Past Requests -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📜 Lịch Sử Tất Cả Yêu Cầu Hỗ Trợ Đã Gửi</div>
+        </div>
+        <div class="card-body" style="overflow-x:auto;">
+          <table class="citizen-table">
+            <thead>
+              <tr>
+                <th>Mã đơn</th>
+                <th>Tiêu đề nhu cầu</th>
+                <th>Vật phẩm / Dịch vụ</th>
+                <th>Ngày tạo</th>
+                <th>Trạng thái hoàn thành</th>
+                <th>Chi tiết</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-family:monospace; font-weight:700; color:var(--moss-dark);">REQ-183</td>
+                <td>Nước uống khẩn cấp cho 50 hộ</td>
+                <td>200 chai nước đóng chai</td>
+                <td>22/11/2026</td>
+                <td><span class="badge badge-delivering">Đang giao hàng</span></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="alert('Đang hiển thị ở bảng trên');">👁 Xem</button></td>
+              </tr>
+              <tr>
+                <td style="font-family:monospace; font-weight:700; color:var(--moss-dark);">REQ-175</td>
+                <td>Gạo cứu trợ đợt triều cường</td>
+                <td>30 kg gạo đóng bao</td>
+                <td>10/11/2026</td>
+                <td><span class="badge badge-completed">Đã nhận đủ (12/11)</span></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="alert('Đã giao thành công ngày 12/11/2026.');">👁 Xem</button></td>
+              </tr>
+              <tr>
+                <td style="font-family:monospace; font-weight:700; color:var(--moss-dark);">REQ-160</td>
+                <td>Khẩu trang y tế & cồn sát khuẩn</td>
+                <td>2 hộp khẩu trang, 2 chai cồn</td>
+                <td>25/10/2026</td>
+                <td><span class="badge badge-completed">Đã nhận đủ (27/10)</span></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="alert('Đã giao thành công ngày 27/10/2026.');">👁 Xem</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
