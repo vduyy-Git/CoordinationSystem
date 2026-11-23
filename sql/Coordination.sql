@@ -511,3 +511,20 @@ VALUES
 (3, 4, N'Khẩu trang y tế', N'Khẩu trang y tế đóng hộp'),
 (4, 6, N'Quần áo', N'Quần áo sử dụng được');
 GO
+
+-- Indexes for common ownership, status, and audit queries
+CREATE INDEX IX_donations_donor_created ON donations(donor_id, created_at DESC);
+CREATE INDEX IX_donations_status_created ON donations(status, created_at DESC);
+CREATE INDEX IX_donation_items_donation ON donation_items(donation_id);
+CREATE INDEX IX_donation_items_item ON donation_items(item_id);
+CREATE INDEX IX_assistance_requests_recipient_created ON assistance_requests(recipient_id, created_at DESC);
+CREATE INDEX IX_assistance_requests_status_created ON assistance_requests(status, created_at DESC);
+CREATE INDEX IX_request_items_request ON request_items(request_id);
+CREATE INDEX IX_allocations_request ON allocations(request_id);
+CREATE INDEX IX_allocation_items_request_item ON allocation_items(request_item_id);
+CREATE INDEX IX_allocation_items_donation_item ON allocation_items(donation_item_id);
+CREATE INDEX IX_shipments_status_created ON shipments(status, created_at DESC);
+CREATE INDEX IX_shipment_items_shipment ON shipment_items(shipment_id);
+CREATE INDEX IX_shipment_events_shipment_created ON shipment_events(shipment_id, created_at DESC);
+CREATE INDEX IX_supply_movements_item_created ON supply_movements(donation_item_id, created_at DESC);
+GO

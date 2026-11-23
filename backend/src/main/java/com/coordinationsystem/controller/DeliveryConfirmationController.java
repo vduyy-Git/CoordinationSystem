@@ -2,6 +2,7 @@ package com.coordinationsystem.controller;
 
 import com.coordinationsystem.dtoresponse.ApiResponse;
 import com.coordinationsystem.model.DeliveryConfirmation;
+import com.coordinationsystem.dtorequest.ConfirmDeliveryRequest;
 import com.coordinationsystem.service.DeliveryConfirmationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -30,14 +34,20 @@ public class DeliveryConfirmationController {
         return ApiResponse.success("Lấy danh sách thành công", service.getAll());
     }
 
+    @GetMapping("/mine")
+    @PreAuthorize("isAuthenticated()")
+    public ApiResponse<List<DeliveryConfirmation>> getMine(Authentication authentication) {
+        return ApiResponse.success("Lấy xác nhận giao hàng của tôi thành công", service.getMine(authentication.getName()));
+    }
+
     @GetMapping("/{id}")
     public ApiResponse<DeliveryConfirmation> getById(@PathVariable Long id) {
         return ApiResponse.success("Lấy dữ liệu thành công", service.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<DeliveryConfirmation>> create(@RequestBody DeliveryConfirmation entity) {
-        DeliveryConfirmation created = service.create(entity);
+    public ResponseEntity<ApiResponse<DeliveryConfirmation>> create(@Valid @RequestBody ConfirmDeliveryRequest command, Authentication authentication) {
+        DeliveryConfirmation created = service.createForRecipient(command, authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Tạo dữ liệu thành công", created));
     }

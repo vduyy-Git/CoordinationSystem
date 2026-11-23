@@ -2,6 +2,7 @@ package com.coordinationsystem.controller;
 
 import com.coordinationsystem.dtoresponse.ApiResponse;
 import com.coordinationsystem.model.Shipment;
+import com.coordinationsystem.dtorequest.ShipmentStatusRequest;
 import com.coordinationsystem.service.ShipmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -51,5 +54,12 @@ public class ShipmentController {
     public ApiResponse<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ApiResponse.success("Xóa dữ liệu thành công");
+    }
+
+    @PostMapping("/{id}/events")
+    public ApiResponse<Shipment> changeStatus(@PathVariable Long id, @Valid @RequestBody ShipmentStatusRequest request,
+                                               Authentication authentication) {
+        return ApiResponse.success("Đã cập nhật trạng thái vận chuyển",
+                service.changeStatus(id, request, authentication.getName()));
     }
 }

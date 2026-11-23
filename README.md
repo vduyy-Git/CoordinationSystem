@@ -1,0 +1,54 @@
+# Coordination System backend
+
+Spring Boot REST API for coordinating donations, assistance requests, inventory allocation, and shipments. The repository currently contains the backend and SQL Server schema; a frontend is not included.
+
+## Run locally
+
+1. Install Java 17+ and SQL Server.
+2. Run `sql/Coordination.sql` once to create `CoordinationDB` and the base roles/catalog data.
+3. Set `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, and `APP_TOKEN_SECRET`. The token secret must contain at least 32 bytes; the app refuses to start without it.
+4. For the first administrator, also set `APP_BOOTSTRAP_ADMIN_EMAIL` and `APP_BOOTSTRAP_ADMIN_PASSWORD` (12+ characters). The bootstrap only creates a new account; it will not promote an existing user.
+5. Start the API from `backend` with `mvn spring-boot:run` or `mvnw.cmd spring-boot:run`.
+
+`backend/.env.example` lists the required local settings. Copy it to `backend/.env.local` and replace every placeholder. The app loads that file whether it is started from the repository root or from `backend`. `.env.local` is intentionally local configuration and should not be committed.
+
+Hibernate validates the existing SQL schema and does not create or alter tables. If an existing account has a legacy plaintext password, a successful login upgrades it to BCrypt immediately.
+
+### Sample database data
+
+After creating the schema, run `sql/Coordination.SampleData.sql` in SQL Server Management Studio. The script is transactional and can be run again without duplicating its demo records. It creates demo accounts, pending records for approval, an approved request ready for allocation, and one completed donation-to-delivery history. It prints the generated database IDs needed in Swagger request bodies after seeding. When running it with `sqlcmd`, use UTF-8 input (`-f 65001`) so Vietnamese catalog names match correctly.
+
+All demo accounts use the password `DemoPass123!`:
+
+- `demo.admin@coordination.local` — `ADMIN`
+- `demo.coordinator@coordination.local` — `COORDINATOR`
+- `demo.donor@coordination.local` — `USER`
+- `demo.recipient@coordination.local` — `USER`
+
+Use `RQ-DEMO-READY-001` to test allocation creation. The completed example uses `DN-DEMO-COMPLETE-001`, `RQ-DEMO-COMPLETE-001`, and `SH-DEMO-COMPLETE-001`.
+
+## Authentication
+
+`POST /api/auth/register` creates a `USER` account. `POST /api/auth/login` returns a signed Bearer access token that expires after one hour. Send it as `Authorization: Bearer <token>`. `GET /api/auth/me` returns the current profile and roles. Tokens are stateless and cannot be individually revoked; changing account status or roles takes effect on the next request, while password changes do not invalidate already issued tokens before expiry.
+
+All protected endpoints return JSON `401` or `403` responses. Catalog `GET` endpoints for items, categories, and units are public. Regular users can create their own donations and assistance requests, add item lines to those records, and list their own records at `/api/donations/mine` and `/api/assistance-requests/mine`. Administrative and coordination operations require `ADMIN` or `COORDINATOR`; user/role administration requires `ADMIN`.
+
+## Try the API
+
+Open `http://localhost:8080/swagger-ui.html` or `http://localhost:8080/swagger-ui/index.html`. Use `POST /api/auth/login` to get an access token, choose **Authorize**, and paste the token value. Swagger UI will send it as a Bearer token for protected operations. The OpenAPI JSON is at `/v3/api-docs`; set `OPENAPI_ENABLED=false` to disable Swagger UI and the OpenAPI document.
+
+## Main workflow endpoints
+
+- `POST /api/donations` and `POST /api/donation-items` create a pending donation and its offered items.
+- `POST /api/donations/{id}/approve` or `/reject` records a coordinator decision. Approval accepts the offered quantities.
+- A donor can cancel their own pending donation with `POST /api/donations/{id}/cancel`.
+- `POST /api/assistance-requests` and `POST /api/request-items` create a pending request and requested items.
+- `POST /api/assistance-requests/{id}/approve` or `/reject` records a coordinator decision. Approval initially approves the requested quantities.
+- A recipient can cancel their own pending request with `POST /api/assistance-requests/{id}/cancel`.
+- `POST /api/allocations` reserves approved donation stock against approved request lines. It checks matching item types, remaining requested quantity, and available stock in a transaction, then records supply movements.
+- `POST /api/allocations/{id}/cancel` releases reserved stock and logs the movement. A partially delivered allocation cannot be cancelled.
+- `POST /api/shipments/{id}/events` changes shipment status only along allowed transitions and appends an immutable event.
+
+The create endpoints accept compact JSON bodies. For example, create a donation with `{"pickupAddress":"...","donationType":"DONATED","note":"..."}`, then add a line with `{"donationId":1,"itemId":1,"offeredQuantity":10,"itemCondition":"NEW"}`. A request uses `title`, `description`, `deliveryAddress`, and `priority`; its item line uses `requestId`, `itemId`, `requestedQuantity`, and `note`. Allocation creation takes `requestId`, optional `note`, and `items` containing `requestItemId`, `donationItemId`, and positive `quantity` values.
+
+Most legacy CRUD endpoints are restricted to coordinators or administrators. Allocation and shipment history records cannot be changed through generic CRUD endpoints because doing so would bypass stock and audit rules.

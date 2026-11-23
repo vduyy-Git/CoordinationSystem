@@ -11,6 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.dao.DataIntegrityViolationException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
+import java.util.List;
 
 /**
  *
@@ -22,42 +26,54 @@ public class GlobalExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiResponse<?>> handleNotFound(NotFoundException ex){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(ex.getMessage()));
+    public ResponseEntity<ApiResponse<?>> handleNotFound(NotFoundException ex, HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(404, "NOT_FOUND", ex.getMessage(), request.getRequestURI(), List.of()));
     }
     
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ApiResponse<?>> handleBadRequest(BadRequestException ex){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ex.getMessage()));
+    public ResponseEntity<ApiResponse<?>> handleBadRequest(BadRequestException ex, HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(400, "BAD_REQUEST", ex.getMessage(), request.getRequestURI(), List.of()));
     }
     
     @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ApiResponse<?>> handleConflict(ConflictException ex){
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.error(ex.getMessage()));
+    public ResponseEntity<ApiResponse<?>> handleConflict(ConflictException ex, HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.error(409, "CONFLICT", ex.getMessage(), request.getRequestURI(), List.of()));
     }
     
     @ExceptionHandler(UnAuthorizeException.class)
-    public ResponseEntity<ApiResponse<?>> handleUnauthorized(UnAuthorizeException ex){
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ex.getMessage()));
+    public ResponseEntity<ApiResponse<?>> handleUnauthorized(UnAuthorizeException ex, HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(401, "UNAUTHORIZED", ex.getMessage(), request.getRequestURI(), List.of()));
     }
     
     @ExceptionHandler(ForBiddenException.class)
-    public ResponseEntity<ApiResponse<?>> handleForbidden(ForBiddenException ex){
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error(ex.getMessage()));
+    public ResponseEntity<ApiResponse<?>> handleForbidden(ForBiddenException ex, HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error(403, "FORBIDDEN", ex.getMessage(), request.getRequestURI(), List.of()));
     }
     
     //k hieu
     @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<?>> handleValidation(
-            org.springframework.web.bind.MethodArgumentNotValidException ex) {
+            org.springframework.web.bind.MethodArgumentNotValidException ex, HttpServletRequest request) {
 
-        String message = ex.getBindingResult()
-                .getFieldErrors()
-                .get(0)
-                .getDefaultMessage();
+        List<String> details = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage()).toList();
+        String message = details.isEmpty() ? "Dữ liệu đầu vào không hợp lệ" : details.get(0);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(message));
+                .body(ApiResponse.error(400, "VALIDATION_ERROR", message, request.getRequestURI(), details));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<?>> handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest request) {
+        List<String> details = ex.getConstraintViolations().stream().map(v -> v.getMessage()).toList();
+        return ResponseEntity.badRequest().body(ApiResponse.error(400, "VALIDATION_ERROR",
+                details.isEmpty() ? "Dữ liệu đầu vào không hợp lệ" : details.get(0), request.getRequestURI(), details));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<?>> handleIntegrity(DataIntegrityViolationException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.error(409, "DATA_CONFLICT",
+                "Dữ liệu đang bị ràng buộc bởi bản ghi khác hoặc khóa duy nhất", request.getRequestURI(), List.of()));
     }
     
     @ExceptionHandler(Exception.class)

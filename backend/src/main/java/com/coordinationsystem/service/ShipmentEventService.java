@@ -28,18 +28,15 @@ public class ShipmentEventService {
     }
 
     public ShipmentEvent create(ShipmentEvent entity) {
-        setEntityId(entity, null);
-        return repository.save(entity);
+        throw new com.coordinationsystem.exception.BadRequestException("Tạo sự kiện qua POST /api/shipments/{id}/events");
     }
 
     public ShipmentEvent update(Long id, ShipmentEvent entity) {
-        getById(id);
-        setEntityId(entity, id);
-        return repository.save(entity);
+        throw new com.coordinationsystem.exception.BadRequestException("Lịch sử shipment không thể sửa trực tiếp");
     }
 
     public void delete(Long id) {
-        repository.delete(getById(id));
+        throw new com.coordinationsystem.exception.BadRequestException("Lịch sử shipment không thể xóa trực tiếp");
     }
 
     private void setEntityId(ShipmentEvent entity, Long id) {

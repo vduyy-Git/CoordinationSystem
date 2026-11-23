@@ -28,18 +28,15 @@ public class AllocationItemService {
     }
 
     public AllocationItem create(AllocationItem entity) {
-        setEntityId(entity, null);
-        return repository.save(entity);
+        throw new com.coordinationsystem.exception.BadRequestException("Chi tiết phân bổ chỉ được tạo qua POST /api/allocations");
     }
 
     public AllocationItem update(Long id, AllocationItem entity) {
-        getById(id);
-        setEntityId(entity, id);
-        return repository.save(entity);
+        throw new com.coordinationsystem.exception.BadRequestException("Không hỗ trợ sửa trực tiếp chi tiết phân bổ");
     }
 
     public void delete(Long id) {
-        repository.delete(getById(id));
+        throw new com.coordinationsystem.exception.BadRequestException("Không hỗ trợ xóa trực tiếp chi tiết phân bổ");
     }
 
     private void setEntityId(AllocationItem entity, Long id) {

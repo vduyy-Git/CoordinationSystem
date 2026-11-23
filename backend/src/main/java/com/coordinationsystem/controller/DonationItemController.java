@@ -2,6 +2,7 @@ package com.coordinationsystem.controller;
 
 import com.coordinationsystem.dtoresponse.ApiResponse;
 import com.coordinationsystem.model.DonationItem;
+import com.coordinationsystem.dtorequest.CreateDonationItemRequest;
 import com.coordinationsystem.service.DonationItemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -36,8 +39,8 @@ public class DonationItemController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<DonationItem>> create(@RequestBody DonationItem entity) {
-        DonationItem created = service.create(entity);
+    public ResponseEntity<ApiResponse<DonationItem>> create(@Valid @RequestBody CreateDonationItemRequest command, Authentication authentication) {
+        DonationItem created = service.createForDonor(command, authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Tạo dữ liệu thành công", created));
     }

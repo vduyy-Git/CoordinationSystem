@@ -1,6 +1,7 @@
 package com.coordinationsystem.controller;
 
 import com.coordinationsystem.dtoresponse.ApiResponse;
+import com.coordinationsystem.dtorequest.CreateAllocationRequest;
 import com.coordinationsystem.model.Allocation;
 import com.coordinationsystem.service.AllocationService;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -36,8 +40,9 @@ public class AllocationController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Allocation>> create(@RequestBody Allocation entity) {
-        Allocation created = service.create(entity);
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
+    public ResponseEntity<ApiResponse<Allocation>> create(@Valid @RequestBody CreateAllocationRequest command, Authentication authentication) {
+        Allocation created = service.allocate(command, authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Tạo dữ liệu thành công", created));
     }
@@ -51,5 +56,11 @@ public class AllocationController {
     public ApiResponse<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ApiResponse.success("Xóa dữ liệu thành công");
+    }
+
+    @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
+    public ApiResponse<Allocation> cancel(@PathVariable Long id, Authentication authentication) {
+        return ApiResponse.success("Đã hủy phân bổ và hoàn tồn kho", service.cancel(id, authentication.getName()));
     }
 }

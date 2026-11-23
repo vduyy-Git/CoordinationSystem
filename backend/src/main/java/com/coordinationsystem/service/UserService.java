@@ -6,6 +6,10 @@ import com.coordinationsystem.repository.UserRepository;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+import java.time.LocalDateTime;
 
 import java.util.List;
 
@@ -13,9 +17,11 @@ import java.util.List;
 @Transactional
 public class UserService {
     private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository repository) {
+    public UserService(UserRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<User> getAll() {
@@ -28,12 +34,47 @@ public class UserService {
     }
 
     public User create(User entity) {
+        if (entity.getPassword() == null || entity.getPassword().length() < 8) {
+            throw new com.coordinationsystem.exception.BadRequestException("Mật khẩu phải có ít nhất 8 ký tự");
+        }
+        if (entity.getEmail() == null || entity.getFullName() == null || entity.getFullName().isBlank()) {
+            throw new com.coordinationsystem.exception.BadRequestException("Họ tên và email là bắt buộc");
+        }
+        if (entity.getPassword().getBytes(StandardCharsets.UTF_8).length > 72) {
+            throw new com.coordinationsystem.exception.BadRequestException("Mật khẩu không được vượt quá 72 byte UTF-8");
+        }
+        entity.setEmail(entity.getEmail().trim().toLowerCase(Locale.ROOT));
+        if (repository.existsByEmailIgnoreCase(entity.getEmail())) {
+            throw new com.coordinationsystem.exception.ConflictException("Email đã được sử dụng");
+        }
+        entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+        entity.setStatus("ACTIVE");
         setEntityId(entity, null);
         return repository.save(entity);
     }
 
     public User update(Long id, User entity) {
         getById(id);
+        if (entity.getEmail() == null || entity.getFullName() == null || entity.getFullName().isBlank()) {
+            throw new com.coordinationsystem.exception.BadRequestException("Họ tên và email là bắt buộc");
+        }
+        entity.setEmail(entity.getEmail().trim().toLowerCase(Locale.ROOT));
+        User existing = getById(id);
+        if (entity.getStatus() == null) entity.setStatus(existing.getStatus());
+        if (!existing.getEmail().equalsIgnoreCase(entity.getEmail()) && repository.existsByEmailIgnoreCase(entity.getEmail())) {
+            throw new com.coordinationsystem.exception.ConflictException("Email đã được sử dụng");
+        }
+        if (entity.getPassword() != null && !entity.getPassword().isBlank()) {
+            if (entity.getPassword().length() < 8) throw new com.coordinationsystem.exception.BadRequestException("Mật khẩu phải có ít nhất 8 ký tự");
+            if (entity.getPassword().getBytes(StandardCharsets.UTF_8).length > 72) throw new com.coordinationsystem.exception.BadRequestException("Mật khẩu không được vượt quá 72 byte UTF-8");
+            entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+        } else {
+            entity.setPassword(existing.getPassword());
+        }
+        if (entity.getStatus() == null || !List.of("ACTIVE", "INACTIVE", "LOCKED").contains(entity.getStatus())) {
+            throw new com.coordinationsystem.exception.BadRequestException("Trạng thái tài khoản không hợp lệ");
+        }
+        entity.setUpdatedAt(LocalDateTime.now());
         setEntityId(entity, id);
         return repository.save(entity);
     }

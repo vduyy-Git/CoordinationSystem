@@ -28,18 +28,15 @@ public class SupplyMovementService {
     }
 
     public SupplyMovement create(SupplyMovement entity) {
-        setEntityId(entity, null);
-        return repository.save(entity);
+        throw new com.coordinationsystem.exception.BadRequestException("Lịch sử vật tư chỉ được ghi bởi quy trình nghiệp vụ");
     }
 
     public SupplyMovement update(Long id, SupplyMovement entity) {
-        getById(id);
-        setEntityId(entity, id);
-        return repository.save(entity);
+        throw new com.coordinationsystem.exception.BadRequestException("Lịch sử vật tư không thể sửa trực tiếp");
     }
 
     public void delete(Long id) {
-        repository.delete(getById(id));
+        throw new com.coordinationsystem.exception.BadRequestException("Lịch sử vật tư không thể xóa trực tiếp");
     }
 
     private void setEntityId(SupplyMovement entity, Long id) {
