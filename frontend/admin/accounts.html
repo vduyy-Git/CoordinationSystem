@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quản lý Tài khoản — Admin CoordSystem</title>
+  <link rel="icon" type="image/png" href="../src/assets/logo-icon.png"/>
+  <link rel="stylesheet" href="assets/admin.css"/>
+</head>
+<body>
+  <nav class="admin-sidebar">
+    <div class="sidebar-brand"><img src="../src/assets/logo-transparent.png" alt="CoordSystem" style="height:32px; object-fit:contain; margin-bottom:8px;"/>
+      <h1 class="text-gold">🏛 Admin Panel</h1>
+      <p>An sinh Xã hội — Cấp Xã/Phường</p>
+    </div>
+    <div class="sidebar-menu">
+      <div class="sidebar-section">Tổng quan</div>
+      <a class="sidebar-item " href="dashboard.html">
+        <span class="si-icon">📊</span> Dashboard
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Quản lý</div>
+      <a class="sidebar-item active" href="accounts.html">
+        <span class="si-icon">👥</span> Quản lý tài khoản
+      </a>
+      <a class="sidebar-item " href="citizens.html">
+        <span class="si-icon">🏘</span> Người dân &amp; Nhu cầu
+        <span class="si-badge">12</span>
+      </a>
+      <a class="sidebar-item " href="services.html">
+        <span class="si-icon">🔧</span> Dịch vụ &amp; Thiết bị
+      </a>
+      <a class="sidebar-item " href="resources.html">
+        <span class="si-icon">📦</span> Quản lý nguồn lực
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Xử lý</div>
+      <a class="sidebar-item " href="requests.html">
+        <span class="si-icon">📋</span> Tiếp nhận &amp; Xử lý
+        <span class="si-badge">8</span>
+      </a>
+      <a class="sidebar-item " href="allocations.html">
+        <span class="si-icon">⚖️</span> Phân bổ &amp; Theo dõi
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Báo cáo</div>
+      <a class="sidebar-item " href="reports.html">
+        <span class="si-icon">📈</span> Thống kê &amp; Báo cáo
+      </a>
+      <div class="sidebar-section" style="margin-top:12px;"></div>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(180,42,58,0.85); font-weight:600;">
+        <span class="si-icon">🏠</span> Về Trang Chủ / Dashboard
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">AD</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Nguyễn Duy</div>
+          <div class="sidebar-user-role">Cán bộ Quản trị / Điều phối</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <header class="admin-topbar">
+    <div class="topbar-left">
+      <div class="topbar-breadcrumb">
+        🏛 Admin <span style="color:var(--beige-mid);">›</span> <span class="bc-active">Quản lý Tài khoản</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-search">
+        🔍 <input type="text" placeholder="Tìm kiếm nhanh..." />
+      </div>
+      <button class="topbar-icon-btn" title="Thông báo">🔔<span class="notif-dot"></span></button>
+      <button class="topbar-icon-btn" title="Về trang chủ" onclick="location.href='../index.html'">🏠</button>
+    </div>
+  </header>
+  <main class="admin-main">
+    <div class="admin-page">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>👥 Quản lý Tài khoản</h2>
+          <p>Đăng ký, xác minh, phân quyền (ADMIN, COORDINATOR, USER) và khóa/mở khóa tài khoản</p>
+        </div>
+        <button class="btn btn-primary" onclick="document.getElementById('addUserModal').style.display='flex'">＋ Thêm tài khoản</button>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card sc-gold"><div class="stat-icon">👥</div><div class="stat-val text-gold">48</div><div class="stat-label">Tổng tài khoản</div></div>
+        <div class="stat-card sc-green"><div class="stat-icon">✅</div><div class="stat-val" style="color:#2E6B28;">42</div><div class="stat-label">Đang hoạt động</div></div>
+        <div class="stat-card sc-red"><div class="stat-icon">🔒</div><div class="stat-val" style="color:#B02A3A;">3</div><div class="stat-label">Đang bị khóa</div></div>
+        <div class="stat-card sc-blue"><div class="stat-icon">⏳</div><div class="stat-val" style="color:#2A5FAA;">3</div><div class="stat-label">Chờ xác minh</div></div>
+      </div>
+
+      <div class="filter-bar">
+        <input type="search" placeholder="🔍 Tìm theo tên, email, số điện thoại..." />
+        <select><option value="">Tất cả vai trò</option><option>ADMIN (Quản trị viên)</option><option>COORDINATOR (Điều phối viên)</option><option>USER (Người dân)</option></select>
+        <select><option value="">Tất cả trạng thái</option><option>ACTIVE</option><option>INACTIVE</option><option>LOCKED</option></select>
+        <button class="btn btn-primary btn-sm">Lọc dữ liệu</button>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead><tr><th></th><th>Họ tên</th><th>Email</th><th>SĐT</th><th>Vai trò</th><th>Trạng thái</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><div class="avatar avatar-sm avatar-gold">ND</div></td>
+                <td style="font-weight:700;">Nguyễn Duy</td>
+                <td>nguyenduy@email.com</td><td>0901234567</td>
+                <td><span class="badge badge-admin">⚙️ ADMIN</span></td>
+                <td><span class="badge badge-active">ACTIVE</span></td>
+                <td style="color:var(--text-light);">01/01/2026</td>
+                <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon" title="Sửa">✏️</button><button class="btn btn-ghost btn-icon" title="Khóa">🔒</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="avatar avatar-sm avatar-purple">TM</div></td>
+                <td style="font-weight:700;">Trần Minh</td>
+                <td>tranminh@email.com</td><td>0909876543</td>
+                <td><span class="badge badge-coord">🎯 COORDINATOR</span></td>
+                <td><span class="badge badge-active">ACTIVE</span></td>
+                <td style="color:var(--text-light);">15/03/2026</td>
+                <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon">✏️</button><button class="btn btn-ghost btn-icon">🔒</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="avatar avatar-sm avatar-green">LH</div></td>
+                <td style="font-weight:700;">Lê Thị Hoa</td>
+                <td>lethihoa@email.com</td><td>0912345678</td>
+                <td><span class="badge badge-user">👤 USER (Người dân)</span></td>
+                <td><span class="badge badge-active">ACTIVE</span></td>
+                <td style="color:var(--text-light);">20/06/2026</td>
+                <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon">✏️</button><button class="btn btn-ghost btn-icon">🔒</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="avatar avatar-sm avatar-brown">PL</div></td>
+                <td style="font-weight:700;">Phạm Đức Long</td>
+                <td>phamlong@email.com</td><td>0918765432</td>
+                <td><span class="badge badge-user">👤 USER (Người dân)</span></td>
+                <td><span class="badge badge-locked">🔒 LOCKED</span></td>
+                <td style="color:var(--text-light);">05/08/2026</td>
+                <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon">✏️</button><button class="btn btn-success btn-icon btn-sm" title="Mở khóa">🔓</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="avatar avatar-sm avatar-purple">NM</div></td>
+                <td style="font-weight:700;">Nguyễn Mai</td>
+                <td>nguyenmai@email.com</td><td>0923456789</td>
+                <td><span class="badge badge-coord">🎯 COORDINATOR</span></td>
+                <td><span class="badge badge-active">ACTIVE</span></td>
+                <td style="color:var(--text-light);">01/09/2026</td>
+                <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon">✏️</button><button class="btn btn-ghost btn-icon">🔒</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Add User Modal -->
+      <div class="modal-overlay" id="addUserModal" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal">
+          <div class="modal-header">
+            <div class="modal-title text-gold">＋ Thêm Tài khoản mới</div>
+            <button class="modal-close" onclick="document.getElementById('addUserModal').style.display='none'">✕</button>
+          </div>
+          <div class="divider-gold"></div>
+          <form onsubmit="event.preventDefault();document.getElementById('addUserModal').style.display='none';alert('Tạo tài khoản thành công!');">
+            <div class="grid-2">
+              <div class="form-group"><label class="form-label">👤 Họ và tên</label><input type="text" class="form-control" placeholder="Nguyễn Văn A" required/></div>
+              <div class="form-group"><label class="form-label">📧 Email</label><input type="email" class="form-control" placeholder="email@example.com" required/></div>
+              <div class="form-group"><label class="form-label">📱 Số điện thoại</label><input type="tel" class="form-control" placeholder="0901234567"/></div>
+              <div class="form-group"><label class="form-label">🔑 Vai trò</label>
+                <select class="form-control"><option>USER — Người dân</option><option>COORDINATOR — Điều phối viên</option><option>ADMIN — Quản trị viên</option></select>
+              </div>
+            </div>
+            <div class="form-group"><label class="form-label">🔒 Mật khẩu</label><input type="password" class="form-control" placeholder="Tối thiểu 8 ký tự" required/></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+              <button type="button" class="btn btn-ghost" onclick="document.getElementById('addUserModal').style.display='none'">Hủy</button>
+              <button type="submit" class="btn btn-primary">✅ Tạo tài khoản</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
+

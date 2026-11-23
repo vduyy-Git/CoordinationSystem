@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Giao hàng — CoordSystem</title>
+  <link rel="stylesheet" href="../assets/styles.css"/>
+  <style>
+    .ship-card {
+      background: rgba(45,27,78,0.4); border: 1px solid rgba(212,175,55,0.15);
+      border-radius: var(--radius-md); padding: 20px;
+      transition: var(--transition); animation: fadeInUp 0.4s ease;
+    }
+    .ship-card:hover { border-color: rgba(212,175,55,0.4); transform: translateY(-2px); box-shadow: var(--shadow-gold); }
+    .ship-code { font-family: monospace; font-size: 0.82rem; color: var(--gold-2); background: rgba(212,175,55,0.1); padding: 2px 8px; border-radius: 4px; }
+    .tracking-code { font-family: monospace; font-size: 0.8rem; color: var(--brown-light); }
+
+    /* Stepper */
+    .stepper { display: flex; align-items: center; margin: 14px 0; }
+    .step {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      flex: 1; position: relative;
+    }
+    .step:not(:last-child)::after {
+      content: ''; position: absolute; top: 12px; left: 60%;
+      width: 80%; height: 2px;
+      background: rgba(212,175,55,0.2);
+    }
+    .step.done:not(:last-child)::after { background: var(--gradient-gold); background-size: 200% auto; animation: shimmer 3s linear infinite; }
+    .step-dot {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: rgba(212,175,55,0.1); border: 2px solid rgba(212,175,55,0.3);
+      display: flex; align-items: center; justify-content: center; font-size: 0.65rem;
+      z-index: 1; position: relative;
+    }
+    .step.done .step-dot { background: var(--gradient-gold); background-size: 200% auto; animation: shimmer 3s linear infinite; border-color: var(--gold-1); color: var(--purple-dark); font-weight: 800; }
+    .step.current .step-dot { background: rgba(212,175,55,0.2); border-color: var(--gold-1); animation: glow-pulse 2s ease infinite; }
+    .step-label { font-size: 0.62rem; color: var(--text-light); text-align: center; white-space: nowrap; }
+    .step.done .step-label { color: var(--gold-2); }
+    .step.current .step-label { color: var(--gold-1); font-weight: 700; }
+
+    .ship-info-row { display: flex; gap: 16px; flex-wrap: wrap; margin: 10px 0; font-size: 0.82rem; }
+    .ship-info-item { display: flex; align-items: center; gap: 5px; color: var(--text-light); }
+    .ship-info-item strong { color: var(--beige); }
+
+    .btn-sm { padding: 7px 14px; font-size: 0.8rem; border-radius: var(--radius-sm); border: none; cursor: pointer; font-weight: 600; transition: var(--transition); }
+    .btn-sm-view { background: rgba(212,175,55,0.1); color: var(--gold-2); border: 1px solid rgba(212,175,55,0.3); }
+    .btn-sm-view:hover { background: rgba(212,175,55,0.2); }
+    .btn-sm-update { background: rgba(74,103,65,0.3); color: #8FC87C; border: 1px solid var(--moss-green); }
+    .btn-sm-update:hover { background: rgba(74,103,65,0.5); }
+    .btn-sm-confirm { background: rgba(90,62,138,0.3); color: #C4A8FF; border: 1px solid var(--purple-light); }
+    .btn-sm-confirm:hover { background: rgba(90,62,138,0.5); }
+
+    .tab-nav { display: flex; gap: 4px; background: rgba(255,255,255,0.05); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 20px; width: fit-content; }
+    .tab-btn { padding: 9px 20px; border-radius: 4px; font-size: 0.88rem; font-weight: 600; border: none; background: transparent; color: var(--text-light); cursor: pointer; transition: var(--transition); }
+    .tab-btn.active { background: var(--gradient-gold); background-size: 200% auto; animation: shimmer 3s linear infinite; color: var(--purple-dark); }
+    .tab-btn:hover:not(.active) { color: var(--gold-2); background: rgba(212,175,55,0.08); }
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="sidebar-logo"><h1 class="text-gold">🌿 CoordSystem</h1><p>Điều phối An sinh Xã hội</p></div>
+    <div class="sidebar-nav">
+      <div class="sidebar-section-title">Tổng quan</div>
+      <a class="sidebar-link" href="dashboard.html"><span class="icon">📊</span> Dashboard</a>
+      <a class="sidebar-link" href="donations.html"><span class="icon">🎁</span> Quyên góp</a>
+      <a class="sidebar-link" href="requests.html"><span class="icon">📋</span> Yêu cầu hỗ trợ</a>
+      <div class="sidebar-section-title" style="margin-top:8px;">Điều phối</div>
+      <a class="sidebar-link" href="allocations.html"><span class="icon">⚖️</span> Phân bổ nguồn lực</a>
+      <a class="sidebar-link active" href="shipments.html"><span class="icon">🚚</span> Giao hàng</a>
+      <div class="sidebar-section-title" style="margin-top:8px;">Hệ thống</div>
+      <a class="sidebar-link" href="admin.html"><span class="icon">⚙️</span> Quản trị</a>
+      <a class="sidebar-link" href="profile.html"><span class="icon">👤</span> Hồ sơ cá nhân</a>
+      <a class="sidebar-link" href="../../index.html" style="margin-top:16px; color:rgba(155,35,53,0.8);"><span class="icon">🚪</span> Đăng xuất</a>
+    </div>
+  </nav>
+
+  <header class="topbar">
+    <span class="topbar-title">🚚 Quản lý Giao hàng</span>
+    <div class="topbar-actions">
+      <button class="btn-gold" onclick="openCreateShip()">＋ Tạo chuyến giao</button>
+      <div class="avatar-ring">ND</div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="page-wrapper">
+      <div class="page-header">
+        <h2>Theo dõi Chuyến giao hàng</h2>
+        <p>Quản lý toàn bộ hành trình từ lấy hàng đến xác nhận giao</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid-4" style="margin-bottom:20px;">
+        <div class="glass-card stat-card" style="padding:16px; border-color:rgba(212,175,55,0.3);">
+          <div class="stat-value text-gold" style="font-size:1.8rem;">58</div>
+          <div class="stat-label">🚚 Đang vận chuyển</div>
+        </div>
+        <div class="glass-card stat-card" style="padding:16px; border-color:rgba(74,103,65,0.4);">
+          <div class="stat-value" style="font-size:1.8rem; color:#8FC87C;">312</div>
+          <div class="stat-label">✅ Đã giao thành công</div>
+        </div>
+        <div class="glass-card stat-card stat-card-red" style="padding:16px;">
+          <div class="stat-value" style="font-size:1.8rem; color:#FF7A8A;">7</div>
+          <div class="stat-label">❌ Giao thất bại</div>
+        </div>
+        <div class="glass-card stat-card stat-card-brown" style="padding:16px;">
+          <div class="stat-value" style="font-size:1.8rem; color:var(--brown-light);">94%</div>
+          <div class="stat-label">📈 Tỷ lệ thành công</div>
+        </div>
+      </div>
+
+      <!-- Tab Nav -->
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="filterShipments('all', this)">Tất cả</button>
+        <button class="tab-btn" onclick="filterShipments('PENDING', this)">⏳ Chờ</button>
+        <button class="tab-btn" onclick="filterShipments('IN_TRANSIT', this)">🚛 Vận chuyển</button>
+        <button class="tab-btn" onclick="filterShipments('OUT_FOR_DELIVERY', this)">📦 Đang giao</button>
+        <button class="tab-btn" onclick="filterShipments('DELIVERED', this)">✅ Đã giao</button>
+        <button class="tab-btn" onclick="filterShipments('FAILED', this)">❌ Thất bại</button>
+      </div>
+
+      <div class="grid-2" id="shipmentList"></div>
+    </div>
+  </main>
+
+  <!-- Shipment Detail Modal -->
+  <div class="modal-overlay" id="detailModal" style="display:none;">
+    <div class="modal" style="max-width:580px;">
+      <div class="modal-header">
+        <div>
+          <span class="ship-code">SHP-2026-0058</span>
+          <div class="modal-title" style="margin-top:6px;">🚚 Chi tiết Chuyến giao</div>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('detailModal').style.display='none'">✕</button>
+      </div>
+      <div class="divider-gold"></div>
+      <div class="grid-2" style="gap:12px; margin-bottom:16px;">
+        <div><div style="font-size:0.78rem;color:var(--text-light);">Đối tác vận chuyển</div><div style="font-weight:700;">🏢 Giao hàng Nhanh</div></div>
+        <div><div style="font-size:0.78rem;color:var(--text-light);">Mã vận đơn</div><div class="tracking-code">GHN20261120XY</div></div>
+        <div><div style="font-size:0.78rem;color:var(--text-light);">Lấy hàng tại</div><div style="font-weight:600; font-size:0.88rem;">Điểm tập kết số 2 — Q.5, TP.HCM</div></div>
+        <div><div style="font-size:0.78rem;color:var(--text-light);">Giao đến</div><div style="font-weight:600; font-size:0.88rem;">Xã Tân Mỹ, H. Châu Phú, An Giang</div></div>
+      </div>
+      <div style="font-weight:700; color:var(--gold-2); margin-bottom:10px;">📦 Hàng hóa trong chuyến</div>
+      <div style="background:rgba(45,27,78,0.4); border-radius:var(--radius-md); padding:14px;">
+        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(212,175,55,0.1); font-size:0.85rem;">
+          <span>Nước uống đóng chai</span><span style="color:var(--gold-2);">200 chai</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; padding:6px 0; font-size:0.85rem;">
+          <span>Khẩu trang y tế</span><span style="color:var(--gold-2);">30 hộp</span>
+        </div>
+      </div>
+      <div style="font-weight:700; color:var(--gold-2); margin:16px 0 10px;">📡 Lịch sử sự kiện</div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">🚛 IN_TRANSIT — Đang vận chuyển</div>
+            <div class="timeline-desc">08:30 · TP. Hồ Chí Minh · Cập nhật bởi: GHN System</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">📦 PICKED_UP — Đã lấy hàng</div>
+            <div class="timeline-desc">06:15 · Điểm tập kết số 2, Q.5 · Điều phối viên: Trần Minh</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">📋 BOOKED — Đã đặt vận chuyển</div>
+            <div class="timeline-desc">Hôm qua 15:00 · Hệ thống tự động</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
+        <button class="btn-gold" style="padding:10px 20px; font-size:0.88rem;" onclick="openConfirmModal()">✅ Xác nhận giao hàng</button>
+        <button class="btn-outline" style="padding:10px 20px; font-size:0.88rem;" onclick="document.getElementById('detailModal').style.display='none'">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Shipment Modal -->
+  <div class="modal-overlay" id="createModal" style="display:none;">
+    <div class="modal" style="max-width:560px;">
+      <div class="modal-header">
+        <div class="modal-title text-gold">🚚 Tạo Chuyến giao hàng</div>
+        <button class="modal-close" onclick="document.getElementById('createModal').style.display='none'">✕</button>
+      </div>
+      <div class="divider-gold"></div>
+      <form onsubmit="submitShipment(event)">
+        <div class="form-group">
+          <label class="form-label">🏢 Đối tác vận chuyển</label>
+          <select class="form-input">
+            <option>Giao hàng Nhanh (GHN)</option>
+            <option>Giao hàng Tiết kiệm (GHTK)</option>
+            <option>J&T Express</option>
+            <option>Vận chuyển nội bộ</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📍 Địa chỉ lấy hàng</label>
+          <input type="text" class="form-input" placeholder="Điểm tập kết / Địa chỉ lấy hàng..." required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">🏠 Địa chỉ giao hàng</label>
+          <input type="text" class="form-input" placeholder="Địa chỉ giao đến..." required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">🔗 Phân bổ liên kết</label>
+          <select class="form-input">
+            <option>ALLOC-2026-0096 — REQ-183 (Nước uống khẩn cấp)</option>
+            <option>ALLOC-2026-0095 — REQ-182 (Lương thực khô)</option>
+            <option>ALLOC-2026-0094 — REQ-181 (Khẩu trang y tế)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📝 Ghi chú</label>
+          <textarea class="form-input" placeholder="Lưu ý đặc biệt cho đối tác vận chuyển..."></textarea>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn-outline" style="flex:1; justify-content:center;" onclick="document.getElementById('createModal').style.display='none'">Hủy</button>
+          <button type="submit" class="btn-gold" style="flex:2; justify-content:center;">🚀 Tạo chuyến giao</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm Delivery Modal -->
+  <div class="modal-overlay" id="confirmModal" style="display:none;">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-header">
+        <div class="modal-title text-gold">✅ Xác nhận Giao hàng</div>
+        <button class="modal-close" onclick="document.getElementById('confirmModal').style.display='none'">✕</button>
+      </div>
+      <div class="divider-gold"></div>
+      <form onsubmit="submitConfirm(event)">
+        <div class="form-group">
+          <label class="form-label">👤 Người nhận</label>
+          <input type="text" class="form-input" placeholder="Họ tên người nhận hàng..." required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">🔑 Mã xác nhận</label>
+          <input type="text" class="form-input" placeholder="Mã xác nhận (nếu có)..."/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📸 Ảnh xác nhận</label>
+          <div style="border:2px dashed rgba(212,175,55,0.3); border-radius:var(--radius-md); padding:20px; text-align:center; cursor:pointer;"
+               onmouseenter="this.style.borderColor='var(--gold-1)'" onmouseleave="this.style.borderColor='rgba(212,175,55,0.3)'">
+            <div style="font-size:1.5rem; margin-bottom:6px;">📷</div>
+            <div style="font-size:0.82rem; color:var(--text-light);">Chụp hoặc tải ảnh xác nhận nhận hàng</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📝 Ghi chú</label>
+          <textarea class="form-input" placeholder="Tình trạng hàng khi nhận, số lượng thực tế..."></textarea>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn-outline" style="flex:1; justify-content:center;" onclick="document.getElementById('confirmModal').style.display='none'">Hủy</button>
+          <button type="submit" class="btn-gold" style="flex:2; justify-content:center;">✅ Xác nhận đã nhận hàng</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const shipments = [
+      { code:'SHP-2026-0058', partner:'Giao hàng Nhanh', tracking:'GHN20261120XY', from:'Điểm tập kết số 2, Q.5', to:'Xã Tân Mỹ, An Giang', status:'IN_TRANSIT', items:['Nước uống: 200 chai','Khẩu trang: 30 hộp'], steps:['PENDING','BOOKED','PICKED_UP','IN_TRANSIT'], time:'30 phút trước' },
+      { code:'SHP-2026-0057', partner:'J&T Express', tracking:'JT2026112057', from:'Điểm tập kết số 1, Q.1', to:'P.5, Q. Gò Vấp', status:'OUT_FOR_DELIVERY', items:['Khẩu trang y tế: 500 hộp'], steps:['PENDING','BOOKED','PICKED_UP','IN_TRANSIT','OUT_FOR_DELIVERY'], time:'1 giờ trước' },
+      { code:'SHP-2026-0056', partner:'GHTK', tracking:'GHTK2026AB56', from:'Kho điều phối TW', to:'Mái ấm Tình Thương, Q. Bình Thạnh', status:'DELIVERED', items:['Quần áo: 70 bộ'], steps:['PENDING','BOOKED','PICKED_UP','IN_TRANSIT','OUT_FOR_DELIVERY','DELIVERED'], time:'3 giờ trước' },
+      { code:'SHP-2026-0055', partner:'Vận chuyển nội bộ', tracking:'INTERNAL055', from:'Điểm tập kết số 3, Q. Tân Phú', to:'Q. Tân Phú', status:'DELIVERED', items:['Gạo: 200kg'], steps:['PENDING','BOOKED','PICKED_UP','IN_TRANSIT','OUT_FOR_DELIVERY','DELIVERED'], time:'5 giờ trước' },
+      { code:'SHP-2026-0054', partner:'Giao hàng Nhanh', tracking:'GHN20261119ZZ', from:'Điểm tập kết số 1', to:'Q.1, TP.HCM', status:'FAILED', items:['Mì ăn liền: 20 thùng','Nước uống: 60 chai'], steps:['PENDING','BOOKED','PICKED_UP','IN_TRANSIT'], time:'1 ngày trước' },
+      { code:'SHP-2026-0053', partner:'J&T Express', tracking:'JT202611190053', from:'Kho điều phối TW', to:'Q. Phú Nhuận', status:'PENDING', items:['Mì ăn liền: 50 thùng','Gạo: 100kg'], steps:['PENDING'], time:'2 giờ trước' },
+    ];
+
+    const statusMap = { PENDING:{label:'⏳ Chờ xử lý',cls:'badge-pending'}, BOOKED:{label:'📋 Đã đặt',cls:'badge-pending'}, PICKED_UP:{label:'📦 Đã lấy',cls:'badge-transit'}, IN_TRANSIT:{label:'🚛 Đang chuyển',cls:'badge-transit'}, OUT_FOR_DELIVERY:{label:'📬 Đang giao',cls:'badge-transit'}, DELIVERED:{label:'✅ Đã giao',cls:'badge-approved'}, FAILED:{label:'❌ Thất bại',cls:'badge-rejected'}, CANCELLED:{label:'🚫 Đã hủy',cls:'badge-cancelled'}, RETURNED:{label:'↩ Hoàn hàng',cls:'badge-rejected'} };
+    const allSteps = ['PENDING','BOOKED','PICKED_UP','IN_TRANSIT','OUT_FOR_DELIVERY','DELIVERED'];
+    const stepLabels = { PENDING:'Chờ', BOOKED:'Đặt', PICKED_UP:'Lấy hàng', IN_TRANSIT:'Vận chuyển', OUT_FOR_DELIVERY:'Đang giao', DELIVERED:'Hoàn thành' };
+
+    function renderShipments(filter) {
+      const list = document.getElementById('shipmentList');
+      const filtered = filter === 'all' ? shipments : shipments.filter(s => s.status === filter);
+      list.innerHTML = filtered.map((s,i) => {
+        const curIdx = allSteps.indexOf(s.status);
+        const steps = allSteps.map((st, idx) => {
+          const cls = idx < curIdx ? 'done' : (idx === curIdx ? 'current' : '');
+          return `<div class="step ${cls}"><div class="step-dot">${idx < curIdx ? '✓' : idx+1}</div><div class="step-label">${stepLabels[st]||st}</div></div>`;
+        }).join('');
+        return `
+          <div class="ship-card" style="animation-delay:${i*0.08}s;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+              <div>
+                <span class="ship-code">${s.code}</span>
+                <div class="tracking-code" style="margin-top:4px;">📡 ${s.tracking}</div>
+              </div>
+              <span class="badge ${statusMap[s.status].cls}">${statusMap[s.status].label}</span>
+            </div>
+            <div class="ship-info-row">
+              <div class="ship-info-item">📍 <strong>${s.from}</strong></div>
+              <div class="ship-info-item">→</div>
+              <div class="ship-info-item">🏠 <strong>${s.to}</strong></div>
+            </div>
+            <div class="ship-info-row" style="margin-top:0;">
+              <div class="ship-info-item">🏢 ${s.partner}</div>
+              <div class="ship-info-item">· 🕐 ${s.time}</div>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:5px; margin:8px 0;">
+              ${s.items.map(it=>`<span style="padding:3px 10px; border-radius:999px; font-size:0.74rem; background:rgba(74,103,65,0.2); color:#8FC87C; border:1px solid rgba(74,103,65,0.3);">${it}</span>`).join('')}
+            </div>
+            <div class="stepper">${steps}</div>
+            <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:12px;">
+              ${s.status==='IN_TRANSIT'||s.status==='OUT_FOR_DELIVERY' ? `<button class="btn-sm btn-sm-update" onclick="document.getElementById('detailModal').style.display='flex'">📡 Cập nhật</button>` : ''}
+              ${s.status==='OUT_FOR_DELIVERY' ? `<button class="btn-sm btn-sm-confirm" onclick="openConfirmModal()">✅ Xác nhận</button>` : ''}
+              <button class="btn-sm btn-sm-view" onclick="document.getElementById('detailModal').style.display='flex'">👁 Chi tiết</button>
+            </div>
+          </div>
+        `;
+      }).join('') || '<div style="text-align:center;color:var(--text-light);padding:40px;grid-column:span 2;">Không có chuyến giao nào</div>';
+    }
+
+    function filterShipments(f, btn) {
+      document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      renderShipments(f);
+    }
+
+    function openCreateShip() { document.getElementById('createModal').style.display='flex'; }
+    function openConfirmModal() {
+      document.getElementById('detailModal').style.display='none';
+      document.getElementById('confirmModal').style.display='flex';
+    }
+    function submitShipment(e) { e.preventDefault(); document.getElementById('createModal').style.display='none'; alert('Chuyến giao được tạo thành công!'); }
+    function submitConfirm(e) { e.preventDefault(); document.getElementById('confirmModal').style.display='none'; alert('Xác nhận giao hàng thành công!'); }
+
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+      el.addEventListener('click', e => { if(e.target===el) el.style.display='none'; });
+    });
+
+    renderShipments('all');
+  </script>
+</body>
+</html>
+

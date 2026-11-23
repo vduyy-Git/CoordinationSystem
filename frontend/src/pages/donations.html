@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quyên góp — CoordSystem</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    .filter-bar {
+      display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+      padding: 16px 20px;
+      background: rgba(45,27,78,0.4);
+      border: 1px solid rgba(212,175,55,0.15);
+      border-radius: var(--radius-md);
+      margin-bottom: 20px;
+    }
+    .filter-bar input, .filter-bar select {
+      padding: 9px 14px;
+      background: rgba(45,27,78,0.6);
+      border: 1px solid rgba(212,175,55,0.3);
+      border-radius: var(--radius-sm);
+      color: var(--beige); font-size: 0.88rem; outline: none;
+      transition: var(--transition);
+    }
+    .filter-bar input:focus, .filter-bar select:focus {
+      border-color: var(--gold-1);
+      box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
+    }
+    .filter-bar select option { background: var(--purple-dark); }
+    .filter-bar input { flex: 1; min-width: 200px; }
+
+    .donation-card {
+      padding: 20px;
+      border-radius: var(--radius-md);
+      background: rgba(45,27,78,0.4);
+      border: 1px solid rgba(212,175,55,0.15);
+      transition: var(--transition);
+      animation: fadeInUp 0.4s ease;
+    }
+    .donation-card:hover {
+      border-color: rgba(212,175,55,0.4);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-gold);
+    }
+    .donation-card-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .donation-code {
+      font-family: monospace; font-size: 0.82rem;
+      color: var(--gold-2); font-weight: 700;
+      background: rgba(212,175,55,0.1);
+      padding: 2px 8px; border-radius: 4px;
+    }
+    .donation-title { font-weight: 700; font-size: 1rem; color: var(--beige); margin-top: 4px; }
+    .donation-meta { font-size: 0.8rem; color: var(--text-light); margin-top: 4px; }
+    .donation-items-preview {
+      display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0;
+    }
+    .item-chip {
+      padding: 4px 10px; border-radius: 999px;
+      background: rgba(90,62,138,0.3);
+      border: 1px solid rgba(212,175,55,0.2);
+      font-size: 0.75rem; color: var(--beige-dark);
+    }
+    .donation-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 14px; padding-top: 12px;
+      border-top: 1px solid rgba(212,175,55,0.1);
+    }
+    .donor-info { display: flex; align-items: center; gap: 8px; }
+    .donor-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--gradient-gold); background-size: 200% auto;
+      animation: shimmer 3s linear infinite;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700; color: var(--purple-dark);
+    }
+    .donor-name { font-size: 0.82rem; color: var(--text-light); }
+    .action-row { display: flex; gap: 8px; }
+    .btn-sm {
+      padding: 7px 14px; font-size: 0.8rem; border-radius: var(--radius-sm);
+      border: none; cursor: pointer; font-weight: 600; transition: var(--transition);
+    }
+    .btn-sm-approve { background: rgba(74,103,65,0.3); color: #8FC87C; border: 1px solid var(--moss-green); }
+    .btn-sm-approve:hover { background: rgba(74,103,65,0.5); }
+    .btn-sm-reject  { background: rgba(155,35,53,0.2); color: #FF7A8A; border: 1px solid var(--red); }
+    .btn-sm-reject:hover  { background: rgba(155,35,53,0.4); }
+    .btn-sm-view    { background: rgba(212,175,55,0.1); color: var(--gold-2); border: 1px solid rgba(212,175,55,0.3); }
+    .btn-sm-view:hover    { background: rgba(212,175,55,0.2); }
+
+    /* Modal inner */
+    .item-row {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 10px; align-items: center; padding: 10px 0;
+      border-bottom: 1px solid rgba(212,175,55,0.1);
+      font-size: 0.88rem;
+    }
+    .item-row-header {
+      font-size: 0.78rem; color: var(--gold-2); font-weight: 700; letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <h1 class="text-gold">🌿 CoordSystem</h1>
+      <p>Điều phối An sinh Xã hội</p>
+    </div>
+    <div class="sidebar-nav">
+      <div class="sidebar-section-title">Tổng quan</div>
+      <a class="sidebar-link" href="dashboard.html"><span class="icon">📊</span> Dashboard</a>
+      <a class="sidebar-link active" href="donations.html"><span class="icon">🎁</span> Quyên góp</a>
+      <a class="sidebar-link" href="requests.html"><span class="icon">📋</span> Yêu cầu hỗ trợ</a>
+      <div class="sidebar-section-title" style="margin-top:8px;">Điều phối</div>
+      <a class="sidebar-link" href="allocations.html"><span class="icon">⚖️</span> Phân bổ nguồn lực</a>
+      <a class="sidebar-link" href="shipments.html"><span class="icon">🚚</span> Giao hàng</a>
+      <div class="sidebar-section-title" style="margin-top:8px;">Hệ thống</div>
+      <a class="sidebar-link" href="admin.html"><span class="icon">⚙️</span> Quản trị</a>
+      <a class="sidebar-link" href="profile.html"><span class="icon">👤</span> Hồ sơ cá nhân</a>
+      <a class="sidebar-link" href="../../index.html" style="margin-top:16px; color:rgba(155,35,53,0.8);"><span class="icon">🚪</span> Đăng xuất</a>
+    </div>
+  </nav>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <span class="topbar-title">🎁 Quản lý Quyên góp</span>
+    <div class="topbar-actions">
+      <button class="btn-gold" onclick="openCreateModal()">＋ Tạo quyên góp mới</button>
+      <div class="avatar-ring">ND</div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="page-wrapper">
+      <div class="page-header">
+        <h2>Danh sách Quyên góp</h2>
+        <p>Quản lý và theo dõi tất cả hồ sơ quyên góp vật tư cứu trợ</p>
+      </div>
+
+      <!-- Summary Stats -->
+      <div class="grid-4" style="margin-bottom:20px;">
+        <div class="stat-card stat-card-gold glass-card" style="padding:16px;">
+          <div class="stat-value text-gold" style="font-size:1.8rem;">247</div>
+          <div class="stat-label">Tổng hồ sơ</div>
+        </div>
+        <div class="stat-card glass-card" style="padding:16px; border-color:rgba(212,175,55,0.3);">
+          <div class="stat-value" style="font-size:1.8rem; color:var(--gold-2);">42</div>
+          <div class="stat-label">Chờ duyệt</div>
+        </div>
+        <div class="stat-card glass-card" style="padding:16px; border-color:rgba(74,103,65,0.4);">
+          <div class="stat-value" style="font-size:1.8rem; color:#8FC87C;">178</div>
+          <div class="stat-label">Đã duyệt</div>
+        </div>
+        <div class="stat-card glass-card" style="padding:16px; border-color:rgba(155,35,53,0.4);">
+          <div class="stat-value" style="font-size:1.8rem; color:#FF7A8A;">27</div>
+          <div class="stat-label">Từ chối / Hủy</div>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <input type="search" placeholder="🔍 Tìm mã, tên người dùng..." />
+        <select>
+          <option value="">Tất cả trạng thái</option>
+          <option>PENDING — Chờ duyệt</option>
+          <option>APPROVED — Đã duyệt</option>
+          <option>REJECTED — Từ chối</option>
+          <option>CANCELLED — Đã hủy</option>
+          <option>COMPLETED — Hoàn thành</option>
+        </select>
+        <select>
+          <option value="">Loại quyên góp</option>
+          <option>DONATED</option>
+          <option>SPONSORED</option>
+          <option>PROVIDED</option>
+        </select>
+        <input type="date" />
+        <button class="btn-gold" style="white-space:nowrap;">Lọc kết quả</button>
+      </div>
+
+      <!-- Donation Cards Grid -->
+      <div class="grid-2" id="donationList">
+        <!-- Cards generated by JS -->
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Create Donation Modal -->
+  <div class="modal-overlay" id="createModal" style="display:none;">
+    <div class="modal" style="max-width:620px;">
+      <div class="modal-header">
+        <div class="modal-title text-gold">🎁 Tạo hồ sơ Quyên góp mới</div>
+        <button class="modal-close" onclick="closeModal('createModal')">✕</button>
+      </div>
+      <div class="divider-gold"></div>
+
+      <form onsubmit="submitDonation(event)">
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">📦 Loại quyên góp</label>
+            <select class="form-input">
+              <option>DONATED — Quyên góp</option>
+              <option>SPONSORED — Tài trợ</option>
+              <option>PROVIDED — Cung cấp</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">📅 Ngày dự kiến bàn giao</label>
+            <input type="date" class="form-input" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📍 Địa chỉ lấy hàng</label>
+          <input type="text" class="form-input" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành..." />
+        </div>
+        <div class="form-group">
+          <label class="form-label">📝 Ghi chú</label>
+          <textarea class="form-input" placeholder="Thông tin thêm về lô hàng, thời gian có thể lấy, lưu ý đặc biệt..."></textarea>
+        </div>
+
+        <!-- Items -->
+        <div style="font-weight:700; font-size:0.95rem; margin-bottom:12px; color:var(--gold-2);">
+          📦 Danh sách vật tư quyên góp
+        </div>
+        <div class="item-row item-row-header" style="padding:6px 0;">
+          <span>Vật tư</span><span>Số lượng</span><span>Tình trạng</span><span></span>
+        </div>
+        <div id="itemsContainer">
+          <div class="item-row">
+            <select class="form-input" style="padding:8px;">
+              <option>Mì ăn liền (thùng)</option>
+              <option>Gạo (kg)</option>
+              <option>Nước uống đóng chai (chai)</option>
+              <option>Khẩu trang y tế (hộp)</option>
+              <option>Quần áo (bộ)</option>
+            </select>
+            <input type="number" class="form-input" style="padding:8px;" placeholder="0" min="1" />
+            <select class="form-input" style="padding:8px;">
+              <option>Mới</option>
+              <option>Còn tốt</option>
+              <option>Đã qua sử dụng</option>
+            </select>
+            <button type="button" class="btn-sm btn-sm-reject" style="padding:8px 10px;">✕</button>
+          </div>
+        </div>
+        <button type="button" class="btn-outline" style="margin-top:10px; width:100%; justify-content:center; padding:10px;" onclick="addItemRow()">
+          ＋ Thêm vật tư
+        </button>
+
+        <!-- Image upload -->
+        <div class="form-group" style="margin-top:16px;">
+          <label class="form-label">📸 Ảnh minh chứng</label>
+          <div style="border: 2px dashed rgba(212,175,55,0.3); border-radius:var(--radius-md); padding:24px; text-align:center; cursor:pointer; transition:var(--transition);"
+               onmouseenter="this.style.borderColor='var(--gold-1)'" onmouseleave="this.style.borderColor='rgba(212,175,55,0.3)'">
+            <div style="font-size:2rem; margin-bottom:8px;">📷</div>
+            <div style="font-size:0.88rem; color:var(--text-light);">Kéo thả ảnh vào đây hoặc <span style="color:var(--gold-2);">chọn file</span></div>
+            <div style="font-size:0.75rem; color:var(--text-light); margin-top:4px;">PNG, JPG tối đa 10MB</div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:4px;">
+          <button type="button" class="btn-outline" style="flex:1; justify-content:center;" onclick="closeModal('createModal')">Hủy</button>
+          <button type="submit" class="btn-gold" style="flex:2; justify-content:center;">🚀 Gửi hồ sơ quyên góp</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="detailModal" style="display:none;">
+    <div class="modal" style="max-width:580px;">
+      <div class="modal-header">
+        <div>
+          <div class="donation-code" id="detailCode">DON-2026-0247</div>
+          <div class="modal-title" style="margin-top:6px;" id="detailTitle">Chi tiết Quyên góp</div>
+        </div>
+        <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+      </div>
+      <div class="divider-gold"></div>
+      <div id="detailContent"></div>
+    </div>
+  </div>
+
+  <script>
+    const donations = [
+      { code:'DON-2026-0247', type:'DONATED', status:'PENDING', address:'123 Lê Lợi, Q.1, TP.HCM', donor:'Nguyễn Văn A', items:[{name:'Mì ăn liền',qty:50,unit:'thùng'},{name:'Gạo',qty:100,unit:'kg'}], time:'2 phút trước' },
+      { code:'DON-2026-0246', type:'SPONSORED', status:'APPROVED', address:'45 Nguyễn Trãi, Q.5, TP.HCM', donor:'Công ty ABC', items:[{name:'Nước uống đóng chai',qty:200,unit:'chai'},{name:'Khẩu trang y tế',qty:30,unit:'hộp'}], time:'1 giờ trước' },
+      { code:'DON-2026-0245', type:'DONATED', status:'COMPLETED', address:'88 Điện Biên Phủ, Bình Thạnh', donor:'Trần Thị B', items:[{name:'Quần áo',qty:20,unit:'bộ'}], time:'3 giờ trước' },
+      { code:'DON-2026-0244', type:'PROVIDED', status:'REJECTED', address:'12 Cách Mạng Tháng 8, Q.3', donor:'Lê Văn C', items:[{name:'Mì ăn liền',qty:10,unit:'thùng'}], time:'5 giờ trước' },
+      { code:'DON-2026-0243', type:'DONATED', status:'APPROVED', address:'56 Hoàng Diệu, Q.4', donor:'Phạm Thị D', items:[{name:'Gạo',qty:50,unit:'kg'},{name:'Nước uống',qty:100,unit:'chai'}], time:'8 giờ trước' },
+      { code:'DON-2026-0242', type:'SPONSORED', status:'PENDING', address:'200 Nguyễn Văn Linh, Q.7', donor:'Doanh nghiệp XYZ', items:[{name:'Khẩu trang y tế',qty:100,unit:'hộp'},{name:'Quần áo',qty:50,unit:'bộ'},{name:'Mì ăn liền',qty:80,unit:'thùng'}], time:'12 giờ trước' },
+    ];
+
+    const statusMap = {
+      PENDING:   { label:'Chờ duyệt',  cls:'badge-pending' },
+      APPROVED:  { label:'Đã duyệt',   cls:'badge-approved' },
+      REJECTED:  { label:'Từ chối',    cls:'badge-rejected' },
+      COMPLETED: { label:'Hoàn thành', cls:'badge-completed' },
+      CANCELLED: { label:'Đã hủy',     cls:'badge-cancelled' },
+    };
+
+    function renderDonations() {
+      const list = document.getElementById('donationList');
+      list.innerHTML = donations.map((d,i) => `
+        <div class="donation-card" style="animation-delay:${i*0.08}s;">
+          <div class="donation-card-header">
+            <div>
+              <span class="donation-code">${d.code}</span>
+              <div class="donation-title">📦 ${d.type} — ${d.items.length} loại vật tư</div>
+              <div class="donation-meta">📍 ${d.address}</div>
+            </div>
+            <span class="badge ${statusMap[d.status].cls}">${statusMap[d.status].label}</span>
+          </div>
+          <div class="donation-items-preview">
+            ${d.items.map(it=>`<span class="item-chip">${it.name}: ${it.qty} ${it.unit}</span>`).join('')}
+          </div>
+          <div class="donation-footer">
+            <div class="donor-info">
+              <div class="donor-avatar">${d.donor[0]}</div>
+              <span class="donor-name">${d.donor} · ${d.time}</span>
+            </div>
+            <div class="action-row">
+              ${d.status === 'PENDING' ? `
+                <button class="btn-sm btn-sm-approve" onclick="approveDonation('${d.code}')">✓ Duyệt</button>
+                <button class="btn-sm btn-sm-reject" onclick="rejectDonation('${d.code}')">✕ Từ chối</button>
+              ` : ''}
+              <button class="btn-sm btn-sm-view" onclick="viewDetail(${i})">👁 Xem</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function viewDetail(i) {
+      const d = donations[i];
+      document.getElementById('detailCode').textContent = d.code;
+      document.getElementById('detailContent').innerHTML = `
+        <div class="grid-2" style="margin-bottom:16px; gap:12px;">
+          <div><div style="font-size:0.78rem; color:var(--text-light);">Người quyên góp</div><div style="font-weight:700;">${d.donor}</div></div>
+          <div><div style="font-size:0.78rem; color:var(--text-light);">Loại</div><div style="font-weight:700;">${d.type}</div></div>
+          <div style="grid-column:span 2;"><div style="font-size:0.78rem; color:var(--text-light);">Địa chỉ</div><div style="font-weight:600;">${d.address}</div></div>
+        </div>
+        <div class="divider-gold"></div>
+        <div style="font-weight:700; margin:12px 0 8px; color:var(--gold-2);">Danh sách vật tư</div>
+        <div class="item-row item-row-header"><span>Vật tư</span><span>Đề nghị</span><span>Chấp nhận</span><span>Trạng thái</span></div>
+        ${d.items.map(it=>`
+          <div class="item-row">
+            <span>${it.name}</span>
+            <span>${it.qty} ${it.unit}</span>
+            <span style="color:var(--gold-2);">${d.status==='PENDING'?'—':it.qty} ${d.status==='PENDING'?'':it.unit}</span>
+            <span class="badge ${statusMap[d.status].cls}" style="font-size:0.7rem;">${statusMap[d.status].label}</span>
+          </div>
+        `).join('')}
+        <div style="margin-top:16px; display:flex; gap:10px; justify-content:flex-end;">
+          ${d.status==='PENDING'?`
+            <button class="btn-green" style="padding:10px 20px; font-size:0.88rem;" onclick="closeModal('detailModal')">✓ Xác nhận duyệt</button>
+            <button class="btn-red" style="padding:10px 20px; font-size:0.88rem;" onclick="closeModal('detailModal')">✕ Từ chối</button>
+          `:`<button class="btn-outline" style="padding:10px 20px;" onclick="closeModal('detailModal')">Đóng</button>`}
+        </div>
+      `;
+      document.getElementById('detailModal').style.display = 'flex';
+    }
+
+    function openCreateModal() { document.getElementById('createModal').style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function approveDonation(code) { alert(`Đã duyệt: ${code}`); }
+    function rejectDonation(code) { alert(`Từ chối: ${code}`); }
+
+    function addItemRow() {
+      const c = document.getElementById('itemsContainer');
+      const div = document.createElement('div');
+      div.className = 'item-row';
+      div.innerHTML = `
+        <select class="form-input" style="padding:8px;">
+          <option>Mì ăn liền (thùng)</option><option>Gạo (kg)</option>
+          <option>Nước uống (chai)</option><option>Khẩu trang (hộp)</option><option>Quần áo (bộ)</option>
+        </select>
+        <input type="number" class="form-input" style="padding:8px;" placeholder="0" min="1"/>
+        <select class="form-input" style="padding:8px;"><option>Mới</option><option>Còn tốt</option><option>Đã qua sử dụng</option></select>
+        <button type="button" class="btn-sm btn-sm-reject" onclick="this.closest('.item-row').remove()">✕</button>
+      `;
+      c.appendChild(div);
+    }
+
+    function submitDonation(e) {
+      e.preventDefault();
+      closeModal('createModal');
+      alert('Hồ sơ quyên góp đã được gửi thành công! Mã: DON-2026-' + (248 + Math.floor(Math.random()*10)));
+    }
+
+    // Close on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+      el.addEventListener('click', e => { if(e.target === el) el.style.display = 'none'; });
+    });
+
+    renderDonations();
+  </script>
+</body>
+</html>
+

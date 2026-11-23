@@ -1,0 +1,2501 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoordSystem — Cổng Thông Tin &amp; Điều Phối An Sinh Xã Hội</title>
+  <link rel="icon" type="image/png" href="src/assets/logo-icon.png" />
+  <link rel="stylesheet" href="src/assets/styles.css" />
+  <link rel="stylesheet" href="src/assets/vendor/leaflet.css" />
+  <script src="src/assets/vendor/leaflet.js"></script>
+  <script src="src/assets/vendor/react.production.min.js"></script>
+  <script src="src/assets/vendor/react-dom.production.min.js"></script>
+  <style>
+    /* ============================================================
+       BODY & NỀN TOÀN TRANG
+       Màu nền nhạt dần từ xanh than ở trên xuống sáng dần theo màu ảnh
+       ============================================================ */
+    body {
+      background: linear-gradient(180deg,
+          #081424 0px,
+          #0c2036 320px,
+          #153658 750px,
+          #244e78 1250px,
+          #3e6b94 1850px,
+          #658eb3 2550px,
+          #9bb9d0 3350px,
+          #d4e2ed 4200px,
+          #FAF7F2 4900px);
+      background-attachment: scroll;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    /* ============================================================
+       TOPBAR & NAVIGATION
+       Màu nền xanh than trùng với phần content giới thiệu ngay phía dưới
+       ============================================================ */
+    .portal-header {
+      background: linear-gradient(135deg, rgba(8, 20, 36, 0.98) 0%, rgba(13, 30, 52, 0.96) 50%, rgba(18, 42, 70, 0.98) 100%);
+      backdrop-filter: blur(16px);
+      border-bottom: 1.5px solid rgba(212, 175, 55, 0.45);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .header-container {
+      max-width: 1380px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-logo-img {
+      height: 48px;
+      width: auto;
+      max-width: 260px;
+      display: block;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
+      transition: transform 0.25s ease, filter 0.25s ease;
+    }
+
+    .brand-logo-img:hover {
+      transform: scale(1.02);
+      filter: drop-shadow(0 4px 16px rgba(74, 171, 96, 0.5));
+    }
+
+    .portal-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .portal-main {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 24px 24px 60px;
+    }
+
+    /* ============================================================
+       PHẦN THÔNG BÁO RIÊNG (DEDICATED ANNOUNCEMENTS & LIVE UPDATES)
+       ============================================================ */
+    .announcements-section {
+      background: #FFFFFF;
+      border: 1.5px solid var(--beige-mid);
+      border-radius: var(--radius-xl);
+      padding: 28px 32px;
+      margin-bottom: 36px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+    }
+
+    .announcements-section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1.5px solid var(--beige-mid);
+    }
+
+    .announcements-section-header h2 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .announcements-section-header p {
+      font-size: 0.86rem;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    .announcements-meta-tags {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ticker-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      background: var(--red-pale);
+      color: var(--red);
+      border: 1px solid #F5B0B8;
+    }
+
+    .ticker-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      animation: pulse-dot 1.5s ease infinite;
+    }
+
+    /* Thẻ tin nổi bật trực tiếp (Từ phần vừa chuyển xuống) */
+    .live-alert-card {
+      background: linear-gradient(135deg, #FFFDF8 0%, #FFF9F0 100%);
+      border: 1.5px solid rgba(212, 175, 55, 0.4);
+      border-left: 5px solid var(--gold-1);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin-bottom: 22px;
+      box-shadow: 0 4px 18px rgba(184, 134, 11, 0.08);
+      position: relative;
+    }
+
+    .live-alert-badge-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .live-alert-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      background: var(--red-pale);
+      color: var(--red);
+      border: 1px solid #F5B0B8;
+      letter-spacing: 0.4px;
+    }
+
+    .live-alert-time {
+      font-size: 0.78rem;
+      color: var(--text-light);
+      font-weight: 600;
+    }
+
+    .live-alert-body {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    .live-alert-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: var(--gold-pale);
+      color: var(--gold-1);
+      border: 1px solid var(--beige-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .live-alert-content h4 {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+
+    .live-alert-content p {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-mid);
+    }
+
+    /* Lưới các thẻ thông báo bổ sung */
+    .announcements-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .notice-card {
+      background: #FAF8F5;
+      border: 1.5px solid var(--beige-mid);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition);
+    }
+
+    .notice-card:hover {
+      border-color: var(--gold-2);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+      background: #FFFFFF;
+    }
+
+    .notice-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .notice-date {
+      font-size: 0.74rem;
+      color: var(--text-light);
+      font-weight: 600;
+    }
+
+    .notice-card h4 {
+      font-size: 0.96rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .notice-card p {
+      font-size: 0.82rem;
+      color: var(--text-mid);
+      line-height: 1.5;
+      margin-bottom: 14px;
+      flex: 1;
+    }
+
+    .notice-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 10px;
+      border-top: 1px solid var(--beige-mid);
+      font-size: 0.76rem;
+      color: var(--text-light);
+    }
+
+    .btn-notice-link {
+      background: none;
+      border: none;
+      color: var(--moss-dark);
+      font-weight: 700;
+      font-size: 0.78rem;
+      cursor: pointer;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .btn-notice-link:hover {
+      color: var(--gold-1);
+      text-decoration: underline;
+    }
+
+    /* ============================================================
+       UNIFIED HERO FORM (GỘP THÀNH 1 FORM DUY NHẤT)
+       Nền màu xanh than kết hợp hình ảnh background ý nghĩa
+       ============================================================ */
+    .hero-unified-form {
+      position: relative;
+      border-radius: var(--radius-xl);
+      padding: 42px 46px;
+      margin-bottom: 28px;
+      overflow: hidden;
+      border: 2px solid rgba(212, 175, 55, 0.45);
+      box-shadow: 0 16px 48px rgba(8, 20, 34, 0.4), 0 0 24px rgba(212, 175, 55, 0.2);
+      /* Background chuyển sắc nhạt dần từ trên xuống theo ảnh nền */
+      background:
+        linear-gradient(180deg,
+          rgba(8, 20, 36, 0.96) 0%,
+          rgba(13, 30, 52, 0.90) 40%,
+          rgba(20, 48, 80, 0.84) 75%,
+          rgba(30, 66, 104, 0.76) 100%),
+        url('src/assets/hero-bg.jpg') center center / cover no-repeat,
+        url('src/assets/hero-bg-navy.svg') center center / cover no-repeat;
+      color: #FFFFFF;
+    }
+
+    /* Ánh sáng trang trí góc */
+    .hero-unified-form::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.18), transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-unified-form::after {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      left: -60px;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(74, 122, 66, 0.2), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Tag trên cùng */
+    .hero-mission-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.5);
+      color: var(--gold-2);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      animation: fadeInTag 1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+
+    /* TIÊU ĐỀ HIỆN RÕ DẦN RA (FADE REVEAL ANIMATION) */
+    @keyframes titleFadeReveal {
+      0% {
+        opacity: 0;
+        filter: blur(12px);
+        transform: translateY(28px) scale(0.96);
+      }
+
+      50% {
+        opacity: 0.7;
+        filter: blur(3px);
+      }
+
+      100% {
+        opacity: 1;
+        filter: blur(0);
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes fadeInDesc {
+      0% {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInTag {
+      0% {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-title-reveal {
+      font-size: 2.25rem;
+      font-weight: 800;
+      line-height: 1.3;
+      margin-bottom: 14px;
+      max-width: 980px;
+      color: #FFFFFF;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+      animation: titleFadeReveal 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.15s;
+    }
+
+    .hero-title-reveal .text-gold {
+      display: inline-block;
+      text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+    }
+
+    .hero-desc-reveal {
+      font-size: 0.96rem;
+      color: rgba(240, 246, 255, 0.94);
+      line-height: 1.7;
+      max-width: 940px;
+      margin-bottom: 22px;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+      animation: fadeInDesc 1.2s ease both;
+      animation-delay: 0.5s;
+    }
+
+    .hero-intro-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 26px;
+      animation: fadeInDesc 1.2s ease both;
+      animation-delay: 0.7s;
+    }
+
+    /* ============================================================
+       PHẦN KẾT QUẢ ĐIỀU PHỐI (CHUYỂN RA KHỎI FORM XUỐNG DƯỚI)
+       ============================================================ */
+    .kpis-results-section {
+      background: linear-gradient(180deg, rgba(16, 42, 72, 0.92) 0%, rgba(28, 64, 102, 0.85) 100%);
+      backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(212, 175, 55, 0.4);
+      border-radius: var(--radius-xl);
+      padding: 26px 32px;
+      margin-bottom: 32px;
+      box-shadow: 0 12px 36px rgba(8, 20, 34, 0.35), inset 0 0 24px rgba(212, 175, 55, 0.08);
+      color: #FFFFFF;
+      position: relative;
+    }
+
+    .kpis-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.28);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .kpis-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .kpis-header-icon {
+      font-size: 1.6rem;
+    }
+
+    .kpis-section-header h3 {
+      font-size: 1.18rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 2px;
+      letter-spacing: 0.3px;
+    }
+
+    .kpis-section-header p {
+      font-size: 0.83rem;
+      color: rgba(220, 235, 255, 0.88);
+    }
+
+    .kpis-header-badges {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .kpis-results-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .hero-kpi-card {
+      background: rgba(10, 26, 46, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+      transition: var(--transition);
+    }
+
+    .hero-kpi-card:hover {
+      border-color: var(--gold-2);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.25);
+      background: rgba(14, 34, 60, 0.92);
+    }
+
+    .kpi-bg-icon {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      font-size: 1.8rem;
+      opacity: 0.16;
+      pointer-events: none;
+    }
+
+    .kpi-number-wrap {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 4px;
+      font-variant-numeric: tabular-nums;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .kpi-val-gold {
+      color: var(--gold-2);
+      text-shadow: 0 0 16px rgba(212, 175, 55, 0.4);
+    }
+
+    .kpi-val-green {
+      color: #6CE88A;
+      text-shadow: 0 0 16px rgba(108, 232, 138, 0.35);
+    }
+
+    .kpi-val-blue {
+      color: #6AB3FF;
+      text-shadow: 0 0 16px rgba(106, 179, 255, 0.35);
+    }
+
+    .kpi-val-red {
+      color: #FF7B8B;
+      text-shadow: 0 0 16px rgba(255, 123, 139, 0.35);
+    }
+
+    .kpi-unit {
+      font-size: 1rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .kpi-label {
+      font-size: 0.82rem;
+      color: rgba(220, 235, 255, 0.9);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .kpi-delta {
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .kpi-delta-up {
+      color: #6CE88A;
+    }
+
+    /* ĐƯỜNG PHÂN CÁCH ÁNH KIM MỎNG */
+    .hero-inner-divider {
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.7), transparent);
+      border: none;
+      margin: 24px 0 26px;
+    }
+
+    /* 4 TRỤ CỘT GIÁ TRỊ NHÂN VĂN */
+    .hero-pillars-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .hero-pillar-box {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(212, 175, 55, 0.28);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      transition: var(--transition);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .hero-pillar-box:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: var(--gold-2);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
+    }
+
+    .hp-icon {
+      font-size: 1.65rem;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+
+    .hero-pillar-box h4 {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: var(--gold-2);
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    .hero-pillar-box p {
+      font-size: 0.81rem;
+      color: rgba(235, 242, 255, 0.85);
+      line-height: 1.45;
+    }
+
+    /* ============================================================
+       CATALOG SHOWCASE STYLES
+       ============================================================ */
+    .catalog-section-header {
+      margin: 40px 0 20px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .catalog-section-header h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .catalog-section-header p {
+      font-size: 0.86rem;
+      color: var(--text-light);
+      margin-top: 3px;
+    }
+
+    .catalog-filter-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .c-tab {
+      padding: 10px 22px;
+      border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      font-weight: 700;
+      border: 1.5px solid var(--beige-mid);
+      background: #FFFFFF;
+      color: var(--text-mid);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .c-tab:hover {
+      border-color: var(--moss-green);
+      color: var(--moss-dark);
+    }
+
+    .c-tab.active {
+      background: linear-gradient(135deg, var(--moss-green), var(--moss-light));
+      color: #fff;
+      border-color: var(--moss-green);
+      box-shadow: 0 4px 14px rgba(74, 122, 66, 0.3);
+    }
+
+    .items-showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 36px;
+    }
+
+    .showcase-card {
+      background: #FFFFFF;
+      border: 1.5px solid var(--beige-mid);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow-card);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .showcase-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--gold-2);
+      box-shadow: var(--shadow-md), 0 0 16px rgba(212, 175, 55, 0.15);
+    }
+
+    .sc-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+
+    .sc-icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+
+    .sc-icon-green {
+      background: var(--moss-pale);
+      color: var(--moss-green);
+      border: 1px solid #C4E2BD;
+    }
+
+    .sc-icon-purple {
+      background: var(--purple-pale);
+      color: var(--purple-dark);
+      border: 1px solid #D6CAEE;
+    }
+
+    .sc-icon-gold {
+      background: var(--gold-pale);
+      color: var(--gold-1);
+      border: 1px solid var(--beige-mid);
+    }
+
+    .sc-icon-red {
+      background: var(--red-pale);
+      color: var(--red);
+      border: 1px solid #F5B0B8;
+    }
+
+    .sc-badge {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .showcase-card h3 {
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    .sc-tagline {
+      font-size: 0.8rem;
+      color: var(--moss-dark);
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Hiển thị số lượng nổi bật trong từng thẻ danh mục */
+    .sc-qty-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.12), rgba(74, 122, 66, 0.08));
+      border: 1px solid rgba(212, 175, 55, 0.38);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      font-size: 0.82rem;
+    }
+
+    .sc-qty-title {
+      color: var(--text-mid);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .sc-qty-number {
+      color: var(--moss-dark);
+      font-weight: 800;
+      font-size: 0.88rem;
+      background: #FFFFFF;
+      padding: 2px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--beige-mid);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .sc-detail-box {
+      background: #FAF7F2;
+      border: 1px solid var(--beige-mid);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      margin-bottom: 14px;
+      font-size: 0.83rem;
+      line-height: 1.5;
+    }
+
+    .sc-detail-box strong {
+      color: var(--purple-dark);
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .sc-meaning-box {
+      background: #F2F8F1;
+      border: 1px solid #CDE6CA;
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-size: 0.83rem;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .sc-meaning-box strong {
+      color: var(--moss-dark);
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .sc-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid var(--beige-dark);
+      font-size: 0.78rem;
+      color: var(--text-light);
+    }
+
+    /* District Map Section */
+    .district-map-section {
+      max-width: 1380px;
+      margin: 0 auto 36px auto;
+      padding: 0 20px;
+    }
+
+    /* Modal Login & Register Tab Switchers */
+    .auth-mode-tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      margin-bottom: 14px;
+    }
+
+    .auth-mode-tab {
+      flex: 1;
+      padding: 9px 12px;
+      text-align: center;
+      font-size: 0.88rem;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      background: transparent;
+      color: rgba(249, 243, 232, 0.8);
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .auth-mode-tab.active {
+      background: linear-gradient(135deg, var(--gold-1), var(--gold-2));
+      color: #081424;
+      box-shadow: 0 2px 10px rgba(212, 175, 55, 0.35);
+    }
+
+    .login-role-tabs {
+      display: flex;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      margin-bottom: 18px;
+    }
+
+    .login-role-tab {
+      flex: 1;
+      padding: 9px 12px;
+      text-align: center;
+      font-size: 0.84rem;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      background: transparent;
+      color: rgba(249, 243, 232, 0.7);
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .login-role-tab.active-citizen {
+      background: linear-gradient(135deg, var(--moss-green), #2E6B28);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(74, 122, 66, 0.4);
+    }
+
+    .login-role-tab.active-admin {
+      background: linear-gradient(135deg, #1e3a5f, #0d2036);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: #F3E5AB;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-auth {
+      background: #081424 !important;
+      color: #F9F3E8 !important;
+      border: 1.5px solid rgba(212, 175, 55, 0.45) !important;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75) !important;
+      max-width: 520px !important;
+      border-radius: 16px !important;
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+
+    .modal-auth .form-label {
+      color: #F3E5AB !important;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .modal-auth .form-control {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border: 1px solid rgba(212, 175, 55, 0.3) !important;
+      color: #FFFFFF !important;
+      border-radius: 8px !important;
+      padding: 10px 12px;
+    }
+
+    .modal-auth .form-control:focus {
+      border-color: var(--gold-1) !important;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25) !important;
+      outline: none;
+    }
+
+    .modal-auth select.form-control option {
+      background: #081424;
+      color: #FFFFFF;
+    }
+
+    .pwd-wrap {
+      position: relative;
+    }
+
+    .pwd-toggle-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(249, 243, 232, 0.65);
+      font-size: 1rem;
+      padding: 0;
+    }
+
+    @media (max-width: 1024px) {
+      .hero-pillars-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .kpis-results-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .items-showcase-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .announcements-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hero-unified-form {
+        padding: 32px 26px;
+      }
+
+      .hero-title-reveal {
+        font-size: 1.8rem;
+      }
+
+      .kpis-results-section {
+        padding: 22px 20px;
+      }
+    }
+
+    @media (max-width: 640px) {
+
+      .hero-pillars-row,
+      .kpis-results-grid,
+      .items-showcase-grid,
+      .announcements-cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-title-reveal {
+        font-size: 1.45rem;
+      }
+
+      .hero-unified-form {
+        padding: 22px 18px;
+      }
+
+      .announcements-section {
+        padding: 20px 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Top Navigation Bar (Nền xanh than đồng điệu với hero form, chỉ chứa logo và nút đăng nhập) -->
+  <header class="portal-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-box" title="CoordSystem — Hệ thống Điều phối Cứu trợ &amp; An sinh Xã hội">
+        <img src="src/assets/logo-transparent.png" alt="CoordSystem — Điều Phối Cứu Trợ &amp; An Sinh Xã Hội"
+          class="brand-logo-img" />
+      </a>
+
+      <!-- Chỉ chứa Nút Đăng Nhập -->
+      <div class="portal-nav-actions">
+        <button class="btn-gold" onclick="openLoginModal()" style="font-size:0.9rem; padding: 10px 22px;">
+          🔑 Đăng nhập
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="portal-main">
+
+    <!-- ============================================================
+         PHẦN GỘP THÀNH 1 FORM DUY NHẤT:
+         - Background thiên về màu xanh than chuyển sắc nhạt dần theo hình ảnh
+         - Tiêu đề hiện rõ dần ra (Fade reveal)
+         - 4 Trụ cột giá trị cốt lõi
+         ============================================================ -->
+    <section class="hero-unified-form" id="heroUnifiedSection">
+      <!-- Tag sứ mệnh -->
+      <div class="hero-mission-tag">
+        <span>❤️</span> SỨ MỆNH VÌ CỘNG ĐỒNG — QUẬN NGŨ HÀNH SƠN, TP. ĐÀ NẴNG
+      </div>
+
+      <!-- Tiêu đề hiện rõ dần ra (Fade reveal) -->
+      <h2 class="hero-title-reveal">
+        Nền Tảng Điều Phối An Sinh Xã Hội <span class="text-gold">Minh Bạch, Kịp Thời &amp; Tận Tâm</span>
+      </h2>
+
+      <!-- Mô tả sứ mệnh hệ thống -->
+      <p class="hero-desc-reveal">
+        CoordSystem là cầu nối nhân ái giữa <strong>Chính quyền Quận &amp; 4 Phường (Mỹ An · Khuê Mỹ · Hòa Quý · Hòa Hải) — Nhà hảo tâm — Người dân khó khăn</strong>.<br />
+        Mỗi chuyến hàng cứu trợ, mỗi dịch vụ chăm sóc và từng thiết bị y tế đều được định danh số, quản lý bằng mô
+        hình <em>Multi-Agent &amp; Trí tuệ Nhân tạo (AI)</em> nhằm phân loại công tâm, phát hiện trường hợp nguy cấp
+        trong 24 giờ và công khai minh bạch 100% dòng phân bổ nguồn lực trên địa bàn Quận Ngũ Hành Sơn.
+      </p>
+
+      <!-- Các thao tác nhanh -->
+      <div class="hero-intro-actions">
+        <button class="btn-gold btn-sm" onclick="openLoginModal('citizen')" style="font-weight:700;">
+          🚨 Gửi Yêu Cầu Hỗ Trợ
+        </button>
+        <a href="#catalog-section" class="btn-outline btn-sm"
+          style="color:#FFFFFF; border-color:rgba(212,175,55,0.6); background:rgba(255,255,255,0.08);">
+          📦 Xem Danh Mục An Sinh &amp; Số Lượng
+        </a>
+      </div>
+
+      <!-- Đường phân cách ánh kim mỏng -->
+      <div class="hero-inner-divider"></div>
+
+      <!-- 4 Trụ cột giá trị cốt lõi -->
+      <div class="hero-pillars-row">
+        <div class="hero-pillar-box">
+          <span class="hp-icon">🛡️</span>
+          <h4>Minh Bạch Tuyệt Đối</h4>
+          <p>Mọi đóng góp từ nhà tài trợ và đợt cấp phát cho người dân đều có mã vận đơn, lịch sử thời gian và xác nhận
+            thực tế.</p>
+        </div>
+        <div class="hero-pillar-box">
+          <span class="hp-icon">⚡</span>
+          <h4>Cứu Trợ Kịp Thời</h4>
+          <p>AI tự động chấm điểm khẩn cấp dựa trên tình trạng lũ lụt, dịch bệnh, người già yếu để cán bộ ưu tiên xử lý
+            ngay lập tức.</p>
+        </div>
+        <div class="hero-pillar-box">
+          <span class="hp-icon">🎯</span>
+          <h4>Đúng Người - Đúng Nhu Cầu</h4>
+          <p>Không phân phát đồng loạt thiếu hiệu quả. Mỗi gia đình được cấp phát đúng thứ đang cạn kiệt: nước, thuốc
+            men hoặc lều bạt.</p>
+        </div>
+        <div class="hero-pillar-box">
+          <span class="hp-icon">🤝</span>
+          <h4>Gắn Kết Nhân Ái</h4>
+          <p>Tạo dựng niềm tin bền vững, lan tỏa tinh thần tương thân tương ái, nâng đỡ các gia đình vượt qua bão lũ và
+            nghịch cảnh.</p>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- ============================================================
+         PHẦN KẾT QUẢ ĐIỀU PHỐI (CHUYỂN RA KHỎI FORM XUỐNG DƯỚI)
+         4 con số thống kê chạy từ 0 lên (Animated Counter)
+         ============================================================ -->
+    <section class="kpis-results-section" id="kpisResultsSection">
+      <div class="kpis-section-header">
+        <div class="kpis-header-left">
+          <span class="kpi-header-icon">📊</span>
+          <div>
+            <h3>Kết Quả Điều Phối An Sinh Thực Tế</h3>
+            <p>Dữ liệu số hóa công khai minh bạch 100% · Cập nhật trực tuyến theo thời gian thực</p>
+          </div>
+        </div>
+        <div class="kpis-header-badges">
+          <span class="ticker-badge"><span class="ticker-pulse"></span> TRỰC TUYẾN 24/7</span>
+          <span class="badge badge-approved" style="font-size:0.75rem;">● Minh bạch 100% dữ liệu</span>
+        </div>
+      </div>
+
+      <div class="kpis-results-grid">
+        <!-- Ô 1: 1,840 -->
+        <div class="hero-kpi-card">
+          <span class="kpi-bg-icon">👥</span>
+          <div class="kpi-number-wrap kpi-val-gold">
+            <span class="counter-num" data-target="1840" data-decimals="0">0</span>
+          </div>
+          <div class="kpi-label">Người dân được thụ hưởng</div>
+          <div class="kpi-delta kpi-delta-up">↑ +85 hộ gia đình tuần này</div>
+        </div>
+
+        <!-- Ô 2: 156 -->
+        <div class="hero-kpi-card">
+          <span class="kpi-bg-icon">📋</span>
+          <div class="kpi-number-wrap kpi-val-green">
+            <span class="counter-num" data-target="156" data-decimals="0">0</span>
+          </div>
+          <div class="kpi-label">Yêu cầu đã tiếp nhận</div>
+          <div class="kpi-delta kpi-delta-up">↑ 94% đã hoàn thành</div>
+        </div>
+
+        <!-- Ô 3: 12.5 tấn -->
+        <div class="hero-kpi-card">
+          <span class="kpi-bg-icon">📦</span>
+          <div class="kpi-number-wrap kpi-val-blue">
+            <span class="counter-num" data-target="12.5" data-decimals="1">0</span>
+            <span class="kpi-unit">tấn</span>
+          </div>
+          <div class="kpi-label">Nguồn lực đã điều phối</div>
+          <div class="kpi-delta kpi-delta-up">↑ 5 điểm tập kết hoạt động</div>
+        </div>
+
+        <!-- Ô 4: 312 -->
+        <div class="hero-kpi-card">
+          <span class="kpi-bg-icon">🚚</span>
+          <div class="kpi-number-wrap kpi-val-red">
+            <span class="counter-num" data-target="312" data-decimals="0">0</span>
+          </div>
+          <div class="kpi-label">Chuyến giao tận tay</div>
+          <div class="kpi-delta kpi-delta-up">↑ 98% giao đúng hạn 24h</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PHẦN BẢN ĐỒ ĐIỀU PHỐI KHU VỰC QUẬN NGŨ HÀNH SƠN, TP. ĐÀ NẴNG
+         Chỉ hiển thị bản đồ trong phạm vi hành chính Ngũ Hành Sơn
+         Tích hợp React + Leaflet tương tác trực tuyến
+         ============================================================ -->
+    <section class="district-map-section" id="districtMapSection">
+      <div id="react-map-app"></div>
+    </section>
+
+    <!-- ============================================================
+         PHẦN THÔNG BÁO RIÊNG (DEDICATED ANNOUNCEMENTS & LIVE BROADCAST)
+         Chuyển phần cập nhật trực tiếp thành một khối thông báo riêng biệt
+         ============================================================ -->
+    <section id="announcements-section" class="announcements-section">
+      <div class="announcements-section-header">
+        <div>
+          <h2>
+            <span>📢</span> Bảng Thông Báo &amp; Cập Nhật Điều Phối Trực Tiếp
+          </h2>
+          <p>Tin tức cứu trợ khẩn cấp, tiến độ tiếp nhận và thông báo an sinh chính thức từ Ban Chỉ đạo Quận Ngũ Hành Sơn &amp; 4 Phường</p>
+        </div>
+        <div class="announcements-meta-tags">
+          <span class="ticker-badge"><span class="ticker-pulse"></span> Cập nhật trực tiếp</span>
+          <span class="badge badge-approved" style="font-size:0.78rem;">● 3 thông báo mới nhất</span>
+        </div>
+      </div>
+
+      <!-- Thẻ tin nổi bật trực tiếp -->
+      <div class="live-alert-card">
+        <div class="live-alert-badge-wrap">
+          <span class="live-alert-badge"><span class="ticker-pulse"></span> TIN NÓNG ĐIỀU PHỐI — QUẬN NGŨ HÀNH SƠN</span>
+          <span class="live-alert-time">⏱️ Vừa xong (10 phút trước)</span>
+        </div>
+        <div class="live-alert-body">
+          <div class="live-alert-icon">🌊</div>
+          <div class="live-alert-content">
+            <h4>Bàn giao 200 bình nước sạch &amp; gói y tế tận tay 50 hộ dân vùng trũng sông Cổ Cò, Phường Hòa Quý</h4>
+            <p>
+              <strong>Vừa cập nhật:</strong> 200 bình nước uống sạch và gói thuốc y tế khử khuẩn đã được lực lượng xung kích bàn giao tận tay 50 hộ dân khu vực ngập ven sông Cổ Cò (Mã vận đơn: <em>NHS-ALLOC-096</em>). Hiện tại, <strong>Điểm tập kết số 1 (UBND Quận Ngũ Hành Sơn &amp; Trạm K20 Phường Khuê Mỹ)</strong> đã sẵn sàng tiếp nhận thêm lương thực khô, nước uống và thiết bị hỗ trợ người cao tuổi từ các tổ chức thiện nguyện.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lưới các thông báo bổ sung -->
+      <div class="announcements-cards-grid">
+        <!-- Thông báo 1 -->
+        <div class="notice-card">
+          <div class="notice-card-header">
+            <span class="badge badge-urgent">🚨 Khẩn cấp</span>
+            <span class="notice-date">Hôm nay, 08:30</span>
+          </div>
+          <h4>Mở đợt đăng ký nhận trợ cấp lương thực &amp; y tế đợt 3</h4>
+          <p>Các hộ gia đình nằm trong khu vực ngập sâu, hộ nghèo, người già neo đơn có thể nộp đề nghị trực tiếp hoặc
+            gửi qua cổng CoordSystem để AI ưu tiên xét duyệt trong 24h.</p>
+          <div class="notice-card-footer">
+            <span>Ban Chỉ Đạo An Sinh Xã</span>
+            <button class="btn-notice-link" onclick="openLoginModal('citizen')">Đăng ký ngay →</button>
+          </div>
+        </div>
+
+        <!-- Thông báo 2 -->
+        <div class="notice-card">
+          <div class="notice-card-header">
+            <span class="badge badge-approved">🏥 Y Tế</span>
+            <span class="notice-date">Ngày mai, 07:30</span>
+          </div>
+          <h4>Đoàn Y Bác Sĩ khám bệnh và cấp thuốc miễn phí tại Nhà văn hóa Tổ 2</h4>
+          <p>Khám tim mạch, huyết áp, da liễu sau bão lũ và phát các túi thuốc gia đình gồm thuốc hạ sốt, tiêu hóa, bông
+            băng cồn y tế cho người cao tuổi và trẻ nhỏ.</p>
+          <div class="notice-card-footer">
+            <span>Trạm Y Tế Xã / Phường</span>
+            <button class="btn-notice-link" onclick="openLoginModal('citizen')">Chi tiết lịch khám →</button>
+          </div>
+        </div>
+
+        <!-- Thông báo 3 -->
+        <div class="notice-card">
+          <div class="notice-card-header">
+            <span class="badge badge-pending">🤝 Tiếp Nhận</span>
+            <span class="notice-date">Mở cửa 24/7</span>
+          </div>
+          <h4>Điểm tập kết số 1 sẵn sàng tiếp nhận đóng góp từ Nhà hảo tâm</h4>
+          <p>Tiếp nhận nước sạch, mì hộp, áo phao, sữa dinh dưỡng và đèn pin. 100% hiện vật đóng góp đều được định danh
+            số và công khai minh bạch tức thời trên hệ thống.</p>
+          <div class="notice-card-footer">
+            <span>Tổ Điều Phối Kho Vận</span>
+            <button class="btn-notice-link" onclick="openLoginModal()">Quyên góp nguồn lực →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PUBLIC CATALOG: DỊCH VỤ, THIẾT BỊ VÀ NHU YẾU PHẨM
+         ============================================================ -->
+    <section id="catalog-section">
+      <div class="catalog-section-header">
+        <div>
+          <h2>
+            <span>🏛️</span> Danh Mục Dịch Vụ, Thiết Bị &amp; Nhu Yếu Phẩm Công Khai
+          </h2>
+          <p>Công bố chi tiết tác dụng thực tế, ý nghĩa nhân văn, số lượng khả dụng và cách thức tiếp nhận tại cấp
+            Xã/Phường</p>
+        </div>
+        <span class="badge badge-approved" style="font-size:0.82rem; padding:6px 14px; font-weight:800;">
+          ● 12 Hạng mục · Hơn 15.000 đơn vị sẵn sàng điều phối
+        </span>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="catalog-filter-tabs">
+        <button class="c-tab active" onclick="filterCatalog('all', this)">
+          🌟 Tất Cả (12 Hạng Mục)
+        </button>
+        <button class="c-tab" onclick="filterCatalog('service', this)">
+          🏥 Dịch Vụ An Sinh Xã Hội
+        </button>
+        <button class="c-tab" onclick="filterCatalog('equipment', this)">
+          🔧 Thiết Bị Cứu Trợ &amp; Cơ Động
+        </button>
+        <button class="c-tab" onclick="filterCatalog('supplies', this)">
+          📦 Nhu Yếu Phẩm Thiết Yếu
+        </button>
+      </div>
+
+      <!-- Item Showcase Cards Grid -->
+      <div class="items-showcase-grid" id="catalogGrid">
+
+        <!-- ITEM 1: Dịch vụ Y tế -->
+        <div class="showcase-card" data-category="service">
+          <div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap sc-icon-green">🏥</div>
+              <span class="sc-badge badge-approved">Dịch Vụ An Sinh</span>
+            </div>
+            <h3>Khám Sức Khỏe Lưu Động &amp; Cấp Thuốc Tận Nhà</h3>
+            <div class="sc-tagline">🌿 Bảo vệ mầm sống — Chăm sóc tận giường bệnh</div>
+            <div class="sc-qty-box"><span class="sc-qty-title">📊 Số lượng sẵn sàng:</span><span class="sc-qty-number">8
+                Đội (24 Y Bác sĩ)</span></div>
+
+            <div class="sc-detail-box">
+              <strong>🎯 Tác dụng thực tế:</strong>
+              Đội ngũ y bác sĩ tình nguyện mang theo máy đo huyết áp, máy đường huyết và cơ số thuốc cấp cứu đến từng hộ
+              ngập sâu, khám bệnh miễn phí cho người già liệt giường, phụ nữ mang thai và trẻ em.
+            </div>
+
+            <div class="sc-meaning-box">
+              <strong>❤️ Ý nghĩa nhân đạo:</strong>
+              Giảm bớt gánh nặng viện phí hiểm nghèo, ngăn chặn dịch bệnh bùng phát sau lũ lụt, mang lại sự an tâm vô
+              giá cho những mảnh đời neo đơn không có khả năng tự đến bệnh viện.
+            </div>
+          </div>
+          <div class="sc-footer">
+            <span>📍 Triển khai tại: <strong>Tất cả các Tổ</strong></span>
+            <button class="btn btn-outline btn-sm" onclick="openLoginModal('citizen')">Đăng ký dịch vụ</button>
+          </div>
+        </div>
+
+        <!-- ITEM 2: Dịch vụ Nước Sạch -->
+        <div class="showcase-card" data-category="service">
+          <div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap sc-icon-green">💧</div>
+              <span class="sc-badge badge-approved">Dịch Vụ An Sinh</span>
+            </div>
+            <h3>Cấp Nước Sạch Dã Chiến &amp; Vệ Sinh Môi Trường</h3>
+            <div class="sc-tagline">💧 Giọt nước nghĩa tình — Đẩy lùi ô nhiễm</div>
+            <div class="sc-qty-box"><span class="sc-qty-title">📊 Số lượng sẵn sàng:</span><span class="sc-qty-number">2
+                Xe bồn (20.000L / ngày)</span></div>
+
+            <div class="sc-detail-box">
+              <strong>🎯 Tác dụng thực tế:</strong>
+              Điều động xe bồn cấp nước sạch RO công suất lớn đến các điểm tập trung; phát can chứa nước 20L và dung
+              dịch Cloramin B khử trùng giếng khoan cho vùng bị nước lũ làm nhiễm bẩn.
+            </div>
+
+            <div class="sc-meaning-box">
+              <strong>❤️ Ý nghĩa nhân đạo:</strong>
+              Nước sạch là sự sống. Dịch vụ đảm bảo 100% người dân có nước ăn uống hợp vệ sinh, xóa bỏ nguy cơ bùng phát
+              dịch tả, sốt xuất huyết và các bệnh truyền nhiễm đường ruột.
+            </div>
+          </div>
+          <div class="sc-footer">
+            <span>📍 Nguồn cấp: <strong>Xe bồn 10.000L</strong></span>
+            <button class="btn btn-outline btn-sm" onclick="openLoginModal('citizen')">Đăng ký nhận nước</button>
+          </div>
+        </div>
+
+        <!-- ITEM 3: Dịch vụ Tạm Cư -->
+        <div class="showcase-card" data-category="service">
+          <div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap sc-icon-green">🏠</div>
+              <span class="sc-badge badge-approved">Dịch Vụ An Sinh</span>
+            </div>
+            <h3>Hỗ Trợ Tạm Cư Khẩn Cấp &amp; Gia Cố Mái Nhà</h3>
+            <div class="sc-tagline">🏡 Mái ấm an lành giữa tâm bão lũ</div>
+            <div class="sc-qty-box"><span class="sc-qty-title">📊 Số lượng sẵn sàng:</span><span class="sc-qty-number">3
+                Điểm tạm cư (350 chỗ)</span></div>
+
+            <div class="sc-detail-box">
+              <strong>🎯 Tác dụng thực tế:</strong>
+              Lực lượng dân quân và tình nguyện viên hỗ trợ chằng chống nhà dột, bao cát chắn sóng, di dời người dân đến
+              các điểm kiên cố (Nhà văn hóa, trường học) trước khi lũ đạt đỉnh.
+            </div>
+
+            <div class="sc-meaning-box">
+              <strong>❤️ Ý nghĩa nhân đạo:</strong>
+              Bảo toàn tính mạng người dân lên trên hết. Không để bất kỳ ai phải bơ vơ giữa dòng nước xiết hay chịu cảnh
+              màn trời chiếu đất khi bão tan.
+            </div>
+          </div>
+          <div class="sc-footer">
+            <span>📍 Bố trí tại: <strong>3 Điểm tạm cư xã</strong></span>
+            <button class="btn btn-outline btn-sm" onclick="openLoginModal('citizen')">Yêu cầu hỗ trợ</button>
+          </div>
+        </div>
+
+        <!-- ITEM 4: Dịch vụ Bếp Ăn An Sinh -->
+        <div class="showcase-card" data-category="service">
+          <div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap sc-icon-green">🍲</div>
+              <span class="sc-badge badge-approved">Dịch Vụ An Sinh</span>
+            </div>
+            <h3>Bếp Ăn An Sinh — Suất Cơm Dinh Dưỡng 0 Đồng</h3>
+            <div class="sc-tagline">🔥 Bữa cơm nóng ấm — San sẻ yêu thương</div>
+            <div class="sc-qty-box"><span class="sc-qty-title">📊 Số lượng sẵn sàng:</span><span
+                class="sc-qty-number">1.200 Suất cơm / ngày</span></div>
+
+            <div class="sc-detail-box">
+              <strong>🎯 Tác dụng thực tế:</strong>
+              Bếp dã chiến hoạt động 2 ca/ngày, cung cấp hơn 1.200 suất cơm nóng, cháo dinh dưỡng đóng hộp giữ nhiệt
+              chuyển bằng ca-nô đến tận cửa các gia đình bị ngập sâu mất điện.
+            </div>
+
+            <div class="sc-meaning-box">
+              <strong>❤️ Ý nghĩa nhân đạo:</strong>
+              Xua tan nỗi lo đứt bữa của trẻ thơ và người già yếu. Mỗi suất ăn trao đi là tình cảm, tấm lòng đùm bọc của
+              nhân dân cả nước gửi về đồng bào vùng nạn.
+            </div>
+          </div>
+          <div class="sc-footer">
+            <span>📍 Công suất: <strong>1.200 suất/ngày</strong></span>
+            <button class="btn btn-outline btn-sm" onclick="openLoginModal('citizen')">Đăng ký nhận cơm</button>
+          </div>
+        </div>
+
+        <!-- ITEM 5: Thiết bị Lọc Nước RO -->
+        <div class="showcase-card" data-category="equipment">
+          <div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap sc-icon-purple">💧</div>
+              <span class="sc-badge badge-transit">Thiết Bị Cứu Trợ</span>
+            </div>
+            <h3>Hệ Thống Lọc Nước RO Dã Chiến Di Động</h3>
+            <div class="sc-tagline">⚙️ Công nghệ hiện đại — Biến nước lũ thành nước uống</div>
+            <div class="sc-qty-box"><span class="sc-qty-title">📊 Số lượng sẵn sàng:</span><span class="sc-qty-number">5
+                Hệ thống (5.000L / giờ)</span></div>
+
+            <div class="sc-detail-box">
+              <strong>🎯 Tác dụng thực tế:</strong>
+              Thiết bị lọc màng thẩm thấu ngược công suất 1.000 lít/giờ, chạy bằng máy nổ hoặc năng lượng mặt trời, lọc
+              sạch bùn đất, vi khuẩn, kim loại nặng đạt chuẩn nước uống đóng chai Bộ Y Tế.
+            </div>
+
+            <div class="sc-meaning-box">
+              <strong>❤️ Ý nghĩa nhân đạo:</strong>
+              Chủ động nguồn nước sạch tại chỗ mà không cần chờ vận chuyển từ xa, giải quyết dứt điểm tình trạng khát
+              nước ngọt tại các ấp cù lao cô lập.
+            </div>
+          </div>
+          <div class="sc-footer">
+            <span>📍 Hiện có: <strong>5 hệ thống sẵn sàng</strong></span>
+            <button class="btn btn-outline btn-sm" onclick="openLoginModal('citizen')">Yêu cầu điều phối</button>
+          </div>
+        </div>
+
+        <!-- ITEM 6: Thiết bị Máy Phát Điện -->
+        <div class="showcase-card" data-category="equipment">
+          <div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap sc-icon-purple">🔌</div>
+              <span class="sc-badge badge-transit">Thiết Bị Cứu Trợ</span>
+            </div>
+            <h3>Máy Phát Điện Công Nghiệp Dã Chiến (5kW - 10kW)</h3>
+            <div class="sc-tagline">💡 Thắp sáng niềm tin — Giữ vững thông tin liên lạc</div>
+            <div class="sc-qty-box"><span class="sc-qty-title">📊 Số lượng sẵn sàng:</span><span class="sc-qty-number">3
+                Máy phát điện (10kW)</span></div>
+
+            <div class="sc-detail-box">
+              <strong>🎯 Tác dụng thực tế:</strong>
+              Cung cấp nguồn điện khẩn cấp cho Trạm Y tế xã chạy máy thở, bảo quản vắc-xin, đồng thời thiết lập trạm sạc
+              điện thoại công cộng để người dân gọi điện báo tin cho người thân.
+            </div>
+
+            <div class="sc-meaning-box">
+              <strong>❤️ Ý nghĩa nhân đạo:</strong>
+              Ánh sáng điện giữa đêm bão mang lại sự bình yên, xua tan sợ hãi, giữ vững sợi dây liên lạc sống còn giữa
+              người gặp nạn và lực lượng cứu hộ.
+            </div>
+          </div>
+          <div class="sc-footer">
+            <span>📍 Tình trạng: <strong>3 máy hoạt động tốt</strong></span>
+            <button class="btn btn-outline btn-sm" onclick="openLoginModal('citizen')">Đăng ký mượn máy</button>
+          </div>
+        </div>
+
+        <!-- ITEM 7: Thiết bị Xe Lăn & Nạng -->
+        <div class="showcase-card" data-category="equipment">
+          <div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap sc-icon-purple">♿</div>
+              <span class="sc-badge badge-transit">Thiết Bị Cứu Trợ</span>
+            </div>
+            <h3>Xe Lăn Tay Cơ Động &amp; Nạng Cho Người Khuyết Tật</h3>
+            <div class="sc-tagline">👣 Đôi chân nghĩa tình — Vững bước tương lai</div>
+            <div class="sc-qty-box"><span class="sc-qty-title">📊 Số lượng sẵn sàng:</span><span
+                class="sc-qty-number">45 Xe lăn & 80 Bộ nạng</span></div>
+
+            <div class="sc-detail-box">
+              <strong>🎯 Tác dụng thực tế:</strong>
+              Xe lăn gấp gọn bằng hợp kim nhôm siêu nhẹ, có đai an toàn và phanh tay chống trượt, kèm nạng chống nách
+              điều chỉnh chiều cao linh hoạt cho người suy giảm vận động.
+            </div>
+
+            <div class="sc-meaning-box">
+              <strong>❤️ Ý nghĩa nhân đạo:</strong>
+              Trao cho người khuyết tật sự tự do di chuyển và tự chủ trong sinh hoạt, thắp lên niềm tin yêu cuộc sống,
+              khẳng định sự quan tâm sâu sắc của xã hội đối với người yếu thế.
+            </div>
+          </div>
+          <div class="sc-footer">
+            <span>📍 Cấp phát: <strong>Miễn phí / Mượn dài hạn</strong></span>
+            <button class="btn btn-outline btn-sm" onclick="openLoginModal('citizen')">Đăng ký nhận xe</button>
+          </div>
+        </div>
+
+        <!-- ITEM 8: Thiết bị Lều Bạt -->
+        <div class="showcase-card" data-category="equipment">
+          <div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap sc-icon-purple">🏕</div>
+              <span class="sc-badge badge-transit">Thiết Bị Cứu Trợ</span>
+            </div>
+            <h3>Lều Bạt Khẩn Cấp Cách Nhiệt &amp; Chống Thấm</h3>
+            <div class="sc-tagline">⛺ Chốn nương thân an toàn trước phong ba</div>
+            <div class="sc-qty-box"><span class="sc-qty-title">📊 Số lượng sẵn sàng:</span><span
+                class="sc-qty-number">20 Bộ lều (4 lớp chống bão)</span></div>
+
+            <div class="sc-detail-box">
+              <strong>🎯 Tác dụng thực tế:</strong>
+              Lều bạt 4 lớp chống tia cực tím, chống thấm mưa gió giật cấp 7, có lưới chống muỗi và cửa thông gió, lắp
+              ráp nhanh trong 10 phút, sức chứa 4-6 người trong gia đình.
+            </div>
+
+            <div class="sc-meaning-box">
+              <strong>❤️ Ý nghĩa nhân đạo:</strong>
+              Cung cấp không gian sinh hoạt riêng tư, vệ sinh và an toàn cho phụ nữ và trẻ nhỏ trong giai đoạn chờ sửa
+              chữa nhà cửa sau thiên tai.
+            </div>
+          </div>
+          <div class="sc-footer">
+            <span>📍 Kho xã: <strong>20 bộ sẵn sàng</strong></span>
+            <button class="btn btn-outline btn-sm" onclick="openLoginModal('citizen')">Mượn lều cứu trợ</button>
+          </div>
+        </div>
+
+        <!-- ITEM 9: Nhu yếu phẩm Lương Thực -->
+        <div class="showcase-card" data-category="supplies">
+          <div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap sc-icon-gold">🌾</div>
+              <span class="sc-badge badge-pending">Nhu Yếu Phẩm</span>
+            </div>
+            <h3>Gạo Đóng Bao Tiệt Trùng &amp; Lương Khô Dinh Dưỡng</h3>
+            <div class="sc-tagline">🍚 Hạt ngọc nuôi dưỡng — Ấm no từng mái nhà</div>
+            <div class="sc-qty-box"><span class="sc-qty-title">📊 Số lượng sẵn sàng:</span><span
+                class="sc-qty-number">8.5 Tấn gạo & 2.000 Lương khô</span></div>
+
+            <div class="sc-detail-box">
+              <strong>🎯 Tác dụng thực tế:</strong>
+              Gạo sạch đóng túi chân không 10kg-25kg chống ẩm mốc mọt, kèm lương khô quân đội giàu đạm, vitamin, có thể
+              ăn liền không cần đun nấu khi thiếu củi lửa.
+            </div>
+
+            <div class="sc-meaning-box">
+              <strong>❤️ Ý nghĩa nhân đạo:</strong>
+              Gạt bỏ nỗi âu lo đói khát, giữ vững tinh thần kiên cường cho bà con trong những ngày nước ngập cô lập giao
+              thông.
+            </div>
+          </div>
+          <div class="sc-footer">
+            <span>📍 Tồn kho: <strong>8.5 tấn gạo sạch</strong></span>
+            <button class="btn btn-outline btn-sm" onclick="openLoginModal('citizen')">Đăng ký nhận lương thực</button>
+          </div>
+        </div>
+
+        <!-- ITEM 10: Nhu yếu phẩm Nước Đóng Chai -->
+        <div class="showcase-card" data-category="supplies">
+          <div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap sc-icon-gold">🥤</div>
+              <span class="sc-badge badge-pending">Nhu Yếu Phẩm</span>
+            </div>
+            <h3>Nước Uống Đóng Chai Tinh Khiết (500ml &amp; Bình 20L)</h3>
+            <div class="sc-tagline">🌊 Nguồn sống trong lành — Dập tắt cơn khát</div>
+            <div class="sc-qty-box"><span class="sc-qty-title">📊 Số lượng sẵn sàng:</span><span
+                class="sc-qty-number">1.240 Thùng (29.760 chai)</span></div>
+
+            <div class="sc-detail-box">
+              <strong>🎯 Tác dụng thực tế:</strong>
+              Nước khoáng thiên nhiên tiệt trùng đóng chai tiện lợi mang theo, bổ sung vi khoáng, đảm bảo uống trực tiếp
+              an toàn tuyệt đối cho người già, phụ nữ và trẻ nhỏ.
+            </div>
+
+            <div class="sc-meaning-box">
+              <strong>❤️ Ý nghĩa nhân đạo:</strong>
+              Sự chăm sóc chu đáo từ những điều giản dị nhất, ngăn ngừa triệt để các dịch bệnh đường ruột thường hoành
+              hành sau mùa lũ dữ.
+            </div>
+          </div>
+          <div class="sc-footer">
+            <span>📍 Khả dụng: <strong>1.240 thùng sẵn sàng</strong></span>
+            <button class="btn btn-outline btn-sm" onclick="openLoginModal('citizen')">Đăng ký nhận nước</button>
+          </div>
+        </div>
+
+        <!-- ITEM 11: Nhu yếu phẩm Thuốc Men -->
+        <div class="showcase-card" data-category="supplies">
+          <div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap sc-icon-red">💊</div>
+              <span class="sc-badge badge-rejected" style="background:#FDF0F1;color:#B02A3A;border:1px solid #F5B0B8;">Y
+                Tế Khẩn Cấp</span>
+            </div>
+            <h3>Túi Thuốc Y Tế Khẩn Cấp &amp; Sơ Cứu Hộ Gia Đình</h3>
+            <div class="sc-tagline">🩺 Lá chắn sức khỏe — Sơ cứu tức thời</div>
+            <div class="sc-qty-box"><span class="sc-qty-title">📊 Số lượng sẵn sàng:</span><span
+                class="sc-qty-number">650 Túi chuẩn Bộ Y Tế</span></div>
+
+            <div class="sc-detail-box">
+              <strong>🎯 Tác dụng thực tế:</strong>
+              Gồm thuốc hạ sốt, thuốc tiêu hóa, men tiêu hóa, thuốc nhỏ mắt, bông băng cồn sát trùng, thuốc bôi ngoài da
+              chống nấm nước ăn chân và dầu gió thiết yếu.
+            </div>
+
+            <div class="sc-meaning-box">
+              <strong>❤️ Ý nghĩa nhân đạo:</strong>
+              Tự bảo vệ bản thân và người thân trong những thời khắc cán bộ y tế chưa thể tiếp cận do nước sâu chia cắt
+              đường bộ.
+            </div>
+          </div>
+          <div class="sc-footer">
+            <span>📍 Tiêu chuẩn: <strong>Gói chuẩn Bộ Y Tế</strong></span>
+            <button class="btn btn-outline btn-sm" onclick="openLoginModal('citizen')">Nhận túi thuốc</button>
+          </div>
+        </div>
+
+        <!-- ITEM 12: Nhu yếu phẩm Đồ Dùng Mẹ & Bé -->
+        <div class="showcase-card" data-category="supplies">
+          <div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap sc-icon-gold">👶</div>
+              <span class="sc-badge badge-pending">Nhu Yếu Phẩm</span>
+            </div>
+            <h3>Gói Chăm Sóc Trẻ Em, Tã Sữa &amp; Chăn Màn Giữ Ấm</h3>
+            <div class="sc-tagline">🧸 Nâng niu giấc ngủ trẻ thơ — Tiếp sức mẹ hiền</div>
+            <div class="sc-qty-box"><span class="sc-qty-title">📊 Số lượng sẵn sàng:</span><span
+                class="sc-qty-number">280 Gói chăm sóc Mẹ & Bé</span></div>
+
+            <div class="sc-detail-box">
+              <strong>🎯 Tác dụng thực tế:</strong>
+              Cung cấp sữa bột dinh dưỡng theo độ tuổi, bình sữa tiệt trùng, tã dán kháng khuẩn, chăn dạ ấm và áo mưa
+              trẻ em cho các gia đình có con nhỏ dưới 36 tháng tuổi.
+            </div>
+
+            <div class="sc-meaning-box">
+              <strong>❤️ Ý nghĩa nhân đạo:</strong>
+              Bảo bọc những sinh linh bé bỏng dễ tổn thương nhất, tiếp thêm sức mạnh và nghị lực cho các bà mẹ vượt qua
+              nghịch cảnh thiên tai.
+            </div>
+          </div>
+          <div class="sc-footer">
+            <span>📍 Hỗ trợ: <strong>Ưu tiên hộ có con nhỏ</strong></span>
+            <button class="btn btn-outline btn-sm" onclick="openLoginModal('citizen')">Đăng ký gói Mẹ &amp; Bé</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+  </main>
+
+  <!-- MODAL ĐĂNG NHẬP & ĐĂNG KÝ HỆ THỐNG (ĐỒNG BỘ THEME XANH THAN, VÀNG ÁNH KIM & XANH RÊU) -->
+  <div class="modal-overlay" id="loginModal" style="display:none;"
+    onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal modal-auth">
+      <div class="modal-header" style="border-bottom:1px solid rgba(212,175,55,0.3); padding-bottom:12px; margin-bottom:16px;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <img src="src/assets/logo-transparent.png" alt="CoordSystem Logo"
+              style="height:34px; object-fit:contain; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.3));" />
+            <span style="font-size:0.75rem; color:var(--gold-1); font-weight:700; text-transform:uppercase;">
+              Quận Ngũ Hành Sơn · TP. Đà Nẵng
+            </span>
+          </div>
+          <div class="modal-title text-gold" id="modalMainHeading" style="font-size:1.22rem; font-weight:800;">
+            🔑 Đăng Nhập Hệ Thống
+          </div>
+          <p style="font-size:0.78rem; color:rgba(249,243,232,0.7); margin-top:2px;">
+            Cổng Điều Phối Cứu Trợ &amp; An Sinh Xã Hội Trực Tuyến
+          </p>
+        </div>
+        <button class="modal-close" style="color:#fff;" onclick="document.getElementById('loginModal').style.display='none'">✕</button>
+      </div>
+
+      <!-- Tab Chế Độ: Đăng Nhập vs Đăng Ký Mới -->
+      <div class="auth-mode-tabs">
+        <button class="auth-mode-tab active" id="authModeLoginBtn" onclick="switchAuthMode('login')">
+          🔑 Đăng Nhập
+        </button>
+        <button class="auth-mode-tab" id="authModeRegisterBtn" onclick="switchAuthMode('register')">
+          📝 Đăng Ký Tài Khoản
+        </button>
+      </div>
+
+      <!-- Tab Vai Trò: Người Dân vs Cán Bộ Quản Lý -->
+      <div class="login-role-tabs">
+        <button class="login-role-tab active-citizen" id="tabCitizenBtn" onclick="switchLoginRole('citizen')">
+          👤 Người Dân
+        </button>
+        <button class="login-role-tab" id="tabAdminBtn" onclick="switchLoginRole('admin')">
+          🏛 Cán Bộ Quản Lý (Admin)
+        </button>
+      </div>
+
+      <!-- 1. FORM ĐĂNG NHẬP NGƯỜI DÂN -->
+      <form id="formCitizenLogin" onsubmit="handleCitizenLogin(event)">
+        <div class="form-group">
+          <label class="form-label">Số điện thoại hoặc Số CCCD / Định danh</label>
+          <input type="text" class="form-control" placeholder="Ví dụ: 0912345678 hoặc 048xxxxxxxxx" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <div class="pwd-wrap">
+            <input type="password" id="citizenLoginPwd" class="form-control" placeholder="Nhập mật khẩu..." required />
+            <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('citizenLoginPwd', this)">👁️</button>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; font-size:0.82rem;">
+          <a href="#" style="color:var(--gold-1); font-weight:600;" onclick="switchAuthMode('register'); switchLoginRole('citizen');">Chưa có tài khoản? Đăng ký ngay</a>
+          <a href="#" style="color:rgba(249,243,232,0.7);" onclick="alert('Vui lòng liên hệ UBND Phường nơi cư trú tại Quận Ngũ Hành Sơn để được hỗ trợ cấp lại mật khẩu.');">Quên mật khẩu?</a>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-weight:700;">
+          👉 Đăng Nhập Vào Cổng Người Dân
+        </button>
+      </form>
+
+      <!-- 2. FORM ĐĂNG NHẬP ADMIN / CÁN BỘ -->
+      <form id="formAdminLogin" style="display:none;" onsubmit="handleAdminLogin(event)">
+        <div class="form-group">
+          <label class="form-label">Email công vụ cán bộ (@danang.gov.vn)</label>
+          <input type="email" class="form-control" placeholder="canbo.nhs@danang.gov.vn" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu quản trị</label>
+          <div class="pwd-wrap">
+            <input type="password" id="adminLoginPwd" class="form-control" placeholder="Nhập mật khẩu quản trị..." required />
+            <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('adminLoginPwd', this)">👁️</button>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; font-size:0.82rem;">
+          <span style="color:rgba(249,243,232,0.65);">Cán bộ trực ban / Điều phối Quận</span>
+          <a href="#" style="color:var(--gold-1); font-weight:600;" onclick="switchAuthMode('register'); switchLoginRole('admin');">Đăng ký cán bộ mới</a>
+        </div>
+        <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center; padding:12px; font-weight:700;">
+          👉 Đăng Nhập Vào Cổng Quản Lý Admin
+        </button>
+      </form>
+
+      <!-- 3. FORM ĐĂNG KÝ TÀI KHOẢN NGƯỜI DÂN -->
+      <form id="formCitizenRegister" style="display:none;" onsubmit="handleCitizenRegister(event)">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Họ và tên *</label>
+            <input type="text" class="form-control" placeholder="Nguyễn Văn A" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Số điện thoại *</label>
+            <input type="tel" class="form-control" placeholder="0912345678" required />
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1.1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Số CCCD / Định danh (12 số)</label>
+            <input type="text" class="form-control" placeholder="048xxxxxxxxx" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phường cư trú (Q. NHS) *</label>
+            <select class="form-control" required>
+              <option value="myan">Phường Mỹ An</option>
+              <option value="khuemy" selected>Phường Khuê Mỹ</option>
+              <option value="hoaquy">Phường Hòa Quý (Ven sông)</option>
+              <option value="hoahai">Phường Hòa Hải (Ven biển)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Địa chỉ cư trú cụ thể (Tổ dân phố, tên đường) *</label>
+          <input type="text" class="form-control" placeholder="Ví dụ: Tổ 12, Đường Lê Văn Hiến, Phường Khuê Mỹ" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nhóm an sinh / Hoàn cảnh</label>
+          <select class="form-control">
+            <option value="flood">Hộ vùng trũng ngập lụt ven sông Cổ Cò / Đô Lương</option>
+            <option value="poor">Hộ nghèo / Hộ cận nghèo của Phường</option>
+            <option value="elderly">Người cao tuổi neo đơn / Người khuyết tật</option>
+            <option value="normal" selected>Gia đình cần trợ cấp đột xuất / Khó khăn</option>
+          </select>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Mật khẩu *</label>
+            <input type="password" class="form-control" placeholder="Tối thiểu 6 ký tự" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nhập lại mật khẩu *</label>
+            <input type="password" class="form-control" placeholder="Khớp mật khẩu" required />
+          </div>
+        </div>
+        <div style="margin-bottom:14px; font-size:0.76rem; color:rgba(249,243,232,0.85); display:flex; align-items:flex-start; gap:8px;">
+          <input type="checkbox" required style="margin-top:2px;" />
+          <span>Tôi cam kết các thông tin cư trú tại <strong>Quận Ngũ Hành Sơn</strong> là chính xác để phục vụ công tác an sinh xã hội.</span>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-weight:700;">
+          ✅ Hoàn Tất Đăng Ký Tài Khoản Người Dân
+        </button>
+      </form>
+
+      <!-- 4. FORM ĐĂNG KÝ CÁN BỘ / ADMIN -->
+      <form id="formAdminRegister" style="display:none;" onsubmit="handleAdminRegister(event)">
+        <div class="form-group">
+          <label class="form-label">Họ và tên cán bộ công chức *</label>
+          <input type="text" class="form-control" placeholder="Ví dụ: Nguyễn Duy" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email công vụ xác thực (@danang.gov.vn) *</label>
+          <input type="email" class="form-control" placeholder="canbo.nhs@danang.gov.vn" required />
+        </div>
+        <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Cơ quan / Đơn vị công tác</label>
+            <select class="form-control" required>
+              <option value="ubnd_nhs">UBND Quận Ngũ Hành Sơn</option>
+              <option value="ban_pctt">Ban Chỉ huy PCTT &amp; TKCN Quận</option>
+              <option value="phuong_myan">UBND Phường Mỹ An</option>
+              <option value="phuong_khuemy">UBND Phường Khuê Mỹ</option>
+              <option value="phuong_hoaquy">UBND Phường Hòa Quý</option>
+              <option value="phuong_hoahai">UBND Phường Hòa Hải</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mã PIN ủy quyền *</label>
+            <input type="password" class="form-control" placeholder="Mã PIN 6 số" required />
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Mật khẩu quản trị *</label>
+            <input type="password" class="form-control" placeholder="Tối thiểu 8 ký tự" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nhập lại mật khẩu *</label>
+            <input type="password" class="form-control" placeholder="Khớp mật khẩu" required />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center; padding:12px; font-weight:700;">
+          🏛 Đăng Ký Cán Bộ Điều Phối
+        </button>
+      </form>
+
+      <!-- Quick Demo Login Buttons -->
+      <div style="margin-top:16px; padding-top:14px; border-top:1px solid rgba(212,175,55,0.25);">
+        <div style="font-size:0.74rem; text-align:center; color:rgba(249,243,232,0.65); text-transform:uppercase; font-weight:700; margin-bottom:8px;">
+          Truy cập nhanh (Chế độ Trải Nghiệm Demo)
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-outline btn-sm" style="flex:1; justify-content:center; border-color:var(--moss-green); color:#86efac; background:rgba(74,122,66,0.15);"
+            onclick="location.href='citizen/dashboard.html'">
+            👤 Demo Người Dân
+          </button>
+          <button class="btn btn-outline btn-sm"
+            style="flex:1; justify-content:center; border-color:var(--gold-1); color:var(--gold-1); background:rgba(212,175,55,0.15);"
+            onclick="location.href='admin/dashboard.html'">
+            🏛 Demo Admin
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer
+    style="background:#fff; border-top:1px solid var(--beige-mid); padding:28px 24px; text-align:center; font-size:0.84rem; color:var(--text-light); margin-top:50px; line-height:1.6;">
+    <strong style="color:var(--purple-dark);">CoordSystem</strong> © 2026 — Hệ thống Điều phối Cứu trợ &amp; An sinh Xã
+    hội Cấp Xã/Phường.<br />
+    <em>"Kết nối Yêu thương — Phân bổ Kịp thời — Minh bạch Tuyệt đối — Không ai bị bỏ lại phía sau."</em>
+  </footer>
+
+  <script>
+    // ==========================================
+    // AUTH MODAL LOGIC (LOGIN & REGISTRATION)
+    // ==========================================
+    let currentAuthMode = 'login';
+    let currentAuthRole = 'citizen';
+
+    function openLoginModal(role, mode) {
+      if (role) currentAuthRole = role;
+      if (mode) currentAuthMode = mode;
+      document.getElementById('loginModal').style.display = 'flex';
+      updateAuthModalUI();
+    }
+
+    function switchAuthMode(mode) {
+      currentAuthMode = mode;
+      updateAuthModalUI();
+    }
+
+    function switchLoginRole(role) {
+      currentAuthRole = role;
+      updateAuthModalUI();
+    }
+
+    function updateAuthModalUI() {
+      const isLogin = currentAuthMode === 'login';
+      const isCitizen = currentAuthRole === 'citizen';
+
+      // Mode tabs
+      document.getElementById('authModeLoginBtn').className = isLogin ? 'auth-mode-tab active' : 'auth-mode-tab';
+      document.getElementById('authModeRegisterBtn').className = !isLogin ? 'auth-mode-tab active' : 'auth-mode-tab';
+
+      // Heading
+      const heading = document.getElementById('modalMainHeading');
+      if (heading) {
+        heading.innerHTML = isLogin ? '🔑 Đăng Nhập Hệ Thống' : '📝 Đăng Ký Tài Khoản Mới';
+      }
+
+      // Role tabs
+      const citizenBtn = document.getElementById('tabCitizenBtn');
+      const adminBtn = document.getElementById('tabAdminBtn');
+      citizenBtn.className = isCitizen ? 'login-role-tab active-citizen' : 'login-role-tab';
+      adminBtn.className = !isCitizen ? 'login-role-tab active-admin' : 'login-role-tab';
+
+      // Form visibility
+      document.getElementById('formCitizenLogin').style.display = (isLogin && isCitizen) ? 'block' : 'none';
+      document.getElementById('formAdminLogin').style.display = (isLogin && !isCitizen) ? 'block' : 'none';
+      document.getElementById('formCitizenRegister').style.display = (!isLogin && isCitizen) ? 'block' : 'none';
+      document.getElementById('formAdminRegister').style.display = (!isLogin && !isCitizen) ? 'block' : 'none';
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁️';
+      }
+    }
+
+    function handleCitizenLogin(e) {
+      e.preventDefault();
+      location.href = 'citizen/dashboard.html';
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      location.href = 'admin/dashboard.html';
+    }
+
+    function handleCitizenRegister(e) {
+      e.preventDefault();
+      alert('Đăng ký tài khoản người dân tại Quận Ngũ Hành Sơn thành công! Bạn có thể đăng nhập ngay.');
+      switchAuthMode('login');
+      switchLoginRole('citizen');
+    }
+
+    function handleAdminRegister(e) {
+      e.preventDefault();
+      alert('Hồ sơ cán bộ điều phối đã được gửi đến Ban Chỉ huy PCTT & TKCN Quận Ngũ Hành Sơn phê duyệt. Đang chuyển sang đăng nhập.');
+      switchAuthMode('login');
+      switchLoginRole('admin');
+    }
+
+    // ==========================================
+    // REACT LEAFLET MAP COMPONENT (NGŨ HÀNH SƠN)
+    // ==========================================
+    const NGU_HANH_SON_CENTER = [16.0050, 108.2496];
+    const NGU_HANH_SON_BOUNDS = [
+      [15.955, 108.205], // Southwest
+      [16.060, 108.280]  // Northeast
+    ];
+
+    const RELIEF_HUBS = [
+      {
+        id: 'hub-1',
+        name: 'UBND Quận Ngũ Hành Sơn — Trung Tâm Điều Phối Khẩn Cấp',
+        ward: 'khuemy',
+        wardName: 'Phường Khuê Mỹ',
+        address: '486 Lê Văn Hiến, P. Khuê Mỹ, Q. Ngũ Hành Sơn, TP. Đà Nẵng',
+        coords: [16.0142, 108.2435],
+        type: 'command',
+        typeLabel: 'Sở Chỉ Huy An Sinh',
+        icon: '🏛️',
+        status: 'Đang trực ban 24/7',
+        stock: '15.8 tấn gạo & thực phẩm khô · 2.400 bình nước · 600 phao cứu sinh',
+        hotline: '0236.3847.234',
+        capacity: 92,
+        badgeColor: '#D4AF37'
+      },
+      {
+        id: 'hub-2',
+        name: 'Điểm Tập Kết Lương Thực & An Sinh Di Tích K20',
+        ward: 'khuemy',
+        wardName: 'Phường Khuê Mỹ',
+        address: 'Khu Di tích Cách mạng K20, P. Khuê Mỹ, Q. Ngũ Hành Sơn, TP. Đà Nẵng',
+        coords: [16.0225, 108.2380],
+        type: 'supplies',
+        typeLabel: 'Kho Lương Thực & Nhu Yếu Phẩm',
+        icon: '📦',
+        status: 'Sẵn sàng cấp phát',
+        stock: '8.5 tấn gạo dự trữ · 1.200 thùng mì tôm · 300 đèn pin sạc dự phòng',
+        hotline: '0905.123.456',
+        capacity: 78,
+        badgeColor: '#2A5FAA'
+      },
+      {
+        id: 'hub-3',
+        name: 'Trạm Y Tế & Cứu Trợ Lưu Động Phường Mỹ An',
+        ward: 'myan',
+        wardName: 'Phường Mỹ An',
+        address: 'Đường Bà Huyện Thanh Quan, P. Mỹ An, Q. Ngũ Hành Sơn, TP. Đà Nẵng',
+        coords: [16.0405, 108.2415],
+        type: 'medical',
+        typeLabel: 'Trạm Cứu Trợ Y Tế',
+        icon: '🏥',
+        status: 'Trực cấp cứu & cấp phát thuốc',
+        stock: '450 túi thuốc chuẩn Bộ Y Tế · 20 máy thở oxy mini · 1.500 bông băng sát trùng',
+        hotline: '0236.3950.115',
+        capacity: 85,
+        badgeColor: '#2E6B28'
+      },
+      {
+        id: 'hub-4',
+        name: 'Điểm Tránh Trú Bão Lũ & Sơ Tán Ven Sông Cổ Cò — Hòa Quý',
+        ward: 'hoaquy',
+        wardName: 'Phường Hòa Quý',
+        address: 'Trường THCS Huỳnh Bá Chánh / Nhà Văn Hóa P. Hòa Quý, Q. Ngũ Hành Sơn',
+        coords: [15.9865, 108.2285],
+        type: 'shelter',
+        typeLabel: 'Điểm Tránh Trú & Sơ Tán',
+        icon: '⛺',
+        status: 'Vùng trũng xung yếu — Đã sẵn sàng',
+        stock: 'Sức chứa 350 người · 800 chăn ấm · 4 ca-nô xung kích cứu hộ ngập lụt',
+        hotline: '0913.456.789',
+        capacity: 65,
+        badgeColor: '#B02A3A'
+      },
+      {
+        id: 'hub-5',
+        name: 'Trạm Cứu Hộ Ven Biển & Làng Đá Non Nước — Hòa Hải',
+        ward: 'hoahai',
+        wardName: 'Phường Hòa Hải',
+        address: 'Đường Trường Sa / Làng nghề Non Nước, P. Hòa Hải, Q. Ngũ Hành Sơn',
+        coords: [15.9780, 108.2560],
+        type: 'rescue',
+        typeLabel: 'Đội Phản Ứng Nhanh & Ca-nô',
+        icon: '🚤',
+        status: 'Túc trực ca-nô tuần tra',
+        stock: '3 ca-nô cứu hộ tốc độ cao · 500 áo phao · 2 máy phát điện công suất lớn',
+        hotline: '0236.3836.114',
+        capacity: 95,
+        badgeColor: '#00838F'
+      }
+    ];
+
+    function initReactMap() {
+      const container = document.getElementById('react-map-app');
+      if (!container || !window.React || !window.ReactDOM) return;
+
+      const { useState, useEffect, useRef } = window.React;
+      const e = window.React.createElement;
+
+      function NguHanhSonMapComponent() {
+        const [selectedWard, setSelectedWard] = useState('all');
+        const [mapType, setMapType] = useState('m'); // 'm': Google Roadmap, 'y': Google Hybrid Satellite
+        const [activeHub, setActiveHub] = useState(RELIEF_HUBS[0]);
+        const mapContainerRef = useRef(null);
+        const mapInstanceRef = useRef(null);
+        const tileLayerRef = useRef(null);
+        const markersRef = useRef([]);
+
+        const filteredHubs = RELIEF_HUBS.filter(h => selectedWard === 'all' || h.ward === selectedWard);
+
+        // Update Google Maps Tile Layer when mapType changes
+        useEffect(() => {
+          if (!mapInstanceRef.current || !window.L) return;
+          if (tileLayerRef.current) {
+            mapInstanceRef.current.removeLayer(tileLayerRef.current);
+          }
+          const tileLayer = window.L.tileLayer(`https://mt{s}.google.com/vt/lyrs=${mapType}&x={x}&y={y}&z={z}`, {
+            attribution: '&copy; Google Maps · Quận Ngũ Hành Sơn, TP. Đà Nẵng',
+            subdomains: ['0', '1', '2', '3'],
+            maxZoom: 20
+          }).addTo(mapInstanceRef.current);
+          tileLayerRef.current = tileLayer;
+        }, [mapType]);
+
+        useEffect(() => {
+          if (!window.L || !mapContainerRef.current) return;
+
+          if (!mapInstanceRef.current) {
+            const map = window.L.map(mapContainerRef.current, {
+              center: NGU_HANH_SON_CENTER,
+              zoom: 13,
+              minZoom: 12,
+              maxZoom: 18,
+              maxBounds: NGU_HANH_SON_BOUNDS,
+              maxBoundsViscosity: 1.0 // Strictly locked to Ngu Hanh Son
+            });
+
+            // Connect directly to Google Maps
+            const tileLayer = window.L.tileLayer(`https://mt{s}.google.com/vt/lyrs=${mapType}&x={x}&y={y}&z={z}`, {
+              attribution: '&copy; Google Maps · Quận Ngũ Hành Sơn, TP. Đà Nẵng',
+              subdomains: ['0', '1', '2', '3'],
+              maxZoom: 20
+            }).addTo(map);
+            tileLayerRef.current = tileLayer;
+
+            window.L.rectangle(NGU_HANH_SON_BOUNDS, {
+              color: '#D4AF37',
+              weight: 2,
+              fillColor: '#153658',
+              fillOpacity: 0.05,
+              dashArray: '5, 5'
+            }).addTo(map);
+
+            mapInstanceRef.current = map;
+          }
+
+          const map = mapInstanceRef.current;
+          markersRef.current.forEach(m => map.removeLayer(m));
+          markersRef.current = [];
+
+          filteredHubs.forEach(hub => {
+            const icon = window.L.divIcon({
+              className: 'custom-hub-marker',
+              html: `<div style="background:#081424; border:2.5px solid ${hub.badgeColor}; color:#fff; border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.45); font-size:1.15rem; cursor:pointer;">${hub.icon}</div>`,
+              iconSize: [38, 38],
+              iconAnchor: [19, 19]
+            });
+
+            const marker = window.L.marker(hub.coords, { icon }).addTo(map);
+            marker.bindPopup(`
+              <div style="font-family:inherit; min-width:220px; color:#1F2421;">
+                <div style="font-weight:700; color:#081424; font-size:0.94rem; margin-bottom:4px;">${hub.name}</div>
+                <div style="font-size:0.75rem; color:#6B705C; margin-bottom:6px;">📍 ${hub.wardName}</div>
+                <div style="background:#F4F1DE; padding:6px 8px; border-radius:6px; font-size:0.78rem; line-height:1.4; margin-bottom:8px;">
+                  <strong>Nguồn lực:</strong> ${hub.stock}
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+                  <span style="color:#2E6B28; font-weight:700;">📞 ${hub.hotline}</span>
+                  <span style="background:${hub.badgeColor}; color:#fff; padding:2px 6px; border-radius:4px; font-size:0.7rem;">${hub.typeLabel}</span>
+                </div>
+              </div>
+            `);
+
+            marker.on('click', () => {
+              setActiveHub(hub);
+            });
+
+            markersRef.current.push(marker);
+          });
+        }, [filteredHubs]);
+
+        const selectHub = (hub) => {
+          setActiveHub(hub);
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.setView(hub.coords, 14, { animate: true });
+          }
+        };
+
+        const wardsList = [
+          { id: 'all', label: 'Tất cả Quận Ngũ Hành Sơn' },
+          { id: 'myan', label: 'Phường Mỹ An' },
+          { id: 'khuemy', label: 'Phường Khuê Mỹ' },
+          { id: 'hoaquy', label: 'Phường Hòa Quý (Ven sông)' },
+          { id: 'hoahai', label: 'Phường Hòa Hải (Ven biển)' }
+        ];
+
+        return e('div', {
+          style: {
+            background: 'linear-gradient(180deg, rgba(28, 62, 98, 0.88) 0%, rgba(46, 88, 126, 0.78) 100%)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: '18px',
+            border: '1.5px solid rgba(212,175,55,0.45)',
+            boxShadow: '0 20px 48px rgba(8,20,36,0.35)',
+            padding: '24px',
+            color: '#F9F3E8'
+          }
+        }, [
+          // Header
+          e('div', {
+            key: 'header',
+            style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '18px' }
+          }, [
+            e('div', { key: 'title-box' }, [
+              e('div', {
+                style: { display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(212,175,55,0.18)', border: '1px solid rgba(212,175,55,0.4)', padding: '4px 12px', borderRadius: '30px', fontSize: '0.8rem', color: '#D4AF37', fontWeight: '700', marginBottom: '8px' }
+              }, '🗺️ ĐỊA BÀN TRỌNG ĐIỂM: QUẬN NGŨ HÀNH SƠN, TP. ĐÀ NẴNG'),
+              e('h3', { style: { fontSize: '1.35rem', fontWeight: '800', margin: '4px 0', color: '#F3E5AB' } }, 'Bản Đồ Số Điều Phối An Sinh Thực Địa'),
+              e('p', { style: { fontSize: '0.84rem', color: 'rgba(249,243,232,0.85)', margin: 0 } }, 'Chỉ hiển thị phạm vi hành chính Quận Ngũ Hành Sơn (4 Phường: Mỹ An · Khuê Mỹ · Hòa Quý · Hòa Hải)')
+            ]),
+            e('div', { key: 'badges-box', style: { display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' } }, [
+              // Google Maps Switchers
+              e('div', { style: { display: 'flex', background: 'rgba(8,20,36,0.6)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: '8px', padding: '3px' } }, [
+                e('button', {
+                  onClick: () => setMapType('m'),
+                  style: {
+                    padding: '5px 10px',
+                    borderRadius: '6px',
+                    border: 'none',
+                    background: mapType === 'm' ? 'linear-gradient(135deg, #D4AF37, #B58A28)' : 'transparent',
+                    color: mapType === 'm' ? '#081424' : '#F9F3E8',
+                    fontSize: '0.74rem',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }
+                }, '🗺️ Google Bản Đồ'),
+                e('button', {
+                  onClick: () => setMapType('y'),
+                  style: {
+                    padding: '5px 10px',
+                    borderRadius: '6px',
+                    border: 'none',
+                    background: mapType === 'y' ? 'linear-gradient(135deg, #D4AF37, #B58A28)' : 'transparent',
+                    color: mapType === 'y' ? '#081424' : '#F9F3E8',
+                    fontSize: '0.74rem',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }
+                }, '🛰️ Google Vệ Tinh')
+              ]),
+
+              e('a', {
+                href: 'https://www.google.com/maps/place/Ngu+Hanh+Son,+Da+Nang,+Vietnam/@16.0049481,108.2098227,12.91z',
+                target: '_blank',
+                rel: 'noopener noreferrer',
+                style: {
+                  padding: '6px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(212,175,55,0.4)',
+                  background: 'rgba(212,175,55,0.15)',
+                  color: '#F3E5AB',
+                  fontSize: '0.74rem',
+                  fontWeight: '700',
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }
+              }, '↗ Google Maps Gốc'),
+
+              e('div', { style: { background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(212,175,55,0.35)', borderRadius: '8px', padding: '6px 12px', textAlign: 'center' } }, [
+                e('div', { style: { fontSize: '1.05rem', fontWeight: '800', color: '#D4AF37' } }, '4 Phường'),
+                e('div', { style: { fontSize: '0.68rem', color: 'rgba(249,243,232,0.8)' } }, 'Kết nối số hóa')
+              ]),
+              e('div', { style: { background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(74,122,66,0.5)', borderRadius: '8px', padding: '6px 12px', textAlign: 'center' } }, [
+                e('div', { style: { fontSize: '1.05rem', fontWeight: '800', color: '#86efac' } }, '5 Điểm Hub'),
+                e('div', { style: { fontSize: '0.68rem', color: 'rgba(249,243,232,0.8)' } }, 'Trực ban an sinh')
+              ])
+            ])
+          ]),
+
+          // Ward pills
+          e('div', {
+            key: 'ward-tabs',
+            style: { display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '16px' }
+          }, wardsList.map(w =>
+            e('button', {
+              key: w.id,
+              onClick: () => setSelectedWard(w.id),
+              style: {
+                padding: '7px 15px',
+                borderRadius: '20px',
+                border: selectedWard === w.id ? '1.5px solid #D4AF37' : '1px solid rgba(255,255,255,0.2)',
+                background: selectedWard === w.id ? 'linear-gradient(135deg, #D4AF37, #B58A28)' : 'rgba(255,255,255,0.1)',
+                color: selectedWard === w.id ? '#081424' : '#F9F3E8',
+                fontWeight: '700',
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s ease'
+              }
+            }, w.label)
+          )),
+
+          // Map + Hub Info Grid
+          e('div', {
+            key: 'grid',
+            style: { display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1fr)', gap: '16px' }
+          }, [
+            // Map container
+            e('div', { key: 'map-col', style: { position: 'relative' } }, [
+              e('div', {
+                ref: mapContainerRef,
+                id: 'nhs-interactive-map',
+                style: { height: '450px', borderRadius: '12px', border: '1.5px solid rgba(212,175,55,0.4)', overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }
+              }),
+              e('div', {
+                style: { position: 'absolute', bottom: '12px', left: '12px', zIndex: 400, background: 'rgba(8,20,36,0.92)', border: '1px solid rgba(212,175,55,0.4)', borderRadius: '6px', padding: '5px 10px', fontSize: '0.72rem', color: '#F3E5AB' }
+              }, '🔒 Phạm vi cố định: Quận Ngũ Hành Sơn, TP. Đà Nẵng')
+            ]),
+
+            // Hub info box
+            e('div', {
+              key: 'info-col',
+              style: { background: 'linear-gradient(180deg, rgba(16, 42, 70, 0.72) 0%, rgba(26, 60, 96, 0.62) 100%)', border: '1px solid rgba(212,175,55,0.35)', borderRadius: '12px', padding: '18px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 8px 24px rgba(0,0,0,0.25)' }
+            }, [
+              e('div', { key: 'info-content' }, [
+                e('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' } }, [
+                  e('span', { style: { background: activeHub.badgeColor, color: '#fff', fontSize: '0.72rem', fontWeight: '700', padding: '3px 8px', borderRadius: '5px' } }, `${activeHub.icon} ${activeHub.typeLabel}`),
+                  e('span', { style: { fontSize: '0.74rem', color: '#86efac', fontWeight: '700' } }, `● ${activeHub.status}`)
+                ]),
+                e('h4', { style: { fontSize: '1.05rem', fontWeight: '800', color: '#F3E5AB', margin: '4px 0 8px 0', lineHeight: 1.35 } }, activeHub.name),
+                e('div', { style: { fontSize: '0.8rem', color: 'rgba(249,243,232,0.85)', marginBottom: '12px' } }, `📍 ${activeHub.address}`),
+                e('div', { style: { background: 'rgba(8,20,36,0.65)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '10px 12px', marginBottom: '12px' } }, [
+                  e('div', { style: { fontSize: '0.74rem', fontWeight: '700', color: '#D4AF37', textTransform: 'uppercase', marginBottom: '4px' } }, '📦 Nguồn lực tại trạm:'),
+                  e('div', { style: { fontSize: '0.82rem', lineHeight: 1.4, color: '#fff' } }, activeHub.stock)
+                ]),
+                e('div', { style: { marginBottom: '10px' } }, [
+                  e('div', { style: { display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '4px', color: 'rgba(249,243,232,0.85)' } }, [
+                    e('span', null, 'Dung lượng an sinh:'),
+                    e('span', { style: { fontWeight: '700', color: '#D4AF37' } }, `${activeHub.capacity}% khả dụng`)
+                  ]),
+                  e('div', { style: { width: '100%', height: '6px', background: 'rgba(255,255,255,0.15)', borderRadius: '3px', overflow: 'hidden' } }, [
+                    e('div', { style: { width: `${activeHub.capacity}%`, height: '100%', background: 'linear-gradient(90deg, #4A7A42, #D4AF37)', borderRadius: '3px' } })
+                  ])
+                ])
+              ]),
+
+              e('div', { key: 'info-actions' }, [
+                e('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: 'rgba(74,122,66,0.25)', border: '1px solid rgba(74,122,66,0.45)', borderRadius: '8px', marginBottom: '10px' } }, [
+                  e('span', { style: { fontSize: '0.78rem' } }, 'Đường dây nóng:'),
+                  e('strong', { style: { color: '#F3E5AB', fontSize: '0.9rem' } }, `📞 ${activeHub.hotline}`)
+                ]),
+                e('button', {
+                  onClick: () => openLoginModal('citizen', 'login'),
+                  style: { width: '100%', padding: '10px', borderRadius: '8px', border: 'none', background: 'linear-gradient(135deg, #D4AF37, #B58A28)', color: '#081424', fontWeight: '700', fontSize: '0.84rem', cursor: 'pointer' }
+                }, '🚨 Gửi Yêu Cầu Hỗ Trợ Tại Điểm Này')
+              ])
+            ])
+          ]),
+
+          // Selector pills for hubs
+          e('div', {
+            key: 'hub-pills',
+            style: { marginTop: '14px', display: 'flex', gap: '8px', overflowX: 'auto', paddingTop: '4px' }
+          }, filteredHubs.map(hub =>
+            e('button', {
+              key: hub.id,
+              onClick: () => selectHub(hub),
+              style: {
+                padding: '6px 12px',
+                borderRadius: '6px',
+                border: activeHub.id === hub.id ? '1px solid #D4AF37' : '1px solid rgba(255,255,255,0.18)',
+                background: activeHub.id === hub.id ? 'rgba(212,175,55,0.25)' : 'rgba(255,255,255,0.08)',
+                color: activeHub.id === hub.id ? '#F3E5AB' : 'rgba(249,243,232,0.85)',
+                fontSize: '0.76rem',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }
+            }, `${hub.icon} ${hub.name.split('—')[0]}`)
+          ))
+        ]);
+      }
+
+      const root = window.ReactDOM.createRoot(container);
+      root.render(e(NguHanhSonMapComponent));
+    }
+
+    // ==========================================
+    // CATALOG & COUNTER UTILITIES
+    // ==========================================
+    function filterCatalog(category, btn) {
+      document.querySelectorAll('.c-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const cards = document.querySelectorAll('.showcase-card');
+      cards.forEach(card => {
+        if (category === 'all' || card.getAttribute('data-category') === category) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function animateCounters() {
+      const counters = document.querySelectorAll('.counter-num');
+      const duration = 1800; // 1.8 seconds
+
+      counters.forEach(counter => {
+        const target = parseFloat(counter.getAttribute('data-target'));
+        const decimals = parseInt(counter.getAttribute('data-decimals') || '0', 10);
+        const startTime = performance.now();
+
+        function updateCounter(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const easeOutProgress = 1 - Math.pow(1 - progress, 3);
+          const currentVal = target * easeOutProgress;
+
+          if (decimals > 0) {
+            counter.textContent = currentVal.toFixed(decimals);
+          } else {
+            counter.textContent = Math.floor(currentVal).toLocaleString('vi-VN');
+          }
+
+          if (progress < 1) {
+            requestAnimationFrame(updateCounter);
+          } else {
+            if (decimals > 0) {
+              counter.textContent = target.toFixed(decimals);
+            } else {
+              counter.textContent = target.toLocaleString('vi-VN');
+            }
+          }
+        }
+
+        requestAnimationFrame(updateCounter);
+      });
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(animateCounters, 300);
+      initReactMap();
+    });
+
+    // Close modal on Escape
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.getElementById('loginModal').style.display = 'none';
+    });
+  </script>
+</body>
+
+</html>

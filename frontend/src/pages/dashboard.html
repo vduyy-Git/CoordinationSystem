@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — CoordSystem</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <link rel="stylesheet" href="../assets/vendor/leaflet.css" />
+  <script src="../assets/vendor/leaflet.js"></script>
+  <style>
+    .chart-bar-wrap { display: flex; align-items: flex-end; gap: 8px; height: 120px; }
+    .chart-bar {
+      flex: 1; border-radius: 6px 6px 0 0;
+      background: var(--gradient-gold); background-size: 200% auto;
+      animation: shimmer 3s linear infinite;
+      transition: height 1s ease;
+      position: relative;
+    }
+    .chart-bar::after {
+      content: attr(data-val);
+      position: absolute; top: -22px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.72rem; color: var(--gold-2); font-weight: 700;
+    }
+    .chart-bar.green {
+      background: linear-gradient(to top, var(--moss-green), var(--moss-light));
+      animation: none;
+    }
+    .chart-bar.red {
+      background: linear-gradient(to top, var(--red), var(--red-light));
+      animation: none;
+    }
+    .chart-labels { display: flex; gap: 8px; margin-top: 6px; }
+    .chart-labels span {
+      flex: 1; text-align: center; font-size: 0.7rem; color: var(--text-light);
+    }
+    .activity-feed { max-height: 320px; overflow-y: auto; }
+    .activity-feed::-webkit-scrollbar { width: 4px; }
+    .activity-feed::-webkit-scrollbar-track { background: transparent; }
+    .activity-feed::-webkit-scrollbar-thumb {
+      background: var(--gold-1); border-radius: 2px;
+    }
+    .activity-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 0; border-bottom: 1px solid rgba(212,175,55,0.1);
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-icon {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .ai-gold   { background: rgba(212,175,55,0.15); }
+    .ai-green  { background: rgba(74,103,65,0.2); }
+    .ai-red    { background: rgba(155,35,53,0.2); }
+    .ai-purple { background: rgba(90,62,138,0.2); }
+    .activity-text { flex: 1; }
+    .activity-title { font-size: 0.88rem; font-weight: 600; color: var(--beige); }
+    .activity-time  { font-size: 0.75rem; color: var(--text-light); margin-top: 2px; }
+    .quick-actions {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .qa-btn {
+      padding: 16px; border-radius: var(--radius-md);
+      border: 1px solid rgba(212,175,55,0.2);
+      background: rgba(61,43,110,0.3);
+      cursor: pointer; transition: var(--transition);
+      text-align: left; display: flex; align-items: center; gap: 12px;
+      color: var(--beige); font-size: 0.88rem; font-weight: 600;
+    }
+    .qa-btn .qa-icon { font-size: 1.5rem; }
+    .qa-btn:hover {
+      border-color: var(--gold-1);
+      background: rgba(90,62,138,0.3);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-gold);
+    }
+    .priority-urgent { color: #FF4A6A; font-weight: 700; }
+    .priority-high    { color: #FF9040; font-weight: 700; }
+    .priority-normal  { color: var(--gold-2); }
+    .priority-low     { color: var(--text-light); }
+    .map-placeholder {
+      height: 200px; border-radius: var(--radius-md);
+      background: linear-gradient(135deg, rgba(45,27,78,0.6), rgba(74,103,65,0.2));
+      border: 1px solid rgba(212,175,55,0.15);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+      color: var(--text-light); font-size: 0.88rem;
+    }
+    .map-placeholder .map-icon { font-size: 2.5rem; }
+    .col-span-2 { grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <h1 class="text-gold">🌿 CoordSystem</h1>
+      <p>Điều phối An sinh Xã hội</p>
+    </div>
+    <div class="sidebar-nav">
+      <div class="sidebar-section-title">Tổng quan</div>
+      <a class="sidebar-link active" href="dashboard.html">
+        <span class="icon">📊</span> Dashboard
+      </a>
+      <a class="sidebar-link" href="donations.html">
+        <span class="icon">🎁</span> Quyên góp
+      </a>
+      <a class="sidebar-link" href="requests.html">
+        <span class="icon">📋</span> Yêu cầu hỗ trợ
+      </a>
+      <div class="sidebar-section-title" style="margin-top:8px;">Điều phối</div>
+      <a class="sidebar-link" href="allocations.html">
+        <span class="icon">⚖️</span> Phân bổ nguồn lực
+      </a>
+      <a class="sidebar-link" href="shipments.html">
+        <span class="icon">🚚</span> Giao hàng
+      </a>
+      <div class="sidebar-section-title" style="margin-top:8px;">Hệ thống</div>
+      <a class="sidebar-link" href="admin.html">
+        <span class="icon">⚙️</span> Quản trị
+      </a>
+      <a class="sidebar-link" href="profile.html">
+        <span class="icon">👤</span> Hồ sơ cá nhân
+      </a>
+      <a class="sidebar-link" href="../../index.html" style="margin-top:16px; color: rgba(155,35,53,0.8);">
+        <span class="icon">🚪</span> Đăng xuất
+      </a>
+    </div>
+  </nav>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <span class="topbar-title">📊 Tổng quan hệ thống</span>
+    <div class="topbar-actions">
+      <button class="btn-outline" style="padding:8px 16px; font-size:0.82rem;" onclick="window.location.href='donations.html'">
+        ＋ Quyên góp mới
+      </button>
+      <div class="avatar-ring" title="Hồ sơ">ND</div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-wrapper">
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <h2>Chào mừng trở lại, <span class="text-gold">Nguyễn Duy</span> 👋</h2>
+        <p>Thứ Năm, 20 tháng 11 năm 2026 — Hệ thống đang hoạt động bình thường</p>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card stat-card-gold glass-card" style="animation-delay:0s;">
+          <div class="stat-icon">🎁</div>
+          <div class="stat-value text-gold">247</div>
+          <div class="stat-label">Lượt quyên góp</div>
+          <div class="progress-bar" style="margin-top:12px;">
+            <div class="progress-fill" style="width:72%;"></div>
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-light); margin-top:4px;">+18 so với tuần trước</div>
+        </div>
+        <div class="stat-card stat-card-green glass-card" style="animation-delay:0.1s;">
+          <div class="stat-icon">📋</div>
+          <div class="stat-value" style="color:#8FC87C;">183</div>
+          <div class="stat-label">Yêu cầu hỗ trợ</div>
+          <div class="progress-bar" style="margin-top:12px;">
+            <div class="progress-fill" style="width:58%; background:linear-gradient(90deg,var(--moss-green),var(--moss-light)); animation:none;"></div>
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-light); margin-top:4px;">42 đang chờ duyệt</div>
+        </div>
+        <div class="stat-card stat-card-brown glass-card" style="animation-delay:0.2s;">
+          <div class="stat-icon">⚖️</div>
+          <div class="stat-value" style="color:var(--brown-light);">96</div>
+          <div class="stat-label">Phân bổ đang xử lý</div>
+          <div class="progress-bar" style="margin-top:12px;">
+            <div class="progress-fill" style="width:40%; background:linear-gradient(90deg,var(--brown-mid),var(--brown-light)); animation:none;"></div>
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-light); margin-top:4px;">24 hoàn thành hôm nay</div>
+        </div>
+        <div class="stat-card stat-card-red glass-card" style="animation-delay:0.3s;">
+          <div class="stat-icon">🚚</div>
+          <div class="stat-value" style="color:#FF7A8A;">58</div>
+          <div class="stat-label">Chuyến giao đang vận hành</div>
+          <div class="progress-bar" style="margin-top:12px;">
+            <div class="progress-fill" style="width:85%; background:linear-gradient(90deg,var(--red),var(--red-light)); animation:none;"></div>
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-light); margin-top:4px;">12 giao thành công hôm nay</div>
+        </div>
+      </div>
+
+      <!-- Middle Row -->
+      <div class="grid-3" style="margin-bottom:24px;">
+
+        <!-- Chart Card -->
+        <div class="glass-card" style="padding:24px; grid-column:span 2;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+            <div>
+              <div style="font-weight:800; font-size:1.05rem;">📈 Thống kê 7 ngày qua</div>
+              <div style="font-size:0.8rem; color:var(--text-light);">Quyên góp · Yêu cầu · Giao hàng</div>
+            </div>
+            <div style="display:flex; gap:12px; font-size:0.8rem;">
+              <span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:2px;background:var(--gold-1);display:inline-block;"></span>Quyên góp</span>
+              <span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:2px;background:var(--moss-green);display:inline-block;"></span>Yêu cầu</span>
+              <span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:2px;background:var(--red);display:inline-block;"></span>Giao hàng</span>
+            </div>
+          </div>
+          <div style="display:flex; gap:12px; align-items:flex-end; height:140px; padding-bottom:4px;">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1;" id="chartGroup">
+              <!-- Generated by JS -->
+            </div>
+          </div>
+          <div class="divider-gold" style="margin-top:16px;"></div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:12px;">
+            <div style="text-align:center;">
+              <div style="font-size:1.3rem; font-weight:800;" class="text-gold">12.5t</div>
+              <div style="font-size:0.78rem; color:var(--text-light);">Tổng lượng hàng (kg)</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:1.3rem; font-weight:800; color:#8FC87C;">94%</div>
+              <div style="font-size:0.78rem; color:var(--text-light);">Tỷ lệ giao thành công</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:1.3rem; font-weight:800; color:var(--brown-light);">2.3h</div>
+              <div style="font-size:0.78rem; color:var(--text-light);">Thời gian duyệt TB</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="glass-card" style="padding:24px;">
+          <div style="font-weight:800; font-size:1.05rem; margin-bottom:16px;">⚡ Thao tác nhanh</div>
+          <div class="quick-actions">
+            <button class="qa-btn" onclick="window.location.href='donations.html'">
+              <span class="qa-icon">🎁</span>
+              <span>Tạo quyên góp</span>
+            </button>
+            <button class="qa-btn" onclick="window.location.href='requests.html'">
+              <span class="qa-icon">📋</span>
+              <span>Yêu cầu hỗ trợ</span>
+            </button>
+            <button class="qa-btn" onclick="window.location.href='allocations.html'">
+              <span class="qa-icon">⚖️</span>
+              <span>Phân bổ hàng</span>
+            </button>
+            <button class="qa-btn" onclick="window.location.href='shipments.html'">
+              <span class="qa-icon">🚚</span>
+              <span>Tạo chuyến giao</span>
+            </button>
+          </div>
+          <div class="divider-gold"></div>
+          <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">🗺 Điểm tập kết đang hoạt động — Quận Ngũ Hành Sơn</div>
+          <div style="font-size:0.75rem; color:var(--text-light); margin-bottom:10px;">Phạm vi khóa: TP. Đà Nẵng (4 Phường an sinh)</div>
+          <div id="dashboard-nhs-map" style="height:210px; border-radius:var(--radius-md); border:1px solid rgba(212,175,55,0.3); overflow:hidden;"></div>
+        </div>
+      </div>
+
+      <!-- Bottom Row -->
+      <div class="grid-2">
+
+        <!-- Activity Feed -->
+        <div class="glass-card" style="padding:24px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+            <div style="font-weight:800; font-size:1.05rem;">🔔 Hoạt động gần đây</div>
+            <span class="badge badge-pending">Trực tiếp</span>
+          </div>
+          <div class="activity-feed">
+            <div class="activity-item">
+              <div class="activity-icon ai-gold">🎁</div>
+              <div class="activity-text">
+                <div class="activity-title">Quyên góp DON-2026-0247 đã được duyệt</div>
+                <div class="activity-time">2 phút trước · Điều phối viên: Trần Minh</div>
+              </div>
+              <span class="badge badge-approved">Duyệt</span>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon ai-red">🚨</div>
+              <div class="activity-text">
+                <div class="activity-title">Yêu cầu khẩn cấp REQ-2026-0183 — Nước uống</div>
+                <div class="activity-time">15 phút trước · Mức độ: <span class="priority-urgent">URGENT</span></div>
+              </div>
+              <span class="badge badge-pending">Chờ duyệt</span>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon ai-purple">🚚</div>
+              <div class="activity-text">
+                <div class="activity-title">Chuyến SHP-2026-0058 đang vận chuyển</div>
+                <div class="activity-time">32 phút trước · Đối tác: Giao hàng Nhanh</div>
+              </div>
+              <span class="badge badge-transit">In Transit</span>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon ai-green">✅</div>
+              <div class="activity-text">
+                <div class="activity-title">Xác nhận giao hàng SHP-2026-0045</div>
+                <div class="activity-time">1 giờ trước · Người nhận: Lê Thị Hoa</div>
+              </div>
+              <span class="badge badge-completed">Hoàn thành</span>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon ai-gold">⚖️</div>
+              <div class="activity-text">
+                <div class="activity-title">Phân bổ ALLOC-2026-0096 được tạo</div>
+                <div class="activity-time">2 giờ trước · 50kg Gạo + 30 thùng Mì</div>
+              </div>
+              <span class="badge badge-approved">Approved</span>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon ai-red">❌</div>
+              <div class="activity-text">
+                <div class="activity-title">Từ chối quyên góp DON-2026-0231</div>
+                <div class="activity-time">3 giờ trước · Lý do: Hàng hóa hết hạn</div>
+              </div>
+              <span class="badge badge-rejected">Từ chối</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Requests table -->
+        <div class="glass-card" style="padding:24px; overflow:auto;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+            <div style="font-weight:800; font-size:1.05rem;">⏳ Yêu cầu chờ xử lý</div>
+            <button class="btn-gold" style="padding:8px 16px; font-size:0.8rem;" onclick="window.location.href='requests.html'">Xem tất cả</button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mã</th>
+                <th>Tiêu đề</th>
+                <th>Ưu tiên</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-family:monospace; color:var(--gold-2);">REQ-183</td>
+                <td>Nước uống đóng chai cho 50 hộ</td>
+                <td><span class="priority-urgent">🔴 Khẩn</span></td>
+                <td><span class="badge badge-pending">Chờ duyệt</span></td>
+              </tr>
+              <tr>
+                <td style="font-family:monospace; color:var(--gold-2);">REQ-182</td>
+                <td>Lương thực khô — Vùng lũ An Giang</td>
+                <td><span class="priority-high">🟠 Cao</span></td>
+                <td><span class="badge badge-pending">Chờ duyệt</span></td>
+              </tr>
+              <tr>
+                <td style="font-family:monospace; color:var(--gold-2);">REQ-181</td>
+                <td>Khẩu trang y tế 500 hộp</td>
+                <td><span class="priority-normal">🟡 Bình thường</span></td>
+                <td><span class="badge badge-approved">Đang phân bổ</span></td>
+              </tr>
+              <tr>
+                <td style="font-family:monospace; color:var(--gold-2);">REQ-180</td>
+                <td>Quần áo trẻ em các loại</td>
+                <td><span class="priority-low">⚪ Thấp</span></td>
+                <td><span class="badge badge-approved">Đang giao</span></td>
+              </tr>
+              <tr>
+                <td style="font-family:monospace; color:var(--gold-2);">REQ-179</td>
+                <td>Gạo 200kg cho điểm tập kết 3</td>
+                <td><span class="priority-high">🟠 Cao</span></td>
+                <td><span class="badge badge-completed">Hoàn thành</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // Render bar chart
+    const data = [
+      { label: 'T2', don: 32, req: 24, ship: 18 },
+      { label: 'T3', don: 45, req: 30, ship: 25 },
+      { label: 'T4', don: 28, req: 20, ship: 15 },
+      { label: 'T5', don: 56, req: 42, ship: 30 },
+      { label: 'T6', don: 38, req: 28, ship: 22 },
+      { label: 'T7', don: 62, req: 48, ship: 38 },
+      { label: 'CN', don: 47, req: 35, ship: 28 },
+    ];
+    const max = 70;
+    const wrap = document.getElementById('chartGroup');
+    wrap.style.display = 'flex'; wrap.style.gap = '12px';
+    wrap.style.alignItems = 'flex-end'; wrap.style.width = '100%';
+
+    data.forEach(d => {
+      const col = document.createElement('div');
+      col.style.cssText = 'flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;';
+
+      const bars = document.createElement('div');
+      bars.style.cssText = 'display:flex; gap:3px; align-items:flex-end; height:120px;';
+
+      const makeBar = (val, cls) => {
+        const b = document.createElement('div');
+        b.style.cssText = `width:14px; border-radius:3px 3px 0 0; height:${(val/max)*120}px; transition:height 1s ease;`;
+        b.className = `chart-bar ${cls}`;
+        b.setAttribute('data-val', val);
+        return b;
+      };
+
+      bars.appendChild(makeBar(d.don, ''));
+      bars.appendChild(makeBar(d.req, 'green'));
+      bars.appendChild(makeBar(d.ship, 'red'));
+
+      const lbl = document.createElement('div');
+      lbl.style.cssText = 'font-size:0.72rem; color:var(--text-light); text-align:center; margin-top:4px;';
+      lbl.textContent = d.label;
+
+      col.appendChild(bars);
+      col.appendChild(lbl);
+      wrap.appendChild(col);
+    });
+
+    // Initialize Leaflet Map for Ngu Hanh Son
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.L && document.getElementById('dashboard-nhs-map')) {
+        const dMap = L.map('dashboard-nhs-map', {
+          center: [16.0050, 108.2496],
+          zoom: 12,
+          minZoom: 11,
+          maxZoom: 16,
+          maxBounds: [[15.955, 108.205], [16.060, 108.280]],
+          maxBoundsViscosity: 1.0
+        });
+
+        L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+          attribution: '&copy; Google Maps | Q. Ngũ Hành Sơn, TP. Đà Nẵng',
+          subdomains: ['0', '1', '2', '3'],
+          maxZoom: 20
+        }).addTo(dMap);
+
+        const hubs = [
+          { name: 'UBND Quận Ngũ Hành Sơn', coords: [16.0142, 108.2435], icon: '🏛️' },
+          { name: 'Kho K20 Khuê Mỹ', coords: [16.0225, 108.2380], icon: '📦' },
+          { name: 'Trạm Y Tế Mỹ An', coords: [16.0405, 108.2415], icon: '🏥' },
+          { name: 'Sơ Tán Hòa Quý', coords: [15.9865, 108.2285], icon: '⛺' },
+          { name: 'Cứu Hộ Hòa Hải', coords: [15.9780, 108.2560], icon: '🚤' }
+        ];
+
+        hubs.forEach(h => {
+          const icon = L.divIcon({
+            className: 'dash-marker',
+            html: `<div style="background:#081424; border:1.5px solid #D4AF37; color:#fff; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:0.85rem; box-shadow:0 2px 6px rgba(0,0,0,0.4); cursor:pointer;">${h.icon}</div>`,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
+          });
+          L.marker(h.coords, { icon }).addTo(dMap).bindPopup(`<b>${h.name}</b><br><span style="font-size:0.75rem;">Quận Ngũ Hành Sơn, TP. Đà Nẵng</span>`);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
+

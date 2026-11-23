@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Phân bổ nguồn lực — CoordSystem</title>
+  <link rel="stylesheet" href="../assets/styles.css"/>
+  <style>
+    .alloc-card {
+      background: rgba(45,27,78,0.4); border: 1px solid rgba(212,175,55,0.15);
+      border-radius: var(--radius-md); padding: 20px;
+      transition: var(--transition); animation: fadeInUp 0.4s ease;
+    }
+    .alloc-card:hover { border-color: rgba(212,175,55,0.4); transform: translateY(-2px); box-shadow: var(--shadow-gold); }
+    .alloc-code { font-family: monospace; font-size: 0.82rem; color: var(--gold-2); background: rgba(212,175,55,0.1); padding: 2px 8px; border-radius: 4px; }
+    .source-available { color: #8FC87C; font-weight: 700; }
+    .source-low { color: #FF9040; font-weight: 700; }
+    .source-out { color: #FF4A6A; font-weight: 700; }
+    .match-row {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+      gap: 8px; align-items: center; padding: 10px 0;
+      border-bottom: 1px solid rgba(212,175,55,0.08); font-size: 0.85rem;
+    }
+    .match-row-header { font-size:0.78rem; color:var(--gold-2); font-weight:700; letter-spacing:0.5px; }
+    .btn-sm { padding:7px 14px; font-size:0.8rem; border-radius:var(--radius-sm); border:none; cursor:pointer; font-weight:600; transition:var(--transition); }
+    .btn-sm-view { background:rgba(212,175,55,0.1); color:var(--gold-2); border:1px solid rgba(212,175,55,0.3); }
+    .btn-sm-view:hover { background:rgba(212,175,55,0.2); }
+    .btn-sm-alloc { background:rgba(90,62,138,0.3); color:#C4A8FF; border:1px solid var(--purple-light); }
+    .btn-sm-alloc:hover { background:rgba(90,62,138,0.5); }
+    .btn-sm-ship { background:rgba(74,103,65,0.3); color:#8FC87C; border:1px solid var(--moss-green); }
+    .btn-sm-ship:hover { background:rgba(74,103,65,0.5); }
+    .supply-bar-wrap { display:flex; align-items:center; gap:8px; margin-top:4px; }
+    .supply-bar { flex:1; height:6px; border-radius:3px; background:rgba(255,255,255,0.1); overflow:hidden; }
+    .supply-fill-green { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--moss-green),var(--moss-light)); }
+    .supply-fill-gold  { height:100%; border-radius:3px; background:var(--gradient-gold); background-size:200% auto; animation:shimmer 3s linear infinite; }
+    .supply-fill-red   { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--red),var(--red-light)); }
+    .inventory-section {
+      background: rgba(45,27,78,0.4); border: 1px solid rgba(212,175,55,0.15);
+      border-radius: var(--radius-md); padding: 20px; margin-bottom: 24px;
+    }
+    .inventory-item {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 0; border-bottom:1px solid rgba(212,175,55,0.08); flex-wrap:wrap; gap:8px;
+    }
+    .inventory-item:last-child { border-bottom:none; }
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="sidebar-logo"><h1 class="text-gold">🌿 CoordSystem</h1><p>Điều phối An sinh Xã hội</p></div>
+    <div class="sidebar-nav">
+      <div class="sidebar-section-title">Tổng quan</div>
+      <a class="sidebar-link" href="dashboard.html"><span class="icon">📊</span> Dashboard</a>
+      <a class="sidebar-link" href="donations.html"><span class="icon">🎁</span> Quyên góp</a>
+      <a class="sidebar-link" href="requests.html"><span class="icon">📋</span> Yêu cầu hỗ trợ</a>
+      <div class="sidebar-section-title" style="margin-top:8px;">Điều phối</div>
+      <a class="sidebar-link active" href="allocations.html"><span class="icon">⚖️</span> Phân bổ nguồn lực</a>
+      <a class="sidebar-link" href="shipments.html"><span class="icon">🚚</span> Giao hàng</a>
+      <div class="sidebar-section-title" style="margin-top:8px;">Hệ thống</div>
+      <a class="sidebar-link" href="admin.html"><span class="icon">⚙️</span> Quản trị</a>
+      <a class="sidebar-link" href="profile.html"><span class="icon">👤</span> Hồ sơ cá nhân</a>
+      <a class="sidebar-link" href="../../index.html" style="margin-top:16px; color:rgba(155,35,53,0.8);"><span class="icon">🚪</span> Đăng xuất</a>
+    </div>
+  </nav>
+
+  <header class="topbar">
+    <span class="topbar-title">⚖️ Phân bổ Nguồn lực</span>
+    <div class="topbar-actions">
+      <button class="btn-gold" onclick="openAllocModal()">＋ Tạo phân bổ mới</button>
+      <div class="avatar-ring">ND</div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="page-wrapper">
+      <div class="page-header">
+        <h2>Phân bổ & Điều phối Nguồn lực</h2>
+        <p>Ghép nguồn hàng quyên góp với yêu cầu hỗ trợ được duyệt</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="glass-card stat-card stat-card-gold" style="padding:16px;">
+          <div class="stat-value text-gold" style="font-size:1.8rem;">96</div>
+          <div class="stat-label">⚖️ Tổng phân bổ</div>
+        </div>
+        <div class="glass-card stat-card stat-card-green" style="padding:16px;">
+          <div class="stat-value" style="font-size:1.8rem; color:#8FC87C;">24</div>
+          <div class="stat-label">✅ Hoàn thành hôm nay</div>
+        </div>
+        <div class="glass-card stat-card" style="padding:16px; border-color:rgba(212,175,55,0.3);">
+          <div class="stat-value text-gold" style="font-size:1.8rem;">38</div>
+          <div class="stat-label">🔄 Đang xử lý</div>
+        </div>
+        <div class="glass-card stat-card stat-card-red" style="padding:16px;">
+          <div class="stat-value" style="font-size:1.8rem; color:#FF7A8A;">5</div>
+          <div class="stat-label">⏳ Chờ nguồn hàng</div>
+        </div>
+      </div>
+
+      <!-- Inventory Overview -->
+      <div class="inventory-section">
+        <div style="font-weight:800; font-size:1.05rem; margin-bottom:16px;">📦 Tổng tồn kho khả dụng</div>
+        <div class="grid-2">
+          <div>
+            <div class="inventory-item">
+              <div>
+                <div style="font-weight:700;">🍜 Mì ăn liền</div>
+                <div style="font-size:0.78rem; color:var(--text-light);">Thực phẩm · Thùng</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="source-available">340 thùng</div>
+                <div class="supply-bar-wrap">
+                  <div class="supply-bar"><div class="supply-fill-green" style="width:68%;"></div></div>
+                  <span style="font-size:0.72rem; color:var(--text-light);">68%</span>
+                </div>
+              </div>
+            </div>
+            <div class="inventory-item">
+              <div>
+                <div style="font-weight:700;">🌾 Gạo</div>
+                <div style="font-size:0.78rem; color:var(--text-light);">Thực phẩm · Kg</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="source-low">85 kg</div>
+                <div class="supply-bar-wrap">
+                  <div class="supply-bar"><div class="supply-fill-gold" style="width:17%;"></div></div>
+                  <span style="font-size:0.72rem; color:var(--text-light);">17%</span>
+                </div>
+              </div>
+            </div>
+            <div class="inventory-item">
+              <div>
+                <div style="font-weight:700;">💧 Nước uống đóng chai</div>
+                <div style="font-size:0.78rem; color:var(--text-light);">Nước uống · Chai</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="source-available">1,240 chai</div>
+                <div class="supply-bar-wrap">
+                  <div class="supply-bar"><div class="supply-fill-green" style="width:82%;"></div></div>
+                  <span style="font-size:0.72rem; color:var(--text-light);">82%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="inventory-item">
+              <div>
+                <div style="font-weight:700;">😷 Khẩu trang y tế</div>
+                <div style="font-size:0.78rem; color:var(--text-light);">Y tế · Hộp</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="source-out">0 hộp</div>
+                <div class="supply-bar-wrap">
+                  <div class="supply-bar"><div class="supply-fill-red" style="width:0%;"></div></div>
+                  <span style="font-size:0.72rem; color:#FF4A6A;">Hết hàng</span>
+                </div>
+              </div>
+            </div>
+            <div class="inventory-item">
+              <div>
+                <div style="font-weight:700;">👕 Quần áo</div>
+                <div style="font-size:0.78rem; color:var(--text-light);">Quần áo · Bộ</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="source-low">42 bộ</div>
+                <div class="supply-bar-wrap">
+                  <div class="supply-bar"><div class="supply-fill-gold" style="width:30%;"></div></div>
+                  <span style="font-size:0.72rem; color:var(--text-light);">30%</span>
+                </div>
+              </div>
+            </div>
+            <div class="inventory-item" style="border:none;">
+              <button class="btn-gold" style="width:100%; justify-content:center; margin-top:8px;" onclick="window.location.href='donations.html'">
+                ＋ Tiếp nhận thêm hàng
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Allocation List -->
+      <div style="font-weight:800; font-size:1.1rem; margin-bottom:16px;">📋 Danh sách Phân bổ</div>
+      <div class="grid-2" id="allocList">
+        <!-- Generated by JS -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Create Allocation Modal -->
+  <div class="modal-overlay" id="allocModal" style="display:none;">
+    <div class="modal" style="max-width:640px;">
+      <div class="modal-header">
+        <div class="modal-title text-gold">⚖️ Tạo Phân bổ mới</div>
+        <button class="modal-close" onclick="document.getElementById('allocModal').style.display='none'">✕</button>
+      </div>
+      <div class="divider-gold"></div>
+      <div class="notif notif-info" style="margin-bottom:16px;">
+        ℹ️ Chọn yêu cầu hỗ trợ cần phân bổ, sau đó ghép với nguồn hàng có sẵn tương ứng.
+      </div>
+      <form onsubmit="submitAlloc(event)">
+        <div class="form-group">
+          <label class="form-label">📋 Yêu cầu hỗ trợ cần phân bổ</label>
+          <select class="form-input" onchange="loadRequestItems(this)">
+            <option value="">-- Chọn yêu cầu đã được duyệt --</option>
+            <option value="REQ-183">REQ-2026-0183 — Nước uống khẩn cấp 50 hộ [URGENT]</option>
+            <option value="REQ-182">REQ-2026-0182 — Lương thực khô An Giang [HIGH]</option>
+            <option value="REQ-181">REQ-2026-0181 — Khẩu trang y tế phường 5 [NORMAL]</option>
+          </select>
+        </div>
+        <div id="matchItems" style="display:none;">
+          <div class="divider-gold"></div>
+          <div style="font-weight:700; color:var(--gold-2); margin-bottom:12px;">🔗 Ghép nguồn hàng với vật tư yêu cầu</div>
+          <div class="match-row match-row-header"><span>Vật tư yêu cầu</span><span>Cần</span><span>Nguồn từ</span><span>Khả dụng</span><span>Phân bổ</span></div>
+          <div class="match-row">
+            <span>Nước uống đóng chai</span>
+            <span style="color:var(--gold-2);">200 chai</span>
+            <select class="form-input" style="padding:6px; font-size:0.82rem;">
+              <option>DON-0247 (1240 chai)</option>
+              <option>DON-0245 (300 chai)</option>
+            </select>
+            <span class="source-available">1,240 chai</span>
+            <input type="number" class="form-input" style="padding:6px; width:80px;" value="200" max="1240" min="1"/>
+          </div>
+          <div class="match-row" style="border:none;">
+            <span>Khẩu trang y tế</span>
+            <span style="color:var(--gold-2);">50 hộp</span>
+            <select class="form-input" style="padding:6px; font-size:0.82rem;">
+              <option>Không có nguồn hàng</option>
+            </select>
+            <span class="source-out">0 hộp</span>
+            <input type="number" class="form-input" style="padding:6px; width:80px;" value="0" disabled/>
+          </div>
+          <div class="notif notif-warn" style="margin-top:12px;">
+            ⚠️ Khẩu trang y tế hiện không có trong kho. Phân bổ sẽ chỉ bao gồm Nước uống đóng chai.
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:16px;">
+          <label class="form-label">📝 Ghi chú điều phối</label>
+          <textarea class="form-input" placeholder="Ghi chú về quyết định phân bổ, ưu tiên xử lý..."></textarea>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn-outline" style="flex:1; justify-content:center;" onclick="document.getElementById('allocModal').style.display='none'">Hủy</button>
+          <button type="submit" class="btn-gold" style="flex:2; justify-content:center;">⚖️ Xác nhận phân bổ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const allocs = [
+      { code:'ALLOC-2026-0096', reqCode:'REQ-2026-0183', reqTitle:'Nước uống khẩn cấp 50 hộ', status:'APPROVED', items:[{name:'Nước uống đóng chai',qty:200,unit:'chai',src:'DON-247'}], coord:'Trần Minh', time:'2 giờ trước' },
+      { code:'ALLOC-2026-0095', reqCode:'REQ-2026-0182', reqTitle:'Lương thực khô An Giang', status:'IN_PROGRESS', items:[{name:'Mì ăn liền',qty:80,unit:'thùng',src:'DON-246'},{name:'Gạo',qty:85,unit:'kg',src:'DON-245'}], coord:'Nguyễn Mai', time:'4 giờ trước' },
+      { code:'ALLOC-2026-0094', reqCode:'REQ-2026-0180', reqTitle:'Quần áo trẻ em mái ấm', status:'COMPLETED', items:[{name:'Quần áo',qty:70,unit:'bộ',src:'DON-244'}], coord:'Lê Hùng', time:'1 ngày trước' },
+      { code:'ALLOC-2026-0093', reqCode:'REQ-2026-0179', reqTitle:'Gạo cho điểm tập kết số 3', status:'COMPLETED', items:[{name:'Gạo',qty:200,unit:'kg',src:'DON-243'}], coord:'Vũ Lan', time:'1 ngày trước' },
+    ];
+    const statusMap = { PENDING:{label:'Chờ duyệt',cls:'badge-pending'}, APPROVED:{label:'✅ Đã duyệt',cls:'badge-approved'}, IN_PROGRESS:{label:'🔄 Đang xử lý',cls:'badge-transit'}, COMPLETED:{label:'🏁 Hoàn thành',cls:'badge-completed'}, CANCELLED:{label:'❌ Đã hủy',cls:'badge-cancelled'} };
+
+    document.getElementById('allocList').innerHTML = allocs.map((a,i)=>`
+      <div class="alloc-card" style="animation-delay:${i*0.08}s;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+          <div>
+            <span class="alloc-code">${a.code}</span>
+            <div style="font-weight:700; margin-top:6px;">📋 ${a.reqCode}</div>
+            <div style="font-size:0.85rem; color:var(--beige-dark); margin-top:2px;">${a.reqTitle}</div>
+          </div>
+          <span class="badge ${statusMap[a.status].cls}">${statusMap[a.status].label}</span>
+        </div>
+        <div class="divider-gold"></div>
+        <div style="margin:12px 0;">
+          ${a.items.map(it=>`
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-size:0.85rem;">
+              <span>${it.name}</span>
+              <span style="color:var(--gold-2); font-weight:700;">${it.qty} ${it.unit}</span>
+              <span style="font-size:0.75rem; color:var(--text-light);">← ${it.src}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:0.78rem; color:var(--text-light);">
+          <span>🧑‍💼 ${a.coord} · 🕐 ${a.time}</span>
+          <div style="display:flex; gap:6px;">
+            ${a.status==='APPROVED'?`<button class="btn-sm btn-sm-ship" onclick="window.location.href='shipments.html'">🚚 Tạo chuyến giao</button>`:''}
+            <button class="btn-sm btn-sm-view">👁 Chi tiết</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    function openAllocModal() { document.getElementById('allocModal').style.display='flex'; }
+    function loadRequestItems(sel) {
+      const show = sel.value !== '';
+      document.getElementById('matchItems').style.display = show ? 'block' : 'none';
+    }
+    function submitAlloc(e) {
+      e.preventDefault();
+      document.getElementById('allocModal').style.display='none';
+      alert('Phân bổ được tạo thành công! Mã: ALLOC-2026-' + (97 + Math.floor(Math.random()*10)));
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+      el.addEventListener('click', e => { if(e.target===el) el.style.display='none'; });
+    });
+  </script>
+</body>
+</html>
+

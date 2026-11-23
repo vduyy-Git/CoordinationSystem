@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tài khoản & Hồ sơ — Cổng Người Dân</title>
+  <link rel="icon" type="image/png" href="../src/assets/logo-icon.png"/>
+  <link rel="stylesheet" href="assets/citizen.css"/>
+</head>
+<body>
+  <nav class="citizen-sidebar">
+    <div class="sidebar-brand"><img src="../src/assets/logo-transparent.png" alt="CoordSystem" style="height:32px; object-fit:contain; margin-bottom:8px;"/>
+      <h1 class="text-gold">🌿 Cổng Người Dân</h1>
+      <p>An sinh Xã hội — Cấp Xã/Phường</p>
+    </div>
+    <div class="sidebar-menu">
+      <div class="sidebar-section">Trung tâm cá nhân</div>
+      <a class="sidebar-item " href="dashboard.html">
+        <span class="si-icon">📊</span> Tổng quan
+      </a>
+      <a class="sidebar-item active" href="profile.html">
+        <span class="si-icon">👤</span> Tài khoản &amp; Hồ sơ
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Dịch vụ an sinh</div>
+      <a class="sidebar-item " href="needs.html">
+        <span class="si-icon">📝</span> Khai báo nhu cầu
+      </a>
+      <a class="sidebar-item " href="requests.html">
+        <span class="si-icon">📤</span> Gửi yêu cầu hỗ trợ
+        <span class="si-badge">Mới</span>
+      </a>
+      <a class="sidebar-item " href="tracking.html">
+        <span class="si-icon">🔍</span> Theo dõi yêu cầu
+        <span class="si-badge">2</span>
+      </a>
+      <a class="sidebar-item " href="feedback.html">
+        <span class="si-icon">🔔</span> Thông báo &amp; Phản hồi
+        <span class="si-badge" style="background:var(--red);color:#fff;">1</span>
+      </a>
+      <div class="sidebar-section" style="margin-top:14px;"></div>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(255,255,255,0.7); font-weight:600;">
+        <span class="si-icon">🏠</span> Về Trang Chủ / Dashboard
+      </a>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(245,160,170,0.85);">
+        <span class="si-icon">🚪</span> Đăng xuất
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="location.href='profile.html'">
+        <div class="sidebar-avatar">LH</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Lê Thị Hoa</div>
+          <div class="sidebar-user-role">Người dân (Tổ 2, KP.3)</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <header class="citizen-topbar">
+    <div class="topbar-breadcrumb">
+      🌿 Cổng Người Dân <span style="color:var(--beige-mid);">›</span> <span class="bc-active">Tài khoản & Hồ sơ</span>
+    </div>
+    <div class="topbar-right">
+      <a href="requests.html" class="btn btn-primary btn-sm" style="box-shadow:none;">
+        🚨 Gửi Yêu Cầu Hỗ Trợ
+      </a>
+      <button class="btn btn-ghost btn-sm" onclick="location.href='feedback.html'" title="Thông báo">
+        🔔 Thông báo <span class="badge badge-urgent" style="font-size:0.65rem;">1</span>
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="location.href='../index.html'" title="Trang chủ">
+        🏠 Trang chủ
+      </button>
+    </div>
+  </header>
+  <main class="citizen-main">
+    <div class="citizen-page">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>👤 Tài khoản &amp; Hồ sơ Cá nhân</h2>
+          <p>Quản lý thông tin định danh, hoàn cảnh gia đình, nhóm đối tượng an sinh và bảo mật</p>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-primary" onclick="alert('Lưu thay đổi hồ sơ thành công!');">💾 Lưu cập nhật</button>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:20px;">
+        <!-- Avatar & Summary Card -->
+        <div class="card" style="text-align:center;">
+          <div class="card-body">
+            <div style="width:84px; height:84px; border-radius:50%; background:var(--gradient-moss); color:#fff; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:800; margin:0 auto 14px; box-shadow:0 4px 16px rgba(74,122,66,0.3);">
+              LH
+            </div>
+            <h3 style="font-size:1.2rem; font-weight:800; color:var(--text-dark);">Lê Thị Hoa</h3>
+            <p style="font-size:0.8rem; color:var(--text-light); margin-top:2px;">CCCD: 079198002345</p>
+            <div style="margin:12px 0;">
+              <span class="badge badge-approved">ĐÃ ĐỊNH DANH ĐIỆN TỬ</span>
+            </div>
+            <div class="divider-gold"></div>
+            <div style="text-align:left; font-size:0.82rem; color:var(--text-mid); line-height:1.7;">
+              <div>📍 <strong>Tổ 2, Khu phố 3, Phường Mỹ Hòa</strong></div>
+              <div>📱 <strong>0912.345.678</strong></div>
+              <div>👥 <strong>Nhân khẩu trong hộ:</strong> 4 người</div>
+              <div>🏷 <strong>Nhóm đối tượng:</strong> Người cao tuổi, Hộ khó khăn</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Form -->
+        <div class="card" style="grid-column:span 2;">
+          <div class="card-header">
+            <div class="card-title">📝 Cập Nhật Thông Tin Cá Nhân & Hộ Gia Đình</div>
+          </div>
+          <div class="card-body">
+            <form onsubmit="event.preventDefault(); alert('Cập nhật thông tin thành công!');">
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Họ và tên</label>
+                  <input type="text" class="form-control" value="Lê Thị Hoa" required/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Số Căn cước công dân (CCCD)</label>
+                  <input type="text" class="form-control" value="079198002345" required/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Số điện thoại liên lạc</label>
+                  <input type="tel" class="form-control" value="0912345678" required/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Ngày sinh</label>
+                  <input type="date" class="form-control" value="1982-05-18"/>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Địa chỉ nơi cư trú hiện tại</label>
+                <input type="text" class="form-control" value="Số 45/12 đường Mỹ Hòa, Tổ 2, Khu phố 3" required/>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Khu vực / Tổ dân phố</label>
+                  <select class="form-control">
+                    <option selected>Tổ dân phố 2</option>
+                    <option>Tổ dân phố 1</option>
+                    <option>Tổ dân phố 3</option>
+                    <option>Tổ dân phố 4</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Phân nhóm đối tượng an sinh</label>
+                  <select class="form-control">
+                    <option selected>Có người cao tuổi trong hộ</option>
+                    <option>Hộ nghèo / Cận nghèo</option>
+                    <option>Có người khuyết tật</option>
+                    <option>Có trẻ em dưới 6 tuổi</option>
+                    <option>Phụ nữ mang thai / đơn thân</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Mô tả hoàn cảnh khó khăn cụ thể</label>
+                <textarea class="form-control">Hộ gia đình có mẹ già 78 tuổi bị huyết áp cao, chồng làm thuê thu nhập bấp bênh, nhà ở vùng thấp trũng ngập lụt mỗi mùa mưa.</textarea>
+              </div>
+
+              <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
+

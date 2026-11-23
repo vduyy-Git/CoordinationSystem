@@ -1,0 +1,159 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tiếp nhận Yêu cầu — Admin CoordSystem</title>
+  <link rel="icon" type="image/png" href="../src/assets/logo-icon.png"/>
+  <link rel="stylesheet" href="assets/admin.css"/>
+</head>
+<body>
+  <nav class="admin-sidebar">
+    <div class="sidebar-brand"><img src="../src/assets/logo-transparent.png" alt="CoordSystem" style="height:32px; object-fit:contain; margin-bottom:8px;"/>
+      <h1 class="text-gold">🏛 Admin Panel</h1>
+      <p>An sinh Xã hội — Cấp Xã/Phường</p>
+    </div>
+    <div class="sidebar-menu">
+      <div class="sidebar-section">Tổng quan</div>
+      <a class="sidebar-item " href="dashboard.html">
+        <span class="si-icon">📊</span> Dashboard
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Quản lý</div>
+      <a class="sidebar-item " href="accounts.html">
+        <span class="si-icon">👥</span> Quản lý tài khoản
+      </a>
+      <a class="sidebar-item " href="citizens.html">
+        <span class="si-icon">🏘</span> Người dân &amp; Nhu cầu
+        <span class="si-badge">12</span>
+      </a>
+      <a class="sidebar-item " href="services.html">
+        <span class="si-icon">🔧</span> Dịch vụ &amp; Thiết bị
+      </a>
+      <a class="sidebar-item " href="resources.html">
+        <span class="si-icon">📦</span> Quản lý nguồn lực
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Xử lý</div>
+      <a class="sidebar-item active" href="requests.html">
+        <span class="si-icon">📋</span> Tiếp nhận &amp; Xử lý
+        <span class="si-badge">8</span>
+      </a>
+      <a class="sidebar-item " href="allocations.html">
+        <span class="si-icon">⚖️</span> Phân bổ &amp; Theo dõi
+      </a>
+      <div class="sidebar-section" style="margin-top:6px;">Báo cáo</div>
+      <a class="sidebar-item " href="reports.html">
+        <span class="si-icon">📈</span> Thống kê &amp; Báo cáo
+      </a>
+      <div class="sidebar-section" style="margin-top:12px;"></div>
+      <a class="sidebar-item" href="../index.html" style="color:rgba(180,42,58,0.85); font-weight:600;">
+        <span class="si-icon">🏠</span> Về Trang Chủ / Dashboard
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">AD</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Nguyễn Duy</div>
+          <div class="sidebar-user-role">Cán bộ Quản trị / Điều phối</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <header class="admin-topbar">
+    <div class="topbar-left">
+      <div class="topbar-breadcrumb">
+        🏛 Admin <span style="color:var(--beige-mid);">›</span> <span class="bc-active">Tiếp nhận & Xử lý Yêu cầu</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-search">
+        🔍 <input type="text" placeholder="Tìm kiếm nhanh..." />
+      </div>
+      <button class="topbar-icon-btn" title="Thông báo">🔔<span class="notif-dot"></span></button>
+      <button class="topbar-icon-btn" title="Về trang chủ" onclick="location.href='../index.html'">🏠</button>
+    </div>
+  </header>
+  <main class="admin-main">
+    <div class="admin-page">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>📋 Tiếp nhận &amp; Xử lý Yêu cầu</h2>
+          <p>Phân loại yêu cầu, AI phân tích chấm mức ưu tiên, duyệt / từ chối / yêu cầu bổ sung thông tin</p>
+        </div>
+        <button class="btn btn-primary" onclick="alert('Mở form ghi nhận yêu cầu hỗ trợ mới!');">＋ Tiếp nhận yêu cầu</button>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card sc-red"><div class="stat-icon">🚨</div><div class="stat-val" style="color:#B02A3A;">8</div><div class="stat-label">Khẩn cấp (URGENT)</div></div>
+        <div class="stat-card sc-gold"><div class="stat-icon">⏳</div><div class="stat-val text-gold">42</div><div class="stat-label">Chờ xét duyệt</div></div>
+        <div class="stat-card sc-blue"><div class="stat-icon">🔄</div><div class="stat-val" style="color:#2A5FAA;">38</div><div class="stat-label">Đang phân bổ</div></div>
+        <div class="stat-card sc-green"><div class="stat-icon">✅</div><div class="stat-val" style="color:#2E6B28;">68</div><div class="stat-label">Đã hoàn thành</div></div>
+      </div>
+
+      <!-- AI Banner -->
+      <div class="alert alert-info" style="margin-bottom:16px;">
+        <span>🤖</span>
+        <div><strong>AI Assistant (Chấm điểm ưu tiên tự động):</strong> Đã phân tích nội dung và định vị 8 yêu cầu khẩn cấp từ khu vực ngập sâu An Giang. Gợi ý ưu tiên nước sạch và lương thực ăn liền. <button class="btn btn-purple btn-sm" style="margin-left:8px;" onclick="location.href='allocations.html'">Xem đề xuất AI →</button></div>
+      </div>
+
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">Tất cả yêu cầu (156)</button>
+        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">🚨 Khẩn cấp (8)</button>
+        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">⏳ Chờ duyệt (42)</button>
+        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">✅ Đã xử lý (68)</button>
+        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">❌ Đã từ chối (3)</button>
+      </div>
+
+      <div class="card"><div class="card-body" style="overflow-x:auto;">
+        <table class="admin-table">
+          <thead><tr><th>Mã đơn</th><th>Người yêu cầu</th><th>Tiêu đề nhu cầu</th><th>Mức ưu tiên</th><th>AI Score</th><th>Trạng thái</th><th>Thời gian</th><th>Thao tác cán bộ</th></tr></thead>
+          <tbody>
+            <tr style="background:rgba(217,64,80,0.05);">
+              <td style="font-family:monospace;color:var(--gold-1);font-weight:700;">REQ-183</td>
+              <td style="font-weight:700;">Lê Thị Hoa<div style="font-size:0.75rem;color:var(--text-light);">📱 0912345678</div></td>
+              <td>Nước uống khẩn cấp cho 50 hộ dân cô lập</td>
+              <td><span class="badge badge-urgent">🚨 URGENT</span></td>
+              <td><span class="ai-tag">9.8/10</span></td>
+              <td><span class="badge badge-pending">Chờ duyệt</span></td>
+              <td style="color:var(--text-light);">15 phút trước</td>
+              <td><div style="display:flex;gap:4px;"><button class="btn btn-success btn-sm" onclick="alert('Đã phê duyệt yêu cầu REQ-183!');">✓ Duyệt</button><button class="btn btn-danger btn-sm" onclick="alert('Từ chối yêu cầu!');">✕</button><button class="btn btn-ghost btn-icon btn-sm">👁</button></div></td>
+            </tr>
+            <tr style="background:rgba(217,64,80,0.05);">
+              <td style="font-family:monospace;color:var(--gold-1);font-weight:700;">REQ-182</td>
+              <td style="font-weight:700;">Trần Văn Nam<div style="font-size:0.75rem;color:var(--text-light);">📱 0988776655</div></td>
+              <td>Lương thực khô cứu trợ vùng lũ An Giang</td>
+              <td><span class="badge badge-high">🔴 HIGH</span></td>
+              <td><span class="ai-tag">8.9/10</span></td>
+              <td><span class="badge badge-pending">Chờ duyệt</span></td>
+              <td style="color:var(--text-light);">1 giờ trước</td>
+              <td><div style="display:flex;gap:4px;"><button class="btn btn-success btn-sm" onclick="alert('Đã phê duyệt yêu cầu REQ-182!');">✓ Duyệt</button><button class="btn btn-danger btn-sm">✕</button><button class="btn btn-ghost btn-icon btn-sm">👁</button></div></td>
+            </tr>
+            <tr>
+              <td style="font-family:monospace;color:var(--gold-1);font-weight:700;">REQ-181</td>
+              <td style="font-weight:700;">Nguyễn Thị Mai<div style="font-size:0.75rem;color:var(--text-light);">📱 0933221100</div></td>
+              <td>Khẩu trang y tế bổ sung cho trạm y tế phường</td>
+              <td><span class="badge badge-normal">🟡 NORMAL</span></td>
+              <td><span class="ai-tag">6.5/10</span></td>
+              <td><span class="badge badge-approved">Đã duyệt - Chờ hàng</span></td>
+              <td style="color:var(--text-light);">Hôm qua</td>
+              <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon btn-sm">👁</button></div></td>
+            </tr>
+            <tr>
+              <td style="font-family:monospace;color:var(--gold-1);font-weight:700;">REQ-180</td>
+              <td style="font-weight:700;">Phạm Đức Long<div style="font-size:0.75rem;color:var(--text-light);">📱 0900112233</div></td>
+              <td>Quần áo trẻ em cho mái ấm mùa mưa</td>
+              <td><span class="badge badge-low">⚪ LOW</span></td>
+              <td><span class="ai-tag">4.2/10</span></td>
+              <td><span class="badge badge-transit">Đang giao hàng</span></td>
+              <td style="color:var(--text-light);">2 ngày trước</td>
+              <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon btn-sm">👁</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div></div>
+    </div>
+  </main>
+</body>
+</html>
+

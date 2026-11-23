@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Yêu cầu hỗ trợ — CoordSystem</title>
+  <link rel="stylesheet" href="../assets/styles.css"/>
+  <style>
+    .priority-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;
+    }
+    .pb-urgent { background: rgba(255,30,60,0.15); color: #FF4A6A; border: 1px solid rgba(255,30,60,0.4); }
+    .pb-high   { background: rgba(255,120,0,0.15);  color: #FF9040; border: 1px solid rgba(255,120,0,0.4); }
+    .pb-normal { background: rgba(212,175,55,0.15); color: var(--gold-2); border: 1px solid rgba(212,175,55,0.3); }
+    .pb-low    { background: rgba(100,100,120,0.2); color: var(--text-light); border: 1px solid rgba(100,100,120,0.3); }
+
+    .req-card {
+      background: rgba(45,27,78,0.4);
+      border: 1px solid rgba(212,175,55,0.15);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      transition: var(--transition);
+      animation: fadeInUp 0.4s ease;
+    }
+    .req-card:hover { border-color: rgba(212,175,55,0.4); transform: translateY(-2px); box-shadow: var(--shadow-gold); }
+
+    .req-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .req-code { font-family: monospace; font-size: 0.8rem; color: var(--gold-2); background: rgba(212,175,55,0.1); padding: 2px 8px; border-radius: 4px; }
+    .req-title { font-weight: 800; font-size: 1rem; color: var(--beige); margin-top: 6px; }
+    .req-desc  { font-size: 0.82rem; color: var(--text-light); margin-top: 4px; line-height: 1.5; }
+    .req-addr  { font-size: 0.82rem; color: var(--brown-light); margin-top: 6px; }
+
+    .req-items-preview { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+    .req-item-chip {
+      padding: 3px 10px; border-radius: 999px; font-size: 0.74rem;
+      background: rgba(74,103,65,0.2); color: #8FC87C;
+      border: 1px solid rgba(74,103,65,0.3);
+    }
+
+    .req-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(212,175,55,0.1); }
+    .req-meta { font-size: 0.78rem; color: var(--text-light); }
+
+    .btn-sm { padding: 7px 14px; font-size: 0.8rem; border-radius: var(--radius-sm); border: none; cursor: pointer; font-weight: 600; transition: var(--transition); }
+    .btn-sm-approve { background: rgba(74,103,65,0.3); color: #8FC87C; border: 1px solid var(--moss-green); }
+    .btn-sm-approve:hover { background: rgba(74,103,65,0.5); }
+    .btn-sm-partial { background: rgba(212,175,55,0.15); color: var(--gold-2); border: 1px solid var(--gold-1); }
+    .btn-sm-partial:hover { background: rgba(212,175,55,0.3); }
+    .btn-sm-reject { background: rgba(155,35,53,0.2); color: #FF7A8A; border: 1px solid var(--red); }
+    .btn-sm-reject:hover { background: rgba(155,35,53,0.4); }
+    .btn-sm-view { background: rgba(212,175,55,0.1); color: var(--gold-2); border: 1px solid rgba(212,175,55,0.3); }
+    .btn-sm-view:hover { background: rgba(212,175,55,0.2); }
+
+    .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-tab {
+      padding: 8px 18px; border-radius: 999px; font-size: 0.85rem; font-weight: 600;
+      border: 1px solid rgba(212,175,55,0.2); background: transparent;
+      color: var(--text-light); cursor: pointer; transition: var(--transition);
+    }
+    .filter-tab.active { background: var(--gradient-gold); background-size: 200% auto; animation: shimmer 3s linear infinite; color: var(--purple-dark); border-color: transparent; }
+    .filter-tab:hover:not(.active) { border-color: var(--gold-1); color: var(--gold-2); }
+
+    .approve-modal-row {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid rgba(212,175,55,0.08); font-size: 0.88rem;
+    }
+    .approve-modal-row input { padding: 6px 10px; }
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="sidebar-logo"><h1 class="text-gold">🌿 CoordSystem</h1><p>Điều phối An sinh Xã hội</p></div>
+    <div class="sidebar-nav">
+      <div class="sidebar-section-title">Tổng quan</div>
+      <a class="sidebar-link" href="dashboard.html"><span class="icon">📊</span> Dashboard</a>
+      <a class="sidebar-link" href="donations.html"><span class="icon">🎁</span> Quyên góp</a>
+      <a class="sidebar-link active" href="requests.html"><span class="icon">📋</span> Yêu cầu hỗ trợ</a>
+      <div class="sidebar-section-title" style="margin-top:8px;">Điều phối</div>
+      <a class="sidebar-link" href="allocations.html"><span class="icon">⚖️</span> Phân bổ nguồn lực</a>
+      <a class="sidebar-link" href="shipments.html"><span class="icon">🚚</span> Giao hàng</a>
+      <div class="sidebar-section-title" style="margin-top:8px;">Hệ thống</div>
+      <a class="sidebar-link" href="admin.html"><span class="icon">⚙️</span> Quản trị</a>
+      <a class="sidebar-link" href="profile.html"><span class="icon">👤</span> Hồ sơ cá nhân</a>
+      <a class="sidebar-link" href="../../index.html" style="margin-top:16px; color:rgba(155,35,53,0.8);"><span class="icon">🚪</span> Đăng xuất</a>
+    </div>
+  </nav>
+
+  <header class="topbar">
+    <span class="topbar-title">📋 Yêu cầu Hỗ trợ</span>
+    <div class="topbar-actions">
+      <button class="btn-gold" onclick="openCreate()">＋ Tạo yêu cầu hỗ trợ</button>
+      <div class="avatar-ring">ND</div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="page-wrapper">
+      <div class="page-header">
+        <h2>Danh sách Yêu cầu Hỗ trợ</h2>
+        <p>Tiếp nhận, duyệt và theo dõi tất cả yêu cầu hỗ trợ từ cộng đồng</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid-4" style="margin-bottom:20px;">
+        <div class="glass-card stat-card stat-card-red" style="padding:16px;">
+          <div class="stat-value" style="font-size:1.8rem; color:#FF4A6A;">5</div>
+          <div class="stat-label">🚨 Khẩn cấp</div>
+        </div>
+        <div class="glass-card stat-card" style="padding:16px; border-color:rgba(255,120,0,0.3);">
+          <div class="stat-value" style="font-size:1.8rem; color:#FF9040;">18</div>
+          <div class="stat-label">🔴 Ưu tiên cao</div>
+        </div>
+        <div class="glass-card stat-card stat-card-gold" style="padding:16px;">
+          <div class="stat-value text-gold" style="font-size:1.8rem;">42</div>
+          <div class="stat-label">🟡 Bình thường</div>
+        </div>
+        <div class="glass-card stat-card stat-card-green" style="padding:16px;">
+          <div class="stat-value" style="font-size:1.8rem; color:#8FC87C;">118</div>
+          <div class="stat-label">✅ Đã xử lý</div>
+        </div>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterRequests('all', this)">Tất cả (183)</button>
+        <button class="filter-tab" onclick="filterRequests('PENDING', this)">⏳ Chờ duyệt (42)</button>
+        <button class="filter-tab" onclick="filterRequests('APPROVED', this)">✅ Đã duyệt (38)</button>
+        <button class="filter-tab" onclick="filterRequests('ALLOCATING', this)">⚖️ Đang phân bổ (24)</button>
+        <button class="filter-tab" onclick="filterRequests('FULFILLING', this)">🚚 Đang giao (16)</button>
+        <button class="filter-tab" onclick="filterRequests('COMPLETED', this)">🏁 Hoàn thành (60)</button>
+        <button class="filter-tab" onclick="filterRequests('REJECTED', this)">❌ Từ chối (3)</button>
+      </div>
+
+      <!-- Cards -->
+      <div class="grid-2" id="requestList"></div>
+    </div>
+  </main>
+
+  <!-- Approve Modal -->
+  <div class="modal-overlay" id="approveModal" style="display:none;">
+    <div class="modal" style="max-width:600px;">
+      <div class="modal-header">
+        <div>
+          <div class="req-code" id="approveCode">REQ-2026-0183</div>
+          <div class="modal-title" style="margin-top:6px;">📋 Duyệt Yêu cầu Hỗ trợ</div>
+        </div>
+        <button class="modal-close" onclick="closeApproveModal()">✕</button>
+      </div>
+      <div class="divider-gold"></div>
+      <div class="notif notif-info" style="margin-bottom:16px;">
+        ℹ️ Nhập số lượng được chấp nhận cho từng vật tư. Để trống = không duyệt dòng đó.
+      </div>
+      <div class="approve-modal-row" style="font-size:0.78rem; color:var(--gold-2); font-weight:700; padding:6px 0;">
+        <span>Vật tư</span><span>Yêu cầu</span><span>Duyệt</span><span>Trạng thái</span>
+      </div>
+      <div class="approve-modal-row">
+        <span>Nước uống đóng chai</span><span>200 chai</span>
+        <input type="number" class="form-input" style="padding:6px; width:80px;" value="200" max="200" min="0"/>
+        <span class="badge badge-approved" style="font-size:0.72rem;">Đủ</span>
+      </div>
+      <div class="approve-modal-row">
+        <span>Khẩu trang y tế</span><span>50 hộp</span>
+        <input type="number" class="form-input" style="padding:6px; width:80px;" value="30" max="50" min="0"/>
+        <span class="badge badge-pending" style="font-size:0.72rem;">Một phần</span>
+      </div>
+      <div class="approve-modal-row" style="border:none;">
+        <span>Mì ăn liền</span><span>20 thùng</span>
+        <input type="number" class="form-input" style="padding:6px; width:80px;" value="0" max="20" min="0"/>
+        <span class="badge badge-rejected" style="font-size:0.72rem;">Không duyệt</span>
+      </div>
+      <div class="form-group" style="margin-top:16px;">
+        <label class="form-label">📝 Lý do / Ghi chú (bắt buộc nếu từ chối)</label>
+        <textarea class="form-input" placeholder="Nhập lý do duyệt một phần hoặc từ chối..."></textarea>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button class="btn-red" style="padding:10px 20px; font-size:0.88rem;" onclick="closeApproveModal()">❌ Từ chối toàn bộ</button>
+        <button class="btn-outline" style="padding:10px 20px; font-size:0.88rem;" onclick="closeApproveModal()">📋 Duyệt một phần</button>
+        <button class="btn-gold" style="padding:10px 20px; font-size:0.88rem;" onclick="closeApproveModal()">✅ Duyệt toàn bộ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Request Modal -->
+  <div class="modal-overlay" id="createModal" style="display:none;">
+    <div class="modal" style="max-width:580px;">
+      <div class="modal-header">
+        <div class="modal-title text-gold">📋 Tạo Yêu cầu Hỗ trợ mới</div>
+        <button class="modal-close" onclick="document.getElementById('createModal').style.display='none'">✕</button>
+      </div>
+      <div class="divider-gold"></div>
+      <form onsubmit="submitRequest(event)">
+        <div class="form-group">
+          <label class="form-label">📌 Tiêu đề yêu cầu</label>
+          <input type="text" class="form-input" placeholder="Mô tả ngắn gọn nhu cầu hỗ trợ..." required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📝 Mô tả chi tiết</label>
+          <textarea class="form-input" placeholder="Hoàn cảnh, số lượng người cần hỗ trợ, tình trạng khẩn cấp..." required></textarea>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">🚦 Mức độ ưu tiên</label>
+            <select class="form-input">
+              <option>LOW — Thấp</option>
+              <option selected>NORMAL — Bình thường</option>
+              <option>HIGH — Cao</option>
+              <option>URGENT — Khẩn cấp</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">📅 Ngày cần nhận hàng</label>
+            <input type="date" class="form-input"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📍 Địa chỉ nhận hàng</label>
+          <input type="text" class="form-input" placeholder="Địa chỉ giao hàng cụ thể..." required/>
+        </div>
+        <div style="font-weight:700; color:var(--gold-2); margin-bottom:10px;">📦 Vật tư cần hỗ trợ</div>
+        <div id="reqItems">
+          <div style="display:grid; grid-template-columns:2fr 1fr 2fr; gap:8px; margin-bottom:8px;">
+            <select class="form-input" style="padding:8px;">
+              <option>Mì ăn liền</option><option>Gạo</option><option>Nước uống đóng chai</option>
+              <option>Khẩu trang y tế</option><option>Quần áo</option>
+            </select>
+            <input type="number" class="form-input" style="padding:8px;" placeholder="Số lượng" min="1"/>
+            <input type="text" class="form-input" style="padding:8px;" placeholder="Ghi chú thêm..."/>
+          </div>
+        </div>
+        <button type="button" class="btn-outline" style="width:100%; justify-content:center; padding:10px; margin-bottom:16px;" onclick="addReqItem()">＋ Thêm vật tư</button>
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn-outline" style="flex:1; justify-content:center;" onclick="document.getElementById('createModal').style.display='none'">Hủy</button>
+          <button type="submit" class="btn-gold" style="flex:2; justify-content:center;">🚀 Gửi yêu cầu hỗ trợ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const requests = [
+      { code:'REQ-2026-0183', title:'Nước uống khẩn cấp cho 50 hộ dân vùng lũ', desc:'Khu vực xã Tân Mỹ, huyện Châu Phú, An Giang đang bị ngập nặng. 50 hộ dân cần nước uống khẩn cấp.', addr:'Xã Tân Mỹ, H. Châu Phú, An Giang', priority:'URGENT', status:'PENDING', items:[{name:'Nước uống đóng chai',qty:200,unit:'chai'},{name:'Khẩu trang y tế',qty:50,unit:'hộp'}], time:'15 phút trước', owner:'Lê Thị Hoa' },
+      { code:'REQ-2026-0182', title:'Lương thực khô cứu trợ lũ An Giang', desc:'Yêu cầu hỗ trợ lương thực khô cho 120 gia đình trong khu vực ngập lụt.', addr:'P. Mỹ Hòa, TP. Long Xuyên, An Giang', priority:'HIGH', status:'PENDING', items:[{name:'Mì ăn liền',qty:80,unit:'thùng'},{name:'Gạo',qty:200,unit:'kg'}], time:'2 giờ trước', owner:'Trần Văn Nam' },
+      { code:'REQ-2026-0181', title:'Vật tư y tế cho trạm y tế phường', desc:'Trạm y tế phường 5 cần bổ sung khẩu trang y tế phục vụ công tác phòng dịch.', addr:'P.5, Q. Gò Vấp, TP.HCM', priority:'NORMAL', status:'ALLOCATING', items:[{name:'Khẩu trang y tế',qty:500,unit:'hộp'}], time:'5 giờ trước', owner:'Nguyễn Thị Mai' },
+      { code:'REQ-2026-0180', title:'Quần áo trẻ em cho mái ấm tình thương', desc:'Mái ấm đang nuôi dưỡng 35 trẻ em, cần bổ sung quần áo cho mùa đông.', addr:'Q. Bình Thạnh, TP.HCM', priority:'LOW', status:'FULFILLING', items:[{name:'Quần áo',qty:70,unit:'bộ'}], time:'8 giờ trước', owner:'Phạm Đức Long' },
+      { code:'REQ-2026-0179', title:'Gạo cho điểm tập kết số 3', desc:'Điểm tập kết số 3 đã phân phối hết gạo, cần bổ sung để tiếp tục hỗ trợ.', addr:'Q. Tân Phú, TP.HCM', priority:'HIGH', status:'COMPLETED', items:[{name:'Gạo',qty:200,unit:'kg'}], time:'1 ngày trước', owner:'Vũ Thị Lan' },
+      { code:'REQ-2026-0178', title:'Nhu yếu phẩm cho người vô gia cư', desc:'Hỗ trợ nhu yếu phẩm cho khoảng 30 người vô gia cư ở công viên 23/9.', addr:'Q.1, TP.HCM', priority:'NORMAL', status:'REJECTED', items:[{name:'Mì ăn liền',qty:20,unit:'thùng'},{name:'Nước uống đóng chai',qty:60,unit:'chai'}], time:'2 ngày trước', owner:'Lê Hồng Phúc' },
+    ];
+
+    const statusMap = { PENDING:{label:'Chờ duyệt',cls:'badge-pending'}, APPROVED:{label:'Đã duyệt',cls:'badge-approved'}, PARTIALLY_APPROVED:{label:'Duyệt một phần',cls:'badge-pending'}, ALLOCATING:{label:'Đang phân bổ',cls:'badge-approved'}, FULFILLING:{label:'Đang giao',cls:'badge-transit'}, COMPLETED:{label:'Hoàn thành',cls:'badge-completed'}, REJECTED:{label:'Từ chối',cls:'badge-rejected'}, CANCELLED:{label:'Đã hủy',cls:'badge-cancelled'} };
+    const prioMap = { URGENT:{label:'🚨 Khẩn cấp',cls:'pb-urgent'}, HIGH:{label:'🔴 Cao',cls:'pb-high'}, NORMAL:{label:'🟡 Bình thường',cls:'pb-normal'}, LOW:{label:'⚪ Thấp',cls:'pb-low'} };
+
+    let currentFilter = 'all';
+
+    function renderRequests(filter) {
+      const list = document.getElementById('requestList');
+      const filtered = filter === 'all' ? requests : requests.filter(r => r.status === filter);
+      list.innerHTML = filtered.map((r,i) => `
+        <div class="req-card" style="animation-delay:${i*0.08}s;">
+          <div class="req-card-top">
+            <div>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <span class="req-code">${r.code}</span>
+                <span class="priority-badge ${prioMap[r.priority].cls}">${prioMap[r.priority].label}</span>
+              </div>
+              <div class="req-title">${r.title}</div>
+              <div class="req-desc">${r.desc.substring(0,100)}...</div>
+              <div class="req-addr">📍 ${r.addr}</div>
+            </div>
+            <span class="badge ${statusMap[r.status].cls}" style="flex-shrink:0; margin-left:12px;">${statusMap[r.status].label}</span>
+          </div>
+          <div class="req-items-preview">
+            ${r.items.map(it=>`<span class="req-item-chip">${it.name}: ${it.qty} ${it.unit}</span>`).join('')}
+          </div>
+          <div class="req-footer">
+            <div class="req-meta">👤 ${r.owner} · 🕐 ${r.time}</div>
+            <div style="display:flex; gap:6px;">
+              ${r.status==='PENDING'?`
+                <button class="btn-sm btn-sm-approve" onclick="openApprove('${r.code}')">✓ Duyệt</button>
+                <button class="btn-sm btn-sm-reject">✕ Từ chối</button>
+              `:''}
+              ${r.status==='APPROVED'?`<button class="btn-sm btn-sm-partial" onclick="window.location.href='allocations.html'">⚖️ Phân bổ</button>`:''}
+              <button class="btn-sm btn-sm-view">👁 Xem</button>
+            </div>
+          </div>
+        </div>
+      `).join('') || '<div style="text-align:center; color:var(--text-light); padding:40px; grid-column:span 2;">Không có yêu cầu nào</div>';
+    }
+
+    function filterRequests(f, btn) {
+      currentFilter = f;
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      renderRequests(f);
+    }
+
+    function openApprove(code) {
+      document.getElementById('approveCode').textContent = code;
+      document.getElementById('approveModal').style.display = 'flex';
+    }
+    function closeApproveModal() { document.getElementById('approveModal').style.display = 'none'; }
+    function openCreate() { document.getElementById('createModal').style.display = 'flex'; }
+
+    function addReqItem() {
+      const c = document.getElementById('reqItems');
+      const d = document.createElement('div');
+      d.style.cssText = 'display:grid; grid-template-columns:2fr 1fr 2fr; gap:8px; margin-bottom:8px;';
+      d.innerHTML = `
+        <select class="form-input" style="padding:8px;"><option>Mì ăn liền</option><option>Gạo</option><option>Nước uống đóng chai</option><option>Khẩu trang y tế</option><option>Quần áo</option></select>
+        <input type="number" class="form-input" style="padding:8px;" placeholder="SL" min="1"/>
+        <input type="text" class="form-input" style="padding:8px;" placeholder="Ghi chú..."/>
+      `;
+      c.appendChild(d);
+    }
+
+    function submitRequest(e) {
+      e.preventDefault();
+      document.getElementById('createModal').style.display='none';
+      alert('Yêu cầu hỗ trợ đã được gửi! Mã: REQ-2026-' + (184 + Math.floor(Math.random()*10)));
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+      el.addEventListener('click', e => { if(e.target===el) el.style.display='none'; });
+    });
+
+    renderRequests('all');
+  </script>
+</body>
+</html>
+
