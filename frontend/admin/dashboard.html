@@ -4,11 +4,14 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard — Admin CoordSystem</title>
+  <link rel="icon" type="image/png" href="../src/assets/logo-icon.png"/>
   <link rel="stylesheet" href="assets/admin.css"/>
+  <link rel="stylesheet" href="../src/assets/vendor/leaflet.css"/>
+  <script src="../src/assets/vendor/leaflet.js"></script>
 </head>
 <body>
   <nav class="admin-sidebar">
-    <div class="sidebar-brand"><h1 class="text-gold">🏛 Admin Panel</h1><p>An sinh Xã hội — Cấp Xã/Phường</p></div>
+    <div class="sidebar-brand"><img src="../src/assets/logo-transparent.png" alt="CoordSystem" style="height:32px; object-fit:contain; margin-bottom:8px;"/><h1 class="text-gold">🏛 Admin Panel</h1><p>An sinh Xã hội — Cấp Xã/Phường</p></div>
     <div class="sidebar-menu">
       <div class="sidebar-section">Tổng quan</div>
       <a class="sidebar-item active" href="dashboard.html"><span class="si-icon">📊</span> Dashboard</a>
@@ -55,6 +58,30 @@
       <div class="stat-card sc-red"><div class="stat-icon">🚨</div><div class="stat-val" style="color:#B02A3A;">8</div><div class="stat-label">Yêu cầu khẩn cấp</div><div class="stat-delta down">⚠ Cần xử lý ngay</div></div>
     </div>
 
+    <!-- Bản Đồ Điều Phối Thực Địa Quận Ngũ Hành Sơn -->
+    <div class="card" style="margin-bottom:18px;">
+      <div class="card-header" style="flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="card-title">🗺️ Giám Sát Thực Địa Cứu Trợ — Quận Ngũ Hành Sơn, TP. Đà Nẵng</div>
+          <span class="badge badge-approved" style="font-size:0.7rem;">● Trực tuyến 24/7</span>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-ghost btn-sm" onclick="filterAdminMap('all', this)" style="color:var(--gold-1); font-weight:700;">Tất cả</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterAdminMap('khuemy', this)">P. Khuê Mỹ</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterAdminMap('myan', this)">P. Mỹ An</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterAdminMap('hoaquy', this)">P. Hòa Quý</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterAdminMap('hoahai', this)">P. Hòa Hải</button>
+        </div>
+      </div>
+      <div class="card-body" style="padding:14px;">
+        <div id="admin-nhs-map" style="height:360px; border-radius:var(--radius-sm); border:1px solid var(--beige-mid); overflow:hidden;"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:0.78rem; color:var(--text-light); flex-wrap:wrap; gap:8px;">
+          <span>📍 Phạm vi khoá cố định: <strong>Quận Ngũ Hành Sơn (15.95°N - 16.06°N, 108.20°E - 108.28°E)</strong></span>
+          <span style="color:#2E6B28; font-weight:600;">5 điểm hub cứu trợ, sơ tán &amp; trạm y tế trực ban sẵn sàng</span>
+        </div>
+      </div>
+    </div>
+
     <div class="grid-2" style="margin-bottom:18px;">
       <div class="card">
         <div class="card-header"><div class="card-title">📋 Yêu cầu theo Mức ưu tiên</div><button class="btn btn-ghost btn-sm" onclick="location.href='requests.html'">Xem tất cả →</button></div>
@@ -89,5 +116,78 @@
     </div>
 
   </div></main>
+
+  <script>
+    const NGU_HANH_SON_CENTER = [16.0050, 108.2496];
+    const NGU_HANH_SON_BOUNDS = [
+      [15.955, 108.205],
+      [16.060, 108.280]
+    ];
+    const HUBS = [
+      { name: 'UBND Quận Ngũ Hành Sơn', ward: 'khuemy', coords: [16.0142, 108.2435], desc: 'Trụ sở chỉ huy an sinh Quận · 15.8t hàng', icon: '🏛️', color: '#D4AF37' },
+      { name: 'Kho Lương Thực K20', ward: 'khuemy', coords: [16.0225, 108.2380], desc: '8.5t gạo dự trữ · 1.200 thùng mì', icon: '📦', color: '#2A5FAA' },
+      { name: 'Trạm Y Tế P. Mỹ An', ward: 'myan', coords: [16.0405, 108.2415], desc: '450 túi thuốc · 20 máy thở oxy', icon: '🏥', color: '#2E6B28' },
+      { name: 'Điểm Tránh Trú Bão Hòa Quý', ward: 'hoaquy', coords: [15.9865, 108.2285], desc: 'Sức chứa 350 người · 4 ca-nô xung kích', icon: '⛺', color: '#B02A3A' },
+      { name: 'Trạm Ca-nô Non Nước — Hòa Hải', ward: 'hoahai', coords: [15.9780, 108.2560], desc: '3 ca-nô tốc độ cao · 500 áo phao', icon: '🚤', color: '#00838F' }
+    ];
+
+    let adminMap, markers = [];
+
+    function initAdminMap() {
+      if (!window.L) return;
+      adminMap = L.map('admin-nhs-map', {
+        center: NGU_HANH_SON_CENTER,
+        zoom: 13,
+        minZoom: 12,
+        maxZoom: 17,
+        maxBounds: NGU_HANH_SON_BOUNDS,
+        maxBoundsViscosity: 1.0 // Strictly locked to Ngu Hanh Son
+      });
+
+      L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+        attribution: '&copy; Google Maps | Q. Ngũ Hành Sơn, TP. Đà Nẵng',
+        subdomains: ['0', '1', '2', '3'],
+        maxZoom: 20
+      }).addTo(adminMap);
+
+      L.rectangle(NGU_HANH_SON_BOUNDS, {
+        color: '#D4AF37',
+        weight: 1.5,
+        fillColor: '#081424',
+        fillOpacity: 0.03,
+        dashArray: '4, 4'
+      }).addTo(adminMap);
+
+      renderMarkers('all');
+    }
+
+    function renderMarkers(ward) {
+      if (!adminMap) return;
+      markers.forEach(m => adminMap.removeLayer(m));
+      markers = [];
+
+      HUBS.filter(h => ward === 'all' || h.ward === ward).forEach(h => {
+        const icon = L.divIcon({
+          className: 'admin-marker',
+          html: `<div style="background:#081424; border:2px solid ${h.color}; color:#fff; border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 8px rgba(0,0,0,0.3); font-size:1rem; cursor:pointer;">${h.icon}</div>`,
+          iconSize: [34, 34],
+          iconAnchor: [17, 17]
+        });
+        const m = L.marker(h.coords, { icon }).addTo(adminMap);
+        m.bindPopup(`<b>${h.name}</b><br><span style="font-size:0.78rem;color:#555;">${h.desc}</span>`);
+        markers.push(m);
+      });
+    }
+
+    function filterAdminMap(ward, btn) {
+      document.querySelectorAll('.card-header .btn-ghost').forEach(b => b.style.color = '');
+      if (btn) btn.style.color = 'var(--gold-1)';
+      renderMarkers(ward);
+    }
+
+    document.addEventListener('DOMContentLoaded', initAdminMap);
+  </script>
 </body>
 </html>
+
+

@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard — CoordSystem</title>
   <link rel="stylesheet" href="../assets/styles.css" />
+  <link rel="stylesheet" href="../assets/vendor/leaflet.css" />
+  <script src="../assets/vendor/leaflet.js"></script>
   <style>
     .chart-bar-wrap { display: flex; align-items: flex-end; gap: 8px; height: 120px; }
     .chart-bar {
@@ -248,12 +250,9 @@
             </button>
           </div>
           <div class="divider-gold"></div>
-          <div style="font-weight:700; font-size:0.9rem; margin-bottom:12px;">🗺 Điểm tập kết đang hoạt động</div>
-          <div class="map-placeholder">
-            <span class="map-icon">🗺</span>
-            <span>5 điểm tập kết · TP. Hồ Chí Minh</span>
-            <span style="font-size:0.75rem;">Click để xem bản đồ đầy đủ</span>
-          </div>
+          <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">🗺 Điểm tập kết đang hoạt động — Quận Ngũ Hành Sơn</div>
+          <div style="font-size:0.75rem; color:var(--text-light); margin-bottom:10px;">Phạm vi khóa: TP. Đà Nẵng (4 Phường an sinh)</div>
+          <div id="dashboard-nhs-map" style="height:210px; border-radius:var(--radius-md); border:1px solid rgba(212,175,55,0.3); overflow:hidden;"></div>
         </div>
       </div>
 
@@ -414,6 +413,44 @@
       col.appendChild(bars);
       col.appendChild(lbl);
       wrap.appendChild(col);
+    });
+
+    // Initialize Leaflet Map for Ngu Hanh Son
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.L && document.getElementById('dashboard-nhs-map')) {
+        const dMap = L.map('dashboard-nhs-map', {
+          center: [16.0050, 108.2496],
+          zoom: 12,
+          minZoom: 11,
+          maxZoom: 16,
+          maxBounds: [[15.955, 108.205], [16.060, 108.280]],
+          maxBoundsViscosity: 1.0
+        });
+
+        L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+          attribution: '&copy; Google Maps | Q. Ngũ Hành Sơn, TP. Đà Nẵng',
+          subdomains: ['0', '1', '2', '3'],
+          maxZoom: 20
+        }).addTo(dMap);
+
+        const hubs = [
+          { name: 'UBND Quận Ngũ Hành Sơn', coords: [16.0142, 108.2435], icon: '🏛️' },
+          { name: 'Kho K20 Khuê Mỹ', coords: [16.0225, 108.2380], icon: '📦' },
+          { name: 'Trạm Y Tế Mỹ An', coords: [16.0405, 108.2415], icon: '🏥' },
+          { name: 'Sơ Tán Hòa Quý', coords: [15.9865, 108.2285], icon: '⛺' },
+          { name: 'Cứu Hộ Hòa Hải', coords: [15.9780, 108.2560], icon: '🚤' }
+        ];
+
+        hubs.forEach(h => {
+          const icon = L.divIcon({
+            className: 'dash-marker',
+            html: `<div style="background:#081424; border:1.5px solid #D4AF37; color:#fff; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:0.85rem; box-shadow:0 2px 6px rgba(0,0,0,0.4); cursor:pointer;">${h.icon}</div>`,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
+          });
+          L.marker(h.coords, { icon }).addTo(dMap).bindPopup(`<b>${h.name}</b><br><span style="font-size:0.75rem;">Quận Ngũ Hành Sơn, TP. Đà Nẵng</span>`);
+        });
+      }
     });
   </script>
 </body>
