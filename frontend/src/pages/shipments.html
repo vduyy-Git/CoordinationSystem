@@ -192,7 +192,7 @@
       <form onsubmit="submitShipment(event)">
         <div class="form-group">
           <label class="form-label">🏢 Đối tác vận chuyển</label>
-          <select class="form-input">
+          <select id="shipmentPartner" class="form-input">
             <option>Giao hàng Nhanh (GHN)</option>
             <option>Giao hàng Tiết kiệm (GHTK)</option>
             <option>J&T Express</option>
@@ -209,7 +209,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">🔗 Phân bổ liên kết</label>
-          <select class="form-input">
+          <select id="shipmentAllocation" class="form-input">
             <option>ALLOC-2026-0096 — REQ-183 (Nước uống khẩn cấp)</option>
             <option>ALLOC-2026-0095 — REQ-182 (Lương thực khô)</option>
             <option>ALLOC-2026-0094 — REQ-181 (Khẩu trang y tế)</option>
@@ -264,8 +264,11 @@
     </div>
   </div>
 
+  <script src="../../api-client.js"></script>
   <script>
-    const shipments = [
+    let shipments = [];
+    let currentShipment = null;
+    const legacyShipments = [
       { code:'SHP-2026-0058', partner:'Giao hàng Nhanh', tracking:'GHN20261120XY', from:'Điểm tập kết số 2, Q.5', to:'Xã Tân Mỹ, An Giang', status:'IN_TRANSIT', items:['Nước uống: 200 chai','Khẩu trang: 30 hộp'], steps:['PENDING','BOOKED','PICKED_UP','IN_TRANSIT'], time:'30 phút trước' },
       { code:'SHP-2026-0057', partner:'J&T Express', tracking:'JT2026112057', from:'Điểm tập kết số 1, Q.1', to:'P.5, Q. Gò Vấp', status:'OUT_FOR_DELIVERY', items:['Khẩu trang y tế: 500 hộp'], steps:['PENDING','BOOKED','PICKED_UP','IN_TRANSIT','OUT_FOR_DELIVERY'], time:'1 giờ trước' },
       { code:'SHP-2026-0056', partner:'GHTK', tracking:'GHTK2026AB56', from:'Kho điều phối TW', to:'Mái ấm Tình Thương, Q. Bình Thạnh', status:'DELIVERED', items:['Quần áo: 70 bộ'], steps:['PENDING','BOOKED','PICKED_UP','IN_TRANSIT','OUT_FOR_DELIVERY','DELIVERED'], time:'3 giờ trước' },
@@ -310,9 +313,9 @@
             </div>
             <div class="stepper">${steps}</div>
             <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:12px;">
-              ${s.status==='IN_TRANSIT'||s.status==='OUT_FOR_DELIVERY' ? `<button class="btn-sm btn-sm-update" onclick="document.getElementById('detailModal').style.display='flex'">📡 Cập nhật</button>` : ''}
-              ${s.status==='OUT_FOR_DELIVERY' ? `<button class="btn-sm btn-sm-confirm" onclick="openConfirmModal()">✅ Xác nhận</button>` : ''}
-              <button class="btn-sm btn-sm-view" onclick="document.getElementById('detailModal').style.display='flex'">👁 Chi tiết</button>
+              ${['PENDING','BOOKED','PICKED_UP','IN_TRANSIT','OUT_FOR_DELIVERY','FAILED'].includes(s.status) ? `<button class="btn-sm btn-sm-update" onclick="changeShipmentStatus(${s.id})">📡 Cập nhật trạng thái</button>` : ''}
+              ${s.status==='OUT_FOR_DELIVERY' ? `<button class="btn-sm btn-sm-confirm" onclick="markDelivered(${s.id})">✅ Đã giao</button>` : ''}
+              <button class="btn-sm btn-sm-view" onclick="showShipmentEvents(${s.id})">👁 Lịch sử</button>
             </div>
           </div>
         `;
@@ -330,14 +333,60 @@
       document.getElementById('detailModal').style.display='none';
       document.getElementById('confirmModal').style.display='flex';
     }
-    function submitShipment(e) { e.preventDefault(); document.getElementById('createModal').style.display='none'; alert('Chuyến giao được tạo thành công!'); }
-    function submitConfirm(e) { e.preventDefault(); document.getElementById('confirmModal').style.display='none'; alert('Xác nhận giao hàng thành công!'); }
+    async function loadShipments() {
+      if (!CoordAPI.requireSession('../../index.html')) return;
+      const [data, lines, partners, allocations] = await Promise.all([
+        CoordAPI.get('/shipments'), CoordAPI.get('/shipment-items'), CoordAPI.get('/shipping-partners'), CoordAPI.get('/allocations')
+      ]);
+      const byShipment = new Map();
+      lines.forEach(line => {
+        const key = line.shipment?.id;
+        if (!byShipment.has(key)) byShipment.set(key, []);
+        byShipment.get(key).push(`${line.allocationItem?.requestItem?.item?.name || 'Vật tư'}: ${line.quantity} ${line.allocationItem?.requestItem?.item?.unit?.symbol || ''}`);
+      });
+      shipments = data.map(s => ({ id:s.id, code:s.shipmentCode, partner:s.partner?.partnerName || '', tracking:s.trackingCode || '',
+        from:s.pickupAddress, to:s.deliveryAddress, status:s.status, items:byShipment.get(s.id) || [],
+        steps:[], time:s.createdAt || '' }));
+      document.getElementById('shipmentPartner').innerHTML = '<option value="">Vận chuyển nội bộ</option>' + partners.map(p=>`<option value="${p.id}">${p.partnerName}</option>`).join('');
+      document.getElementById('shipmentAllocation').innerHTML = allocations.filter(a=>['IN_PROGRESS','APPROVED'].includes(a.status))
+        .map(a=>`<option value="${a.id}">${a.allocationCode} — ${a.request?.requestCode || ''}</option>`).join('');
+      renderShipments('all');
+    }
+
+    async function submitShipment(e) {
+      e.preventDefault(); const form=e.currentTarget; const fields=form.querySelectorAll('input,select,textarea');
+      try {
+        const created=await CoordAPI.post('/shipments/from-allocation', { partnerId:fields[0].value ? Number(fields[0].value) : null,
+          pickupAddress:fields[1].value.trim(), deliveryAddress:fields[2].value.trim(), allocationId:Number(fields[3].value), note:fields[4].value });
+        document.getElementById('createModal').style.display='none'; alert(`Đã tạo chuyến giao ${created.shipmentCode}.`); await loadShipments();
+      } catch(error) { CoordAPI.error(error); }
+    }
+
+    async function changeShipmentStatus(id) {
+      const shipment=shipments.find(row=>row.id===id); if (!shipment) return;
+      const next=prompt(`Trạng thái mới cho ${shipment.code}: BOOKED, PICKED_UP, IN_TRANSIT, OUT_FOR_DELIVERY, DELIVERED, FAILED, CANCELLED`);
+      if (!next) return;
+      try { await CoordAPI.post(`/shipments/${id}/events`, { status:next.trim().toUpperCase(), description:'Cập nhật từ màn hình điều phối' }); await loadShipments(); }
+      catch(error) { CoordAPI.error(error); }
+    }
+
+    async function markDelivered(id) {
+      try { await CoordAPI.post(`/shipments/${id}/events`, { status:'DELIVERED', description:'Đã giao cho người nhận' }); await loadShipments(); }
+      catch(error) { CoordAPI.error(error); }
+    }
+
+    async function showShipmentEvents(id) {
+      try { const events=await CoordAPI.get(`/shipments/${id}/events`); alert(events.map(event=>`${event.status} · ${event.createdAt || ''} ${event.description || ''}`).join('\n') || 'Chưa có lịch sử.'); }
+      catch(error) { CoordAPI.error(error); }
+    }
+
+    function submitConfirm(e) { e.preventDefault(); if (currentShipment) markDelivered(currentShipment.id); }
 
     document.querySelectorAll('.modal-overlay').forEach(el => {
       el.addEventListener('click', e => { if(e.target===el) el.style.display='none'; });
     });
 
-    renderShipments('all');
+    loadShipments().catch(CoordAPI.error);
   </script>
 </body>
 </html>

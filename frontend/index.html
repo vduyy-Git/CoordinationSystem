@@ -11,6 +11,7 @@
   <script src="src/assets/vendor/leaflet.js"></script>
   <script src="src/assets/vendor/react.production.min.js"></script>
   <script src="src/assets/vendor/react-dom.production.min.js"></script>
+  <script src="api-client.js"></script>
   <style>
     /* ============================================================
        BODY & NỀN TOÀN TRANG
@@ -975,6 +976,8 @@
     }
 
     .modal-auth {
+      position: relative;
+      box-sizing: border-box;
       background: #081424 !important;
       color: #F9F3E8 !important;
       border: 1.5px solid rgba(212, 175, 55, 0.45) !important;
@@ -982,7 +985,64 @@
       max-width: 520px !important;
       border-radius: 16px !important;
       max-height: 88vh;
+      overflow: hidden;
+    }
+
+    .modal-auth .modal-close {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 3;
+      right: auto;
+      padding: 0;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      color: #fff !important;
+      font-size: 1.5rem;
+    }
+
+    .modal-auth-scroll {
+      max-height: calc(88vh - 76px);
+      padding-top: 8px;
       overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .modal-auth-scroll::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .modal-scroll-indicator {
+      position: absolute;
+      top: 42px;
+      right: 7px;
+      bottom: 14px;
+      width: 3px;
+      border-radius: 999px;
+      background: rgba(212, 175, 55, 0.12);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease;
+      z-index: 4;
+    }
+
+    .modal-auth.is-scrolling .modal-scroll-indicator {
+      opacity: 1;
+    }
+
+    .modal-scroll-indicator-thumb {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      min-height: 22px;
+      background: rgba(212, 175, 55, 0.8);
+      border-radius: 999px;
     }
 
     .modal-auth .form-label {
@@ -993,11 +1053,32 @@
     }
 
     .modal-auth .form-control {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
       background: rgba(255, 255, 255, 0.08) !important;
       border: 1px solid rgba(212, 175, 55, 0.3) !important;
       color: #FFFFFF !important;
       border-radius: 8px !important;
       padding: 10px 12px;
+    }
+
+    .modal-auth .form-group,
+    .citizen-registration-pair > .form-group,
+    .citizen-password-grid > .form-group {
+      min-width: 0;
+    }
+
+    .citizen-registration-pair,
+    .citizen-password-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .modal-auth .pwd-wrap .form-control {
+      padding-right: 42px;
     }
 
     .modal-auth .form-control:focus {
@@ -1058,6 +1139,13 @@
       }
     }
 
+    @media (max-width: 560px) {
+      .citizen-registration-pair,
+      .citizen-password-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
     @media (max-width: 640px) {
 
       .hero-pillars-row,
@@ -1095,7 +1183,7 @@
       <!-- Chỉ chứa Nút Đăng Nhập -->
       <div class="portal-nav-actions">
         <button class="btn-gold" onclick="openLoginModal()" style="font-size:0.9rem; padding: 10px 22px;">
-          🔑 Đăng nhập
+          Đăng nhập
         </button>
       </div>
     </div>
@@ -1733,9 +1821,10 @@
   </main>
 
   <!-- MODAL ĐĂNG NHẬP & ĐĂNG KÝ HỆ THỐNG (ĐỒNG BỘ THEME XANH THAN, VÀNG ÁNH KIM & XANH RÊU) -->
-  <div class="modal-overlay" id="loginModal" style="display:none;"
-    onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-overlay" id="loginModal" style="display:none;">
     <div class="modal modal-auth">
+      <button class="modal-close" aria-label="Trở về trang trước" title="Trở về" onclick="document.getElementById('loginModal').style.display='none'">🡠</button>
+      <div class="modal-auth-scroll" id="modalAuthScroll">
       <div class="modal-header" style="border-bottom:1px solid rgba(212,175,55,0.3); padding-bottom:12px; margin-bottom:16px;">
         <div>
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
@@ -1746,22 +1835,20 @@
             </span>
           </div>
           <div class="modal-title text-gold" id="modalMainHeading" style="font-size:1.22rem; font-weight:800;">
-            🔑 Đăng Nhập Hệ Thống
+            Đăng Nhập Hệ Thống
           </div>
           <p style="font-size:0.78rem; color:rgba(249,243,232,0.7); margin-top:2px;">
             Cổng Điều Phối Cứu Trợ &amp; An Sinh Xã Hội Trực Tuyến
           </p>
         </div>
-        <button class="modal-close" style="color:#fff;" onclick="document.getElementById('loginModal').style.display='none'">✕</button>
       </div>
-
       <!-- Tab Chế Độ: Đăng Nhập vs Đăng Ký Mới -->
       <div class="auth-mode-tabs">
         <button class="auth-mode-tab active" id="authModeLoginBtn" onclick="switchAuthMode('login')">
-          🔑 Đăng Nhập
+          Đăng Nhập
         </button>
         <button class="auth-mode-tab" id="authModeRegisterBtn" onclick="switchAuthMode('register')">
-          📝 Đăng Ký Tài Khoản
+          Đăng Ký Tài Khoản
         </button>
       </div>
 
@@ -1793,7 +1880,7 @@
           <a href="#" style="color:rgba(249,243,232,0.7);" onclick="alert('Vui lòng liên hệ UBND Phường nơi cư trú tại Quận Ngũ Hành Sơn để được hỗ trợ cấp lại mật khẩu.');">Quên mật khẩu?</a>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-weight:700;">
-          👉 Đăng Nhập Vào Cổng Người Dân
+          Đăng Nhập
         </button>
       </form>
 
@@ -1815,26 +1902,24 @@
           <a href="#" style="color:var(--gold-1); font-weight:600;" onclick="switchAuthMode('register'); switchLoginRole('admin');">Đăng ký cán bộ mới</a>
         </div>
         <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center; padding:12px; font-weight:700;">
-          👉 Đăng Nhập Vào Cổng Quản Lý Admin
+          Đăng Nhập
         </button>
       </form>
 
       <!-- 3. FORM ĐĂNG KÝ TÀI KHOẢN NGƯỜI DÂN -->
       <form id="formCitizenRegister" style="display:none;" onsubmit="handleCitizenRegister(event)">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <div class="form-group">
-            <label class="form-label">Họ và tên *</label>
-            <input type="text" class="form-control" placeholder="Nguyễn Văn A" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Số điện thoại *</label>
-            <input type="tel" class="form-control" placeholder="0912345678" required />
-          </div>
+        <div class="form-group">
+          <label class="form-label">Họ và tên *</label>
+          <input type="text" class="form-control" placeholder="Nguyễn Văn A" required />
         </div>
-        <div style="display:grid; grid-template-columns:1.1fr 1fr; gap:10px;">
+        <div class="form-group">
+          <label class="form-label">Số điện thoại *</label>
+          <input type="tel" class="form-control" placeholder="0912345678" required />
+        </div>
+        <div class="citizen-registration-pair">
           <div class="form-group">
             <label class="form-label">Số CCCD / Định danh (12 số)</label>
-            <input type="text" class="form-control" placeholder="048xxxxxxxxx" required />
+            <input type="text" class="form-control" placeholder="12 chữ số" inputmode="numeric" minlength="12" maxlength="12" pattern="[0-9]{12}" title="CCCD phải gồm đúng 12 chữ số" autocomplete="off" required />
           </div>
           <div class="form-group">
             <label class="form-label">Phường cư trú (Q. NHS) *</label>
@@ -1852,21 +1937,26 @@
         </div>
         <div class="form-group">
           <label class="form-label">Nhóm an sinh / Hoàn cảnh</label>
-          <select class="form-control">
+          <select class="form-control" onchange="toggleBeneficiaryGroupOther(this)">
             <option value="flood">Hộ vùng trũng ngập lụt ven sông Cổ Cò / Đô Lương</option>
             <option value="poor">Hộ nghèo / Hộ cận nghèo của Phường</option>
             <option value="elderly">Người cao tuổi neo đơn / Người khuyết tật</option>
             <option value="normal" selected>Gia đình cần trợ cấp đột xuất / Khó khăn</option>
+            <option value="other">Khác</option>
           </select>
         </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div class="form-group" id="otherBeneficiaryGroupWrap" style="display:none;">
+          <label class="form-label" for="otherBeneficiaryGroup">Nhập nhóm an sinh khác</label>
+          <input id="otherBeneficiaryGroup" type="text" class="form-control" maxlength="100" placeholder="Nhập nhóm an sinh / hoàn cảnh" />
+        </div>
+        <div class="citizen-password-grid">
           <div class="form-group">
             <label class="form-label">Mật khẩu *</label>
-            <input type="password" class="form-control" placeholder="Tối thiểu 6 ký tự" required />
+            <input type="password" class="form-control" placeholder="Tối thiểu 8 ký tự" minlength="8" required />
           </div>
           <div class="form-group">
             <label class="form-label">Nhập lại mật khẩu *</label>
-            <input type="password" class="form-control" placeholder="Khớp mật khẩu" required />
+            <input type="password" class="form-control" placeholder="Khớp mật khẩu" minlength="8" required />
           </div>
         </div>
         <div style="margin-bottom:14px; font-size:0.76rem; color:rgba(249,243,232,0.85); display:flex; align-items:flex-start; gap:8px;">
@@ -1920,22 +2010,9 @@
         </button>
       </form>
 
-      <!-- Quick Demo Login Buttons -->
-      <div style="margin-top:16px; padding-top:14px; border-top:1px solid rgba(212,175,55,0.25);">
-        <div style="font-size:0.74rem; text-align:center; color:rgba(249,243,232,0.65); text-transform:uppercase; font-weight:700; margin-bottom:8px;">
-          Truy cập nhanh (Chế độ Trải Nghiệm Demo)
-        </div>
-        <div style="display:flex; gap:8px;">
-          <button class="btn btn-outline btn-sm" style="flex:1; justify-content:center; border-color:var(--moss-green); color:#86efac; background:rgba(74,122,66,0.15);"
-            onclick="location.href='citizen/dashboard.html'">
-            👤 Demo Người Dân
-          </button>
-          <button class="btn btn-outline btn-sm"
-            style="flex:1; justify-content:center; border-color:var(--gold-1); color:var(--gold-1); background:rgba(212,175,55,0.15);"
-            onclick="location.href='admin/dashboard.html'">
-            🏛 Demo Admin
-          </button>
-        </div>
+      </div>
+      <div class="modal-scroll-indicator" aria-hidden="true">
+        <span class="modal-scroll-indicator-thumb"></span>
       </div>
     </div>
   </div>
@@ -1959,16 +2036,19 @@
       if (mode) currentAuthMode = mode;
       document.getElementById('loginModal').style.display = 'flex';
       updateAuthModalUI();
+      requestAnimationFrame(updateAuthModalScrollbar);
     }
 
     function switchAuthMode(mode) {
       currentAuthMode = mode;
       updateAuthModalUI();
+      requestAnimationFrame(updateAuthModalScrollbar);
     }
 
     function switchLoginRole(role) {
       currentAuthRole = role;
       updateAuthModalUI();
+      requestAnimationFrame(updateAuthModalScrollbar);
     }
 
     function updateAuthModalUI() {
@@ -1982,7 +2062,7 @@
       // Heading
       const heading = document.getElementById('modalMainHeading');
       if (heading) {
-        heading.innerHTML = isLogin ? '🔑 Đăng Nhập Hệ Thống' : '📝 Đăng Ký Tài Khoản Mới';
+        heading.innerHTML = isLogin ? 'Đăng Nhập Hệ Thống' : 'Đăng Ký Tài Khoản Mới';
       }
 
       // Role tabs
@@ -2012,26 +2092,70 @@
 
     function handleCitizenLogin(e) {
       e.preventDefault();
-      location.href = 'citizen/dashboard.html';
+      const [identifier, password] = e.currentTarget.querySelectorAll('input');
+      CoordAPI.login(identifier.value.trim(), password.value)
+        .then(auth => {
+          if (!auth.roles.includes('USER')) throw new Error('Tài khoản này không thuộc cổng người dân.');
+          location.href = 'citizen/dashboard.html';
+        })
+        .catch(error => { CoordAPI.clearSession(); CoordAPI.error(error); });
     }
 
     function handleAdminLogin(e) {
       e.preventDefault();
-      location.href = 'admin/dashboard.html';
+      const [identifier, password] = e.currentTarget.querySelectorAll('input');
+      CoordAPI.login(identifier.value.trim(), password.value)
+        .then(auth => {
+          if (!auth.roles.some(role => ['ADMIN', 'COORDINATOR'].includes(role))) throw new Error('Tài khoản chưa được cấp quyền điều phối.');
+          location.href = 'admin/dashboard.html';
+        })
+        .catch(error => { CoordAPI.clearSession(); CoordAPI.error(error); });
     }
 
     function handleCitizenRegister(e) {
       e.preventDefault();
-      alert('Đăng ký tài khoản người dân tại Quận Ngũ Hành Sơn thành công! Bạn có thể đăng nhập ngay.');
-      switchAuthMode('login');
-      switchLoginRole('citizen');
+      const form = e.currentTarget;
+      const identityFields = Array.from(form.querySelectorAll('input')).filter(input => ['text', 'tel'].includes(input.type));
+      const selects = form.querySelectorAll('select');
+      const passwords = form.querySelectorAll('input[type="password"]');
+      if (passwords[0].value !== passwords[1].value) return alert('Mật khẩu xác nhận chưa khớp.');
+      const selectedGroup = selects[1].value === 'other'
+        ? document.getElementById('otherBeneficiaryGroup').value.trim()
+        : selects[1].selectedOptions[0].textContent.trim();
+      if (selects[1].value === 'other' && !selectedGroup) return alert('Vui lòng nhập nhóm an sinh khác.');
+      CoordAPI.register({
+        fullName: identityFields[0].value.trim(), phone: identityFields[1].value.trim(),
+        citizenId: identityFields[2].value.trim(), address: identityFields[3].value.trim(),
+        ward: selects[0].selectedOptions[0].textContent.trim(), beneficiaryGroup: selectedGroup, password: passwords[0].value
+      }).then(() => {
+        alert('Đăng ký thành công. Bạn có thể đăng nhập bằng số điện thoại hoặc CCCD.');
+        switchAuthMode('login'); switchLoginRole('citizen');
+      }).catch(CoordAPI.error);
+    }
+
+    function toggleBeneficiaryGroupOther(select) {
+      const wrap = document.getElementById('otherBeneficiaryGroupWrap');
+      const input = document.getElementById('otherBeneficiaryGroup');
+      const isOther = select.value === 'other';
+      wrap.style.display = isOther ? 'block' : 'none';
+      input.required = isOther;
+      if (!isOther) input.value = '';
     }
 
     function handleAdminRegister(e) {
       e.preventDefault();
-      alert('Hồ sơ cán bộ điều phối đã được gửi đến Ban Chỉ huy PCTT & TKCN Quận Ngũ Hành Sơn phê duyệt. Đang chuyển sang đăng nhập.');
-      switchAuthMode('login');
-      switchLoginRole('admin');
+      const form = e.currentTarget;
+      const textFields = Array.from(form.querySelectorAll('input')).filter(input => input.type === 'text' || input.type === 'email');
+      const department = form.querySelector('select').value;
+      const passwords = form.querySelectorAll('input[type="password"]');
+      if (passwords[1].value !== passwords[2].value) return alert('Mật khẩu xác nhận chưa khớp.');
+      CoordAPI.post('/auth/staff-registration', {
+        fullName: textFields[0].value.trim(), email: textFields[1].value.trim(), department,
+        authorizationPin: passwords[0].value, password: passwords[1].value
+      }).then(() => {
+        alert('Hồ sơ cán bộ đã được gửi để phê duyệt.');
+        switchAuthMode('login'); switchLoginRole('admin');
+      }).catch(CoordAPI.error);
     }
 
     // ==========================================
@@ -2491,10 +2615,30 @@
       initReactMap();
     });
 
-    // Close modal on Escape
-    window.addEventListener('keydown', e => {
-      if (e.key === 'Escape') document.getElementById('loginModal').style.display = 'none';
-    });
+    const authModal = document.querySelector('.modal-auth');
+    const authModalContent = document.getElementById('modalAuthScroll');
+    const authModalIndicator = document.querySelector('.modal-scroll-indicator');
+    const authModalThumb = document.querySelector('.modal-scroll-indicator-thumb');
+    let authModalScrollTimer;
+    function updateAuthModalScrollbar() {
+      if (!authModalContent || !authModalIndicator || !authModalThumb) return;
+      const trackHeight = authModalIndicator.clientHeight;
+      const maxScroll = authModalContent.scrollHeight - authModalContent.clientHeight;
+      if (maxScroll <= 0 || trackHeight <= 0) return;
+      const thumbHeight = Math.max(22, trackHeight * authModalContent.clientHeight / authModalContent.scrollHeight);
+      const thumbTravel = trackHeight - thumbHeight;
+      const thumbTop = maxScroll > 0 ? authModalContent.scrollTop / maxScroll * thumbTravel : 0;
+      authModalThumb.style.height = `${thumbHeight}px`;
+      authModalThumb.style.transform = `translateY(${thumbTop}px)`;
+    }
+    authModalContent?.addEventListener('scroll', () => {
+      updateAuthModalScrollbar();
+      authModal?.classList.add('is-scrolling');
+      clearTimeout(authModalScrollTimer);
+      authModalScrollTimer = setTimeout(() => authModal?.classList.remove('is-scrolling'), 700);
+    }, { passive: true });
+    window.addEventListener('resize', updateAuthModalScrollbar);
+
   </script>
 </body>
 

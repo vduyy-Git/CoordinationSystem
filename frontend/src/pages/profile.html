@@ -229,6 +229,7 @@
     </div>
   </main>
 
+  <script src="../../api-client.js"></script>
   <script>
     function showProfileTab(tab, btn) {
       ['edit','security','history'].forEach(t => {
@@ -240,8 +241,37 @@
         b.style.color = 'var(--text-light)';
       });
     }
-    function saveProfile(e) { e.preventDefault(); alert('Thông tin đã được lưu thành công!'); }
-    function changePwd(e) { e.preventDefault(); alert('Mật khẩu đã được cập nhật!'); }
+    let profileData = null;
+    async function loadProfile() {
+      if (!CoordAPI.requireSession('../../index.html')) return;
+      profileData = await CoordAPI.get('/profile');
+      const inputs = document.querySelectorAll('#tab-edit form input');
+      inputs[0].value = profileData.fullName || '';
+      inputs[1].value = profileData.email || '';
+      inputs[1].readOnly = true;
+      inputs[2].value = profileData.phone || '';
+      inputs[3].value = profileData.address || '';
+      document.querySelector('.profile-name').textContent = profileData.fullName || '';
+      document.querySelector('.profile-info').textContent = `${profileData.email || ''} · ${profileData.phone || ''}`;
+      document.querySelector('.profile-badges .badge').textContent = (profileData.roles || []).join(', ');
+    }
+    async function saveProfile(e) {
+      e.preventDefault(); const fields = e.currentTarget.querySelectorAll('input');
+      try {
+        profileData = await CoordAPI.put('/profile', { fullName:fields[0].value.trim(), email:fields[1].value,
+          phone:fields[2].value.trim(), citizenId:profileData.citizenId, birthDate:profileData.birthDate,
+          address:fields[3].value.trim(), ward:profileData.ward, beneficiaryGroup:profileData.beneficiaryGroup,
+          situationDescription:profileData.situationDescription, avatar:profileData.avatar });
+        alert('Đã lưu hồ sơ.'); await loadProfile();
+      } catch(error) { CoordAPI.error(error); }
+    }
+    async function changePwd(e) {
+      e.preventDefault(); const fields=e.currentTarget.querySelectorAll('input[type="password"]');
+      if (fields[1].value !== fields[2].value) return alert('Mật khẩu mới chưa khớp.');
+      try { await CoordAPI.put('/profile/password', { currentPassword:fields[0].value, newPassword:fields[1].value });
+        e.currentTarget.reset(); alert('Đã đổi mật khẩu.'); }
+      catch(error) { CoordAPI.error(error); }
+    }
     function checkPwd(input) {
       const len = input.value.length;
       const bar = document.getElementById('pwdStrength');
@@ -250,6 +280,7 @@
       else if(len < 10) { bar.className = 'pwd-strength pwd-medium'; hint.textContent = 'Độ mạnh: Trung bình'; }
       else { bar.className = 'pwd-strength pwd-strong'; hint.textContent = 'Độ mạnh: Mạnh ✓'; }
     }
+    loadProfile().catch(CoordAPI.error);
   </script>
 </body>
 </html>

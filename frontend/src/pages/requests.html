@@ -202,10 +202,10 @@
           <div class="form-group">
             <label class="form-label">🚦 Mức độ ưu tiên</label>
             <select class="form-input">
-              <option>LOW — Thấp</option>
-              <option selected>NORMAL — Bình thường</option>
-              <option>HIGH — Cao</option>
-              <option>URGENT — Khẩn cấp</option>
+              <option value="LOW">LOW — Thấp</option>
+              <option value="NORMAL" selected>NORMAL — Bình thường</option>
+              <option value="HIGH">HIGH — Cao</option>
+              <option value="URGENT">URGENT — Khẩn cấp</option>
             </select>
           </div>
           <div class="form-group">
@@ -237,8 +237,11 @@
     </div>
   </div>
 
+  <script src="../../api-client.js"></script>
   <script>
-    const requests = [
+    let requests = [];
+    let catalogItems = [];
+    const legacyRequests = [
       { code:'REQ-2026-0183', title:'Nước uống khẩn cấp cho 50 hộ dân vùng lũ', desc:'Khu vực xã Tân Mỹ, huyện Châu Phú, An Giang đang bị ngập nặng. 50 hộ dân cần nước uống khẩn cấp.', addr:'Xã Tân Mỹ, H. Châu Phú, An Giang', priority:'URGENT', status:'PENDING', items:[{name:'Nước uống đóng chai',qty:200,unit:'chai'},{name:'Khẩu trang y tế',qty:50,unit:'hộp'}], time:'15 phút trước', owner:'Lê Thị Hoa' },
       { code:'REQ-2026-0182', title:'Lương thực khô cứu trợ lũ An Giang', desc:'Yêu cầu hỗ trợ lương thực khô cho 120 gia đình trong khu vực ngập lụt.', addr:'P. Mỹ Hòa, TP. Long Xuyên, An Giang', priority:'HIGH', status:'PENDING', items:[{name:'Mì ăn liền',qty:80,unit:'thùng'},{name:'Gạo',qty:200,unit:'kg'}], time:'2 giờ trước', owner:'Trần Văn Nam' },
       { code:'REQ-2026-0181', title:'Vật tư y tế cho trạm y tế phường', desc:'Trạm y tế phường 5 cần bổ sung khẩu trang y tế phục vụ công tác phòng dịch.', addr:'P.5, Q. Gò Vấp, TP.HCM', priority:'NORMAL', status:'ALLOCATING', items:[{name:'Khẩu trang y tế',qty:500,unit:'hộp'}], time:'5 giờ trước', owner:'Nguyễn Thị Mai' },
@@ -261,7 +264,7 @@
             <div>
               <div style="display:flex; gap:8px; align-items:center;">
                 <span class="req-code">${r.code}</span>
-                <span class="priority-badge ${prioMap[r.priority].cls}">${prioMap[r.priority].label}</span>
+        <span class="priority-badge ${(prioMap[r.priority] || prioMap.NORMAL).cls}">${(prioMap[r.priority] || prioMap.NORMAL).label}</span>
               </div>
               <div class="req-title">${r.title}</div>
               <div class="req-desc">${r.desc.substring(0,100)}...</div>
@@ -270,14 +273,14 @@
             <span class="badge ${statusMap[r.status].cls}" style="flex-shrink:0; margin-left:12px;">${statusMap[r.status].label}</span>
           </div>
           <div class="req-items-preview">
-            ${r.items.map(it=>`<span class="req-item-chip">${it.name}: ${it.qty} ${it.unit}</span>`).join('')}
+            ${(r.items || []).map(it=>`<span class="req-item-chip">${it.name}: ${it.qty} ${it.unit}</span>`).join('')}
           </div>
           <div class="req-footer">
             <div class="req-meta">👤 ${r.owner} · 🕐 ${r.time}</div>
             <div style="display:flex; gap:6px;">
               ${r.status==='PENDING'?`
-                <button class="btn-sm btn-sm-approve" onclick="openApprove('${r.code}')">✓ Duyệt</button>
-                <button class="btn-sm btn-sm-reject">✕ Từ chối</button>
+                <button class="btn-sm btn-sm-approve" onclick="decideRequest(${r.id}, 'approve')">✓ Duyệt</button>
+                <button class="btn-sm btn-sm-reject" onclick="decideRequest(${r.id}, 'reject')">✕ Từ chối</button>
               `:''}
               ${r.status==='APPROVED'?`<button class="btn-sm btn-sm-partial" onclick="window.location.href='allocations.html'">⚖️ Phân bổ</button>`:''}
               <button class="btn-sm btn-sm-view">👁 Xem</button>
@@ -294,6 +297,34 @@
       renderRequests(f);
     }
 
+    async function loadRequests() {
+      if (!CoordAPI.requireSession('../../index.html')) return;
+      const [data, lines, items] = await Promise.all([
+        CoordAPI.get('/assistance-requests'), CoordAPI.get('/request-items'), CoordAPI.get('/items')
+      ]);
+      catalogItems = items;
+      const byRequest = new Map();
+      lines.forEach(line => {
+        const requestId = line.request?.id;
+        if (!byRequest.has(requestId)) byRequest.set(requestId, []);
+        byRequest.get(requestId).push({ id:line.id, name:line.item?.name || 'Vật tư', qty:line.requestedQuantity,
+          unit:line.item?.unit?.symbol || '' });
+      });
+      requests = data.map(r => ({ id:r.id, code:r.requestCode, title:r.title, desc:r.description || '', addr:r.deliveryAddress,
+        priority:r.priority, status:r.status, items:byRequest.get(r.id) || [], time:r.createdAt || '', owner:r.recipient?.fullName || '' }));
+      document.querySelectorAll('#reqItems select').forEach(select => {
+        select.innerHTML = catalogItems.map(item => `<option value="${item.id}">${item.name} (${item.unit?.symbol || ''})</option>`).join('');
+      });
+      renderRequests(currentFilter);
+    }
+
+    async function decideRequest(id, action) {
+      try {
+        await CoordAPI.post(`/assistance-requests/${id}/${action}`, {});
+        await loadRequests();
+      } catch (error) { CoordAPI.error(error); }
+    }
+
     function openApprove(code) {
       document.getElementById('approveCode').textContent = code;
       document.getElementById('approveModal').style.display = 'flex';
@@ -306,7 +337,7 @@
       const d = document.createElement('div');
       d.style.cssText = 'display:grid; grid-template-columns:2fr 1fr 2fr; gap:8px; margin-bottom:8px;';
       d.innerHTML = `
-        <select class="form-input" style="padding:8px;"><option>Mì ăn liền</option><option>Gạo</option><option>Nước uống đóng chai</option><option>Khẩu trang y tế</option><option>Quần áo</option></select>
+        <select class="form-input" style="padding:8px;">${catalogItems.map(item => `<option value="${item.id}">${item.name} (${item.unit?.symbol || ''})</option>`).join('')}</select>
         <input type="number" class="form-input" style="padding:8px;" placeholder="SL" min="1"/>
         <input type="text" class="form-input" style="padding:8px;" placeholder="Ghi chú..."/>
       `;
@@ -315,15 +346,26 @@
 
     function submitRequest(e) {
       e.preventDefault();
-      document.getElementById('createModal').style.display='none';
-      alert('Yêu cầu hỗ trợ đã được gửi! Mã: REQ-2026-' + (184 + Math.floor(Math.random()*10)));
+      const form = e.currentTarget;
+      const fields = form.querySelectorAll('input,textarea,select');
+      const items = Array.from(form.querySelectorAll('#reqItems > div')).map(row => ({
+        itemId:Number(row.querySelector('select').value),
+        requestedQuantity:Number(row.querySelector('input[type="number"]').value),
+        note:row.querySelector('input[type="text"]').value
+      })).filter(item => item.itemId && item.requestedQuantity > 0);
+      CoordAPI.post('/assistance-requests', { title:fields[0].value.trim(), description:fields[1].value.trim(),
+        priority:fields[2].value, deliveryAddress:fields[4].value.trim(), items })
+        .then(async created => {
+          document.getElementById('createModal').style.display='none'; form.reset();
+          alert(`Đã gửi yêu cầu ${created.requestCode}.`); await loadRequests();
+        }).catch(CoordAPI.error);
     }
 
     document.querySelectorAll('.modal-overlay').forEach(el => {
       el.addEventListener('click', e => { if(e.target===el) el.style.display='none'; });
     });
 
-    renderRequests('all');
+    loadRequests().catch(CoordAPI.error);
   </script>
 </body>
 </html>

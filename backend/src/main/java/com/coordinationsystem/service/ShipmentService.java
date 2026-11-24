@@ -13,8 +13,10 @@ import com.coordinationsystem.repository.AssistanceRequestRepository;
 import com.coordinationsystem.repository.RequestItemRepository;
 import com.coordinationsystem.repository.AllocationItemRepository;
 import com.coordinationsystem.repository.AllocationRepository;
+import com.coordinationsystem.repository.ShippingPartnerRepository;
 import com.coordinationsystem.model.SupplyMovement;
 import com.coordinationsystem.dtorequest.ShipmentStatusRequest;
+import com.coordinationsystem.dtorequest.CreateShipmentRequest;
 import com.coordinationsystem.exception.BadRequestException;
 import com.coordinationsystem.exception.ConflictException;
 import org.springframework.beans.BeanWrapperImpl;
@@ -41,12 +43,13 @@ public class ShipmentService {
     private final RequestItemRepository requestItems;
     private final AllocationItemRepository allocationItems;
     private final AllocationRepository allocations;
+    private final ShippingPartnerRepository partners;
 
     public ShipmentService(ShipmentRepository repository, ShipmentEventRepository events, UserRepository users,
                            ShipmentItemRepository shipmentItems, DonationItemRepository donationItems,
                            SupplyMovementRepository movements, AssistanceRequestRepository assistanceRequests,
                            RequestItemRepository requestItems, AllocationItemRepository allocationItems,
-                           AllocationRepository allocations) {
+                           AllocationRepository allocations, ShippingPartnerRepository partners) {
         this.repository = repository;
         this.events = events;
         this.users = users;
@@ -57,6 +60,7 @@ public class ShipmentService {
         this.requestItems = requestItems;
         this.allocationItems = allocationItems;
         this.allocations = allocations;
+        this.partners = partners;
     }
 
     public List<Shipment> getAll() {
@@ -66,6 +70,16 @@ public class ShipmentService {
     public Shipment getById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy dữ liệu với id: " + id));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Shipment> getMine(String email) { return repository.findForRecipient(email); }
+
+    @Transactional(readOnly = true)
+    public List<ShipmentEvent> getMyEvents(Long id, String email) {
+        boolean ownsShipment = repository.findForRecipient(email).stream().anyMatch(shipment -> shipment.getId().equals(id));
+        if (!ownsShipment) throw new com.coordinationsystem.exception.NotFoundException("Không tìm thấy chuyến giao");
+        return events.findByShipment_IdOrderByCreatedAtAsc(id);
     }
 
     public Shipment create(Shipment entity) {
@@ -79,6 +93,35 @@ public class ShipmentService {
         entity.setDeliveredAt(null);
         setEntityId(entity, null);
         return repository.save(entity);
+    }
+
+    public Shipment createForAllocation(CreateShipmentRequest command) {
+        var allocation = allocations.findById(command.allocationId())
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy phân bổ"));
+        if (!List.of("APPROVED", "IN_PROGRESS").contains(allocation.getStatus()))
+            throw new ConflictException("Chỉ có thể tạo chuyến giao từ phân bổ đang hoạt động");
+        var shipment = new Shipment();
+        shipment.setPickupAddress(command.pickupAddress().trim());
+        shipment.setDeliveryAddress(command.deliveryAddress().trim());
+        shipment.setNote(command.note());
+        if (command.partnerId() != null)
+            shipment.setPartner(partners.findById(command.partnerId()).orElseThrow(() -> new NotFoundException("Không tìm thấy đối tác vận chuyển")));
+        shipment = create(shipment);
+        int itemCount = 0;
+        for (var allocationItem : allocationItems.findByAllocation_Id(allocation.getId())) {
+            BigDecimal remaining = allocationItem.getQuantity().subtract(shipmentItems.sumShippedForAllocationItem(allocationItem.getId()));
+            if (remaining.signum() <= 0) continue;
+            var line = new com.coordinationsystem.model.ShipmentItem();
+            line.setShipment(shipment);
+            line.setAllocationItem(allocationItem);
+            line.setQuantity(remaining);
+            shipmentItems.save(line);
+            itemCount++;
+        }
+        if (itemCount == 0) throw new ConflictException("Phân bổ không còn số lượng chưa giao");
+        allocation.setStatus("IN_PROGRESS");
+        allocations.save(allocation);
+        return shipment;
     }
 
     public Shipment update(Long id, Shipment entity) {

@@ -40,6 +40,13 @@ BEGIN TRY
     DECLARE @DonorId BIGINT = (SELECT id FROM dbo.users WHERE email = 'demo.donor@coordination.local');
     DECLARE @RecipientId BIGINT = (SELECT id FROM dbo.users WHERE email = 'demo.recipient@coordination.local');
 
+    UPDATE dbo.users
+    SET citizen_id = '040123456789', birth_date = '1990-01-01',
+        address = N'20 Đường Mẫu, Quận 1, TP. Hồ Chí Minh', ward = N'Phường Mẫu',
+        beneficiary_group = N'Hộ gia đình khó khăn',
+        situation_description = N'Dữ liệu mẫu để minh họa hồ sơ người thụ hưởng'
+    WHERE id = @RecipientId;
+
     INSERT dbo.user_roles (user_id, role_id, assigned_by)
     SELECT @AdminId, @AdminRoleId, NULL
     WHERE NOT EXISTS (SELECT 1 FROM dbo.user_roles WHERE user_id = @AdminId AND role_id = @AdminRoleId);

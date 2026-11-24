@@ -32,6 +32,12 @@ public class DeliveryConfirmation {
     @Column(columnDefinition = "nvarchar(max)")
     private String note;
 
+    @Column(name = "delivery_condition", length = 30)
+    private String deliveryCondition;
+
+    @Column
+    private Integer rating;
+
     @Column(name = "confirmed_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime confirmedAt;
 }

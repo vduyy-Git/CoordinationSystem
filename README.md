@@ -1,12 +1,12 @@
 # Coordination System backend
 
-Spring Boot REST API for coordinating donations, assistance requests, inventory allocation, and shipments. The repository currently contains the backend and SQL Server schema; a frontend is not included.
+Spring Boot REST API for coordinating donations, assistance requests, inventory allocation, shipments, citizen profiles, social-service registrations, and feedback. The repository includes the API and static citizen/admin frontend prototypes.
 
 ## Run locally
 
 1. Install Java 17+ and SQL Server.
-2. Run `sql/Coordination.sql` once to create `CoordinationDB` and the base roles/catalog data.
-3. Set `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, and `APP_TOKEN_SECRET`. The token secret must contain at least 32 bytes; the app refuses to start without it.
+2. Run `sql/Coordination.sql` to recreate `CoordinationDB` and its complete schema, then run `sql/CoordinationData.sql` to add demo data. **Running `Coordination.sql` deletes the existing database and all its data first.**
+3. Set `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, and `APP_TOKEN_SECRET`. The token secret must contain at least 32 bytes; the app refuses to start without it. Set `APP_STAFF_REGISTRATION_PIN` to a private six-digit code if staff applications are enabled.
 4. For the first administrator, also set `APP_BOOTSTRAP_ADMIN_EMAIL` and `APP_BOOTSTRAP_ADMIN_PASSWORD` (12+ characters). The bootstrap only creates a new account; it will not promote an existing user.
 5. Start the API from `backend` with `mvn spring-boot:run` or `mvnw.cmd spring-boot:run`.
 
@@ -14,9 +14,11 @@ Spring Boot REST API for coordinating donations, assistance requests, inventory 
 
 Hibernate validates the existing SQL schema and does not create or alter tables. If an existing account has a legacy plaintext password, a successful login upgrades it to BCrypt immediately.
 
+Frontend API routes and example request bodies are documented in [backend/API.md](backend/API.md). Local static servers on ports 5500 and 5173 are allowed by default for browser CORS; configure `APP_SECURITY_CORS_ORIGINS` for another frontend origin.
+
 ### Sample database data
 
-After creating the schema, run `sql/Coordination.SampleData.sql` in SQL Server Management Studio. The script is transactional and can be run again without duplicating its demo records. It creates demo accounts, pending records for approval, an approved request ready for allocation, and one completed donation-to-delivery history. It prints the generated database IDs needed in Swagger request bodies after seeding. When running it with `sqlcmd`, use UTF-8 input (`-f 65001`) so Vietnamese catalog names match correctly.
+After creating the schema, run `sql/CoordinationData.sql` in SQL Server Management Studio. The script is transactional and can be run again without duplicating its demo records. It creates demo accounts, pending records for approval, an approved request ready for allocation, and one completed donation-to-delivery history. It prints the generated database IDs needed in Swagger request bodies after seeding. When running it with `sqlcmd`, use UTF-8 input (`-f 65001`) so Vietnamese catalog names match correctly.
 
 All demo accounts use the password `DemoPass123!`:
 
@@ -24,6 +26,8 @@ All demo accounts use the password `DemoPass123!`:
 - `demo.coordinator@coordination.local` — `COORDINATOR`
 - `demo.donor@coordination.local` — `USER`
 - `demo.recipient@coordination.local` — `USER`
+
+After starting the API and serving `frontend` on an allowed local origin (port 5500 or 5173), sign in through the login form using one of the seeded accounts above.
 
 Use `RQ-DEMO-READY-001` to test allocation creation. The completed example uses `DN-DEMO-COMPLETE-001`, `RQ-DEMO-COMPLETE-001`, and `SH-DEMO-COMPLETE-001`.
 

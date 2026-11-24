@@ -37,18 +37,36 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        String email = request.email().trim().toLowerCase(Locale.ROOT);
+        String email;
+        if (request.email() == null || request.email().isBlank()) {
+            String identity = request.citizenId() == null || request.citizenId().isBlank()
+                    ? request.phone() : request.citizenId();
+            if (identity == null || identity.isBlank())
+                throw new com.coordinationsystem.exception.BadRequestException("Cần email hoặc số điện thoại/CCCD để đăng ký");
+            String safeIdentity = identity.replaceAll("[^A-Za-z0-9]", "").toLowerCase(Locale.ROOT);
+            email = "citizen-" + safeIdentity + "@coordination.local";
+        } else email = request.email().trim().toLowerCase(Locale.ROOT);
         if (request.password().getBytes(StandardCharsets.UTF_8).length > 72) {
             throw new com.coordinationsystem.exception.BadRequestException("Mật khẩu không được vượt quá 72 byte UTF-8");
         }
         if (users.existsByEmailIgnoreCase(email)) throw new ConflictException("Email đã được sử dụng");
+        if (request.phone() != null && !request.phone().isBlank() && users.existsByPhone(request.phone().trim()))
+            throw new ConflictException("Số điện thoại đã được sử dụng");
+        if (request.citizenId() != null && !request.citizenId().isBlank() && users.existsByCitizenId(request.citizenId().trim()))
+            throw new ConflictException("CCCD đã được sử dụng");
         var role = roles.findByRoleNameIgnoreCase("USER")
                 .orElseThrow(() -> new NotFoundException("Chưa khởi tạo vai trò USER trong cơ sở dữ liệu"));
         User user = new User();
         user.setFullName(request.fullName().trim());
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(request.password()));
-        user.setPhone(request.phone());
+        user.setPhone(request.phone() == null ? null : request.phone().trim());
+        user.setCitizenId(request.citizenId() == null || request.citizenId().isBlank() ? null : request.citizenId().trim());
+        user.setBirthDate(request.birthDate());
+        user.setAddress(request.address());
+        user.setWard(request.ward());
+        user.setBeneficiaryGroup(request.beneficiaryGroup());
+        user.setSituationDescription(request.situationDescription());
         user.setStatus("ACTIVE");
         user = users.save(user);
         UserRole userRole = new UserRole();
@@ -59,8 +77,11 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public AuthResponse login(String email, String password) {
-        User user = users.findByEmailIgnoreCase(email.trim())
+    public AuthResponse login(String identifier, String password) {
+        String login = identifier.trim();
+        User user = users.findByEmailIgnoreCase(login)
+                .or(() -> users.findByPhone(login))
+                .or(() -> users.findByCitizenId(login))
                 .orElseThrow(() -> new UnAuthorizeException("Email hoặc mật khẩu không đúng"));
         if (password.getBytes(StandardCharsets.UTF_8).length > 72) {
             throw new UnAuthorizeException("Email hoặc mật khẩu không đúng");

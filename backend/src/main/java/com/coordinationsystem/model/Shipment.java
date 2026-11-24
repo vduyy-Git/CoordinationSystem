@@ -32,6 +32,9 @@ public class Shipment {
     @Column(name = "delivery_address", nullable = false, length = 500)
     private String deliveryAddress;
 
+    @Column(columnDefinition = "nvarchar(max)")
+    private String note;
+
     @Column(nullable = false, length = 30)
     private String status = "PENDING";
 

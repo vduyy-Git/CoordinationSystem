@@ -64,6 +64,8 @@ public class DeliveryConfirmationService {
         confirmation.setConfirmationCode(command.confirmationCode());
         confirmation.setImageUrl(command.imageUrl());
         confirmation.setNote(command.note());
+        confirmation.setDeliveryCondition(command.deliveryCondition());
+        confirmation.setRating(command.rating());
         return repository.save(confirmation);
     }
 

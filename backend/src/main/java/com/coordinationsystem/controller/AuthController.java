@@ -5,8 +5,8 @@ import com.coordinationsystem.dtoresponse.ApiResponse;
 import com.coordinationsystem.dtoresponse.AuthResponse;
 import com.coordinationsystem.service.AuthService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -29,7 +29,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ApiResponse<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ApiResponse.success("Đăng nhập thành công", service.login(request.email(), request.password()));
+        return ApiResponse.success("Đăng nhập thành công", service.login(request.identifier(), request.password()));
     }
 
     @GetMapping("/me")
@@ -37,5 +37,5 @@ public class AuthController {
         return ApiResponse.success("Lấy tài khoản thành công", service.currentUser(authentication.getName()));
     }
 
-    public record LoginRequest(@NotBlank @Email String email, @NotBlank String password) { }
+    public record LoginRequest(@JsonAlias("email") @NotBlank String identifier, @NotBlank String password) { }
 }

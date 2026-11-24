@@ -201,7 +201,7 @@
       <form onsubmit="submitAlloc(event)">
         <div class="form-group">
           <label class="form-label">📋 Yêu cầu hỗ trợ cần phân bổ</label>
-          <select class="form-input" onchange="loadRequestItems(this)">
+          <select id="allocationRequest" class="form-input" onchange="loadRequestItems(this)">
             <option value="">-- Chọn yêu cầu đã được duyệt --</option>
             <option value="REQ-183">REQ-2026-0183 — Nước uống khẩn cấp 50 hộ [URGENT]</option>
             <option value="REQ-182">REQ-2026-0182 — Lương thực khô An Giang [HIGH]</option>
@@ -247,8 +247,12 @@
     </div>
   </div>
 
+  <script src="../../api-client.js"></script>
   <script>
-    const allocs = [
+    let allocs = [];
+    let approvedRequests = [];
+    let availableDonationItems = [];
+    const legacyAllocs = [
       { code:'ALLOC-2026-0096', reqCode:'REQ-2026-0183', reqTitle:'Nước uống khẩn cấp 50 hộ', status:'APPROVED', items:[{name:'Nước uống đóng chai',qty:200,unit:'chai',src:'DON-247'}], coord:'Trần Minh', time:'2 giờ trước' },
       { code:'ALLOC-2026-0095', reqCode:'REQ-2026-0182', reqTitle:'Lương thực khô An Giang', status:'IN_PROGRESS', items:[{name:'Mì ăn liền',qty:80,unit:'thùng',src:'DON-246'},{name:'Gạo',qty:85,unit:'kg',src:'DON-245'}], coord:'Nguyễn Mai', time:'4 giờ trước' },
       { code:'ALLOC-2026-0094', reqCode:'REQ-2026-0180', reqTitle:'Quần áo trẻ em mái ấm', status:'COMPLETED', items:[{name:'Quần áo',qty:70,unit:'bộ',src:'DON-244'}], coord:'Lê Hùng', time:'1 ngày trước' },
@@ -256,6 +260,7 @@
     ];
     const statusMap = { PENDING:{label:'Chờ duyệt',cls:'badge-pending'}, APPROVED:{label:'✅ Đã duyệt',cls:'badge-approved'}, IN_PROGRESS:{label:'🔄 Đang xử lý',cls:'badge-transit'}, COMPLETED:{label:'🏁 Hoàn thành',cls:'badge-completed'}, CANCELLED:{label:'❌ Đã hủy',cls:'badge-cancelled'} };
 
+    function renderAllocations() {
     document.getElementById('allocList').innerHTML = allocs.map((a,i)=>`
       <div class="alloc-card" style="animation-delay:${i*0.08}s;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
@@ -285,21 +290,73 @@
         </div>
       </div>
     `).join('');
+    }
+
+    async function loadAllocations() {
+      if (!CoordAPI.requireSession('../../index.html')) return;
+      const [data, allocationLines, requestData, requestLines, donationLines, inventory] = await Promise.all([
+        CoordAPI.get('/allocations'), CoordAPI.get('/allocation-items'), CoordAPI.get('/assistance-requests'),
+        CoordAPI.get('/request-items'), CoordAPI.get('/donation-items'), CoordAPI.get('/inventory/summary')
+      ]);
+      const itemsByAllocation = new Map();
+      allocationLines.forEach(line => {
+        const key = line.allocation?.id;
+        if (!itemsByAllocation.has(key)) itemsByAllocation.set(key, []);
+        itemsByAllocation.get(key).push({ name:line.requestItem?.item?.name || '', qty:line.quantity,
+          unit:line.requestItem?.item?.unit?.symbol || '', src:line.donationItem?.donation?.donationCode || '' });
+      });
+      allocs = data.map(a => ({ id:a.id, code:a.allocationCode, reqCode:a.request?.requestCode || '', reqTitle:a.request?.title || '',
+        status:a.status, items:itemsByAllocation.get(a.id) || [], coord:a.coordinator?.fullName || '', time:a.allocatedAt || '' }));
+      approvedRequests = requestData.filter(r => ['APPROVED','FULFILLING'].includes(r.status));
+      availableDonationItems = donationLines.filter(line => line.donation?.status === 'APPROVED' &&
+        Number(line.acceptedQuantity) - Number(line.reservedQuantity) - Number(line.deliveredQuantity) > 0);
+      const select = document.getElementById('allocationRequest');
+      select.innerHTML = '<option value="">-- Chọn yêu cầu đã được duyệt --</option>' + approvedRequests.map(r =>
+        `<option value="${r.id}">${r.requestCode} — ${r.title}</option>`).join('');
+      document.querySelector('.inventory-section .grid-2').innerHTML = inventory.map(i => `
+        <div class="inventory-item"><div><div style="font-weight:700;">${i.itemName}</div><div style="font-size:.78rem;color:var(--text-light);">${i.category || ''} · ${i.unit || ''}</div></div>
+        <div style="text-align:right;"><div class="${Number(i.available) > 0 ? 'source-available' : 'source-out'}">${i.available} ${i.unit || ''}</div></div></div>`).join('');
+      const stats = document.querySelectorAll('.stat-card .stat-value');
+      if (stats.length >= 4) { stats[0].textContent = data.length; stats[1].textContent = data.filter(a=>a.status==='COMPLETED').length;
+        stats[2].textContent = data.filter(a=>a.status==='IN_PROGRESS').length; stats[3].textContent = requestData.filter(r=>r.status==='APPROVED').length; }
+      renderAllocations();
+    }
 
     function openAllocModal() { document.getElementById('allocModal').style.display='flex'; }
     function loadRequestItems(sel) {
-      const show = sel.value !== '';
-      document.getElementById('matchItems').style.display = show ? 'block' : 'none';
+      const requestId = Number(sel.value);
+      const request = approvedRequests.find(r => r.id === requestId);
+      if (!request) { document.getElementById('matchItems').style.display='none'; return; }
+      const lines = window.requestLines || [];
+      const requestItems = lines.filter(line => line.request?.id === requestId && Number(line.approvedQuantity) > 0);
+      const match = document.getElementById('matchItems');
+      match.style.display='block';
+      match.innerHTML = '<div class="match-row match-row-header"><span>Vật tư yêu cầu</span><span>Cần</span><span>Nguồn hàng</span><span>Khả dụng</span><span>Phân bổ</span></div>' +
+        requestItems.map(line => {
+          const sources = availableDonationItems.filter(d => d.item?.id === line.item?.id);
+          return `<div class="match-row" data-request-item-id="${line.id}"><span>${line.item?.name || ''}</span><span>${line.approvedQuantity} ${line.item?.unit?.symbol || ''}</span>
+            <select class="form-input allocation-source" style="padding:6px;">${sources.map(d=>`<option value="${d.id}">${d.donation?.donationCode} (${Number(d.acceptedQuantity)-Number(d.reservedQuantity)-Number(d.deliveredQuantity)} ${d.item?.unit?.symbol||''})</option>`).join('')}</select>
+            <span>${sources.length ? 'Có hàng' : 'Hết hàng'}</span><input class="allocation-quantity" type="number" min="0" step="0.01" value="${sources.length ? Math.min(Number(line.approvedQuantity),Number(sources[0].acceptedQuantity)-Number(sources[0].reservedQuantity)-Number(sources[0].deliveredQuantity)) : 0}" ${sources.length ? '' : 'disabled'}/></div>`;
+        }).join('');
     }
     function submitAlloc(e) {
       e.preventDefault();
-      document.getElementById('allocModal').style.display='none';
-      alert('Phân bổ được tạo thành công! Mã: ALLOC-2026-' + (97 + Math.floor(Math.random()*10)));
+      const form = e.currentTarget;
+      const requestId = Number(document.getElementById('allocationRequest').value);
+      const items = Array.from(document.querySelectorAll('#matchItems [data-request-item-id]')).map(row => ({
+        requestItemId:Number(row.dataset.requestItemId), donationItemId:Number(row.querySelector('.allocation-source').value),
+        quantity:Number(row.querySelector('.allocation-quantity').value)
+      })).filter(i => i.donationItemId && i.quantity > 0);
+      const note = form.querySelector('textarea').value;
+      CoordAPI.post('/allocations', { requestId, note, items }).then(async created => {
+        document.getElementById('allocModal').style.display='none'; alert(`Đã tạo phân bổ ${created.allocationCode}.`); await loadAllocations();
+      }).catch(CoordAPI.error);
     }
 
     document.querySelectorAll('.modal-overlay').forEach(el => {
       el.addEventListener('click', e => { if(e.target===el) el.style.display='none'; });
     });
+    Promise.all([CoordAPI.get('/request-items')]).then(([lines]) => { window.requestLines=lines; return loadAllocations(); }).catch(CoordAPI.error);
   </script>
 </body>
 </html>

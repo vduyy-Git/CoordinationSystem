@@ -1,3 +1,14 @@
+-- DESTRUCTIVE RESET: running this file deletes the existing CoordinationDB and all its data.
+USE master;
+GO
+
+IF DB_ID(N'CoordinationDB') IS NOT NULL
+BEGIN
+    ALTER DATABASE CoordinationDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE CoordinationDB;
+END;
+GO
+
 CREATE DATABASE CoordinationDB;
 GO
 
@@ -11,13 +22,25 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
     avatar NVARCHAR(500),
+    citizen_id VARCHAR(20),
+    birth_date DATE,
+    address NVARCHAR(500),
+    ward NVARCHAR(100),
+    beneficiary_group NVARCHAR(100),
+    situation_description NVARCHAR(MAX),
     status VARCHAR(30) NOT NULL DEFAULT 'ACTIVE',
     created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
     updated_at DATETIME2,
 
     CONSTRAINT CK_users_status
-        CHECK (status IN ('ACTIVE', 'INACTIVE', 'LOCKED'))
+        CHECK (status IN ('ACTIVE', 'INACTIVE', 'LOCKED')),
+
+    CONSTRAINT CK_users_citizen_id
+        CHECK (citizen_id IS NULL OR (LEN(citizen_id) = 12 AND citizen_id NOT LIKE '%[^0-9]%'))
 );
+GO
+
+CREATE UNIQUE INDEX UX_users_citizen_id ON users(citizen_id) WHERE citizen_id IS NOT NULL;
 GO
 
 -- 2. ROLES
@@ -294,6 +317,7 @@ CREATE TABLE shipments (
     tracking_url NVARCHAR(1000),
     pickup_address NVARCHAR(500) NOT NULL,
     delivery_address NVARCHAR(500) NOT NULL,
+    note NVARCHAR(MAX),
     status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
     created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
     picked_up_at DATETIME2,
@@ -356,6 +380,8 @@ CREATE TABLE delivery_confirmations (
     confirmation_code VARCHAR(100),
     image_url NVARCHAR(1000),
     note NVARCHAR(MAX),
+    delivery_condition VARCHAR(30),
+    rating INT,
     confirmed_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
 
     CONSTRAINT FK_delivery_confirmations_shipments
@@ -363,6 +389,52 @@ CREATE TABLE delivery_confirmations (
 
     CONSTRAINT FK_delivery_confirmations_users
         FOREIGN KEY (recipient_id) REFERENCES users(id)
+);
+GO
+
+-- 22. SOCIAL SERVICES AND CITIZEN REGISTRATIONS
+CREATE TABLE social_services (
+    id BIGINT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(150) NOT NULL,
+    description NVARCHAR(MAX),
+    service_type VARCHAR(50) NOT NULL,
+    service_area NVARCHAR(150),
+    contact_phone VARCHAR(20),
+    status VARCHAR(30) NOT NULL DEFAULT 'ACTIVE',
+    CONSTRAINT CK_social_services_status CHECK (status IN ('ACTIVE', 'INACTIVE'))
+);
+GO
+
+CREATE TABLE service_registrations (
+    id BIGINT IDENTITY(1,1) PRIMARY KEY,
+    service_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    request_details NVARCHAR(MAX),
+    status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    CONSTRAINT FK_service_registrations_service FOREIGN KEY (service_id) REFERENCES social_services(id),
+    CONSTRAINT FK_service_registrations_user FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT CK_service_registrations_status CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'COMPLETED'))
+);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_service_registrations_user_created' AND object_id = OBJECT_ID('dbo.service_registrations'))
+    CREATE INDEX IX_service_registrations_user_created ON service_registrations(user_id, created_at DESC);
+GO
+
+CREATE TABLE staff_registrations (
+    id BIGINT IDENTITY(1,1) PRIMARY KEY,
+    full_name NVARCHAR(150) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    phone VARCHAR(20),
+    department NVARCHAR(150) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
+    reviewed_by BIGINT,
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    reviewed_at DATETIME2,
+    CONSTRAINT FK_staff_registrations_reviewer FOREIGN KEY (reviewed_by) REFERENCES users(id),
+    CONSTRAINT CK_staff_registrations_status CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED'))
 );
 GO
 
@@ -423,65 +495,6 @@ CREATE TABLE attachments (
 );
 GO
 
--- -- Tài khoản
--- CREATE INDEX IX_users_email
--- ON users(email);
-
--- -- Nguồn cung
--- CREATE INDEX IX_donations_donor
--- ON donations(donor_id);
-
--- CREATE INDEX IX_donations_status
--- ON donations(status);
-
--- CREATE INDEX IX_donation_items_donation
--- ON donation_items(donation_id);
-
--- CREATE INDEX IX_donation_items_item
--- ON donation_items(item_id);
-
--- -- Ảnh minh chứng
--- CREATE INDEX IX_donation_images_donation
--- ON donation_images(donation_id);
-
--- -- Yêu cầu hỗ trợ
--- CREATE INDEX IX_assistance_requests_recipient
--- ON assistance_requests(recipient_id);
-
--- CREATE INDEX IX_assistance_requests_status
--- ON assistance_requests(status);
-
--- CREATE INDEX IX_request_items_request
--- ON request_items(request_id);
-
--- -- Phân bổ
--- CREATE INDEX IX_allocations_request
--- ON allocations(request_id);
-
--- CREATE INDEX IX_allocation_items_donation
--- ON allocation_items(donation_item_id);
-
--- CREATE INDEX IX_allocation_items_request
--- ON allocation_items(request_item_id);
-
--- -- Vận chuyển
--- CREATE INDEX IX_shipments_status
--- ON shipments(status);
-
--- CREATE INDEX IX_shipments_tracking
--- ON shipments(tracking_code);
-
--- CREATE INDEX IX_shipment_events_shipment
--- ON shipment_events(shipment_id, created_at);
-
--- CREATE INDEX IX_shipment_items_shipment
--- ON shipment_items(shipment_id);
-
--- -- Lịch sử biến động vật tư
--- CREATE INDEX IX_supply_movements_donation_item
--- ON supply_movements(donation_item_id, created_at);
--- GO
-
 -- Đơn vị tính
 INSERT INTO units (unit_name, symbol)
 VALUES
@@ -513,18 +526,32 @@ VALUES
 GO
 
 -- Indexes for common ownership, status, and audit queries
-CREATE INDEX IX_donations_donor_created ON donations(donor_id, created_at DESC);
-CREATE INDEX IX_donations_status_created ON donations(status, created_at DESC);
-CREATE INDEX IX_donation_items_donation ON donation_items(donation_id);
-CREATE INDEX IX_donation_items_item ON donation_items(item_id);
-CREATE INDEX IX_assistance_requests_recipient_created ON assistance_requests(recipient_id, created_at DESC);
-CREATE INDEX IX_assistance_requests_status_created ON assistance_requests(status, created_at DESC);
-CREATE INDEX IX_request_items_request ON request_items(request_id);
-CREATE INDEX IX_allocations_request ON allocations(request_id);
-CREATE INDEX IX_allocation_items_request_item ON allocation_items(request_item_id);
-CREATE INDEX IX_allocation_items_donation_item ON allocation_items(donation_item_id);
-CREATE INDEX IX_shipments_status_created ON shipments(status, created_at DESC);
-CREATE INDEX IX_shipment_items_shipment ON shipment_items(shipment_id);
-CREATE INDEX IX_shipment_events_shipment_created ON shipment_events(shipment_id, created_at DESC);
-CREATE INDEX IX_supply_movements_item_created ON supply_movements(donation_item_id, created_at DESC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_donations_donor_created' AND object_id = OBJECT_ID('dbo.donations'))
+    CREATE INDEX IX_donations_donor_created ON donations(donor_id, created_at DESC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_donations_status_created' AND object_id = OBJECT_ID('dbo.donations'))
+    CREATE INDEX IX_donations_status_created ON donations(status, created_at DESC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_donation_items_donation' AND object_id = OBJECT_ID('dbo.donation_items'))
+    CREATE INDEX IX_donation_items_donation ON donation_items(donation_id);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_donation_items_item' AND object_id = OBJECT_ID('dbo.donation_items'))
+    CREATE INDEX IX_donation_items_item ON donation_items(item_id);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_assistance_requests_recipient_created' AND object_id = OBJECT_ID('dbo.assistance_requests'))
+    CREATE INDEX IX_assistance_requests_recipient_created ON assistance_requests(recipient_id, created_at DESC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_assistance_requests_status_created' AND object_id = OBJECT_ID('dbo.assistance_requests'))
+    CREATE INDEX IX_assistance_requests_status_created ON assistance_requests(status, created_at DESC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_request_items_request' AND object_id = OBJECT_ID('dbo.request_items'))
+    CREATE INDEX IX_request_items_request ON request_items(request_id);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_allocations_request' AND object_id = OBJECT_ID('dbo.allocations'))
+    CREATE INDEX IX_allocations_request ON allocations(request_id);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_allocation_items_request_item' AND object_id = OBJECT_ID('dbo.allocation_items'))
+    CREATE INDEX IX_allocation_items_request_item ON allocation_items(request_item_id);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_allocation_items_donation_item' AND object_id = OBJECT_ID('dbo.allocation_items'))
+    CREATE INDEX IX_allocation_items_donation_item ON allocation_items(donation_item_id);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_shipments_status_created' AND object_id = OBJECT_ID('dbo.shipments'))
+    CREATE INDEX IX_shipments_status_created ON shipments(status, created_at DESC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_shipment_items_shipment' AND object_id = OBJECT_ID('dbo.shipment_items'))
+    CREATE INDEX IX_shipment_items_shipment ON shipment_items(shipment_id);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_shipment_events_shipment_created' AND object_id = OBJECT_ID('dbo.shipment_events'))
+    CREATE INDEX IX_shipment_events_shipment_created ON shipment_events(shipment_id, created_at DESC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_supply_movements_item_created' AND object_id = OBJECT_ID('dbo.supply_movements'))
+    CREATE INDEX IX_supply_movements_item_created ON supply_movements(donation_item_id, created_at DESC);
 GO

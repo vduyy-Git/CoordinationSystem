@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "users")
@@ -27,6 +28,24 @@ public class User {
 
     @Column(length = 20)
     private String phone;
+
+    @Column(name = "citizen_id", length = 20)
+    private String citizenId;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
+    @Column(length = 500)
+    private String address;
+
+    @Column(length = 100)
+    private String ward;
+
+    @Column(name = "beneficiary_group", length = 100)
+    private String beneficiaryGroup;
+
+    @Column(name = "situation_description", columnDefinition = "nvarchar(max)")
+    private String situationDescription;
 
     @Column(length = 500)
     private String avatar;

@@ -34,6 +34,7 @@ public class UserService {
     }
 
     public User create(User entity) {
+        entity.setCitizenId(normalizeCitizenId(entity.getCitizenId()));
         if (entity.getPassword() == null || entity.getPassword().length() < 8) {
             throw new com.coordinationsystem.exception.BadRequestException("Mật khẩu phải có ít nhất 8 ký tự");
         }
@@ -46,6 +47,9 @@ public class UserService {
         entity.setEmail(entity.getEmail().trim().toLowerCase(Locale.ROOT));
         if (repository.existsByEmailIgnoreCase(entity.getEmail())) {
             throw new com.coordinationsystem.exception.ConflictException("Email đã được sử dụng");
+        }
+        if (entity.getCitizenId() != null && repository.existsByCitizenId(entity.getCitizenId())) {
+            throw new com.coordinationsystem.exception.ConflictException("CCCD đã được sử dụng");
         }
         entity.setPassword(passwordEncoder.encode(entity.getPassword()));
         entity.setStatus("ACTIVE");
@@ -60,9 +64,14 @@ public class UserService {
         }
         entity.setEmail(entity.getEmail().trim().toLowerCase(Locale.ROOT));
         User existing = getById(id);
+        entity.setCitizenId(normalizeCitizenId(entity.getCitizenId()));
         if (entity.getStatus() == null) entity.setStatus(existing.getStatus());
         if (!existing.getEmail().equalsIgnoreCase(entity.getEmail()) && repository.existsByEmailIgnoreCase(entity.getEmail())) {
             throw new com.coordinationsystem.exception.ConflictException("Email đã được sử dụng");
+        }
+        if (entity.getCitizenId() != null && !entity.getCitizenId().equals(existing.getCitizenId())
+                && repository.existsByCitizenId(entity.getCitizenId())) {
+            throw new com.coordinationsystem.exception.ConflictException("CCCD đã được sử dụng");
         }
         if (entity.getPassword() != null && !entity.getPassword().isBlank()) {
             if (entity.getPassword().length() < 8) throw new com.coordinationsystem.exception.BadRequestException("Mật khẩu phải có ít nhất 8 ký tự");
@@ -85,5 +94,14 @@ public class UserService {
 
     private void setEntityId(User entity, Long id) {
         new BeanWrapperImpl(entity).setPropertyValue("id", id);
+    }
+
+    private String normalizeCitizenId(String value) {
+        if (value == null || value.isBlank()) return null;
+        String normalized = value.trim();
+        if (!normalized.matches("[0-9]{12}")) {
+            throw new com.coordinationsystem.exception.BadRequestException("CCCD phải gồm đúng 12 chữ số");
+        }
+        return normalized;
     }
 }

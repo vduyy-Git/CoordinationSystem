@@ -3,6 +3,7 @@ package com.coordinationsystem.controller;
 import com.coordinationsystem.dtoresponse.ApiResponse;
 import com.coordinationsystem.model.AssistanceRequest;
 import com.coordinationsystem.dtorequest.CreateAssistanceRequest;
+import com.coordinationsystem.dtorequest.PartialApprovalRequest;
 import com.coordinationsystem.service.AssistanceRequestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,6 +74,13 @@ public class AssistanceRequestController {
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     public ApiResponse<AssistanceRequest> reject(@PathVariable Long id, Authentication authentication) {
         return ApiResponse.success("Đã từ chối yêu cầu hỗ trợ", service.decide(id, authentication.getName(), false));
+    }
+
+    @PostMapping("/{id}/approve-partial")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
+    public ApiResponse<AssistanceRequest> partiallyApprove(@PathVariable Long id, Authentication authentication,
+                                                            @Valid @RequestBody PartialApprovalRequest request) {
+        return ApiResponse.success("Đã duyệt một phần yêu cầu", service.partiallyApprove(id, authentication.getName(), request));
     }
 
     @PostMapping("/{id}/cancel")

@@ -74,9 +74,10 @@ export default function AuthModal({ isOpen, onClose, initialRole = 'citizen', in
       justifyContent: 'center',
       zIndex: 9999,
       padding: '16px'
-    }} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    }}>
       <div style={{
         background: '#081424',
+        position: 'relative',
         border: '1.5px solid rgba(212, 175, 55, 0.45)',
         boxShadow: '0 24px 60px rgba(0, 0, 0, 0.65)',
         borderRadius: '16px',
@@ -86,10 +87,24 @@ export default function AuthModal({ isOpen, onClose, initialRole = 'citizen', in
         overflow: 'hidden',
         animation: 'modalSlideIn 0.25s ease'
       }}>
+        <button onClick={onClose} aria-label="Trở về trang trước" title="Trở về" style={{
+          position: 'absolute',
+          top: '12px',
+          left: '12px',
+          right: 'auto',
+          zIndex: 2,
+          background: 'transparent',
+          border: 'none',
+          color: '#F9F3E8',
+          width: '32px',
+          height: '32px',
+          cursor: 'pointer',
+          fontSize: '1.5rem'
+        }}>🡠</button>
         {/* Header */}
         <div style={{
           background: 'linear-gradient(135deg, rgba(8,20,36,0.98), rgba(18,42,70,0.95))',
-          padding: '20px 24px',
+          padding: '28px 24px 20px 56px',
           borderBottom: '1px solid rgba(212,175,55,0.3)',
           display: 'flex',
           justifyContent: 'space-between',
@@ -109,16 +124,6 @@ export default function AuthModal({ isOpen, onClose, initialRole = 'citizen', in
               Cổng Điều phối An sinh Xã hội & Cứu trợ trực tuyến
             </p>
           </div>
-          <button onClick={onClose} style={{
-            background: 'rgba(255,255,255,0.08)',
-            border: 'none',
-            color: '#F9F3E8',
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            cursor: 'pointer',
-            fontSize: '1rem'
-          }}>✕</button>
         </div>
 
         <div style={{ padding: '20px 24px', maxHeight: '80vh', overflowY: 'auto' }}>
@@ -547,46 +552,6 @@ export default function AuthModal({ isOpen, onClose, initialRole = 'citizen', in
             </form>
           )}
 
-          {/* Quick Demo Access Mode */}
-          <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(212,175,55,0.2)', textAlign: 'center' }}>
-            <div style={{ fontSize: '0.74rem', color: 'rgba(249,243,232,0.65)', textTransform: 'uppercase', fontWeight: '700', marginBottom: '8px' }}>
-              Trải nghiệm nhanh không cần mật khẩu (Demo):
-            </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={() => { window.location.href = 'citizen/dashboard.html'; }}
-                style={{
-                  flex: 1,
-                  padding: '8px',
-                  borderRadius: '6px',
-                  border: '1px solid rgba(74,122,66,0.6)',
-                  background: 'rgba(74,122,66,0.15)',
-                  color: '#86efac',
-                  fontSize: '0.8rem',
-                  fontWeight: '700',
-                  cursor: 'pointer'
-                }}
-              >
-                👤 Vào Cổng Người Dân
-              </button>
-              <button
-                onClick={() => { window.location.href = 'admin/dashboard.html'; }}
-                style={{
-                  flex: 1,
-                  padding: '8px',
-                  borderRadius: '6px',
-                  border: '1px solid rgba(212,175,55,0.6)',
-                  background: 'rgba(212,175,55,0.15)',
-                  color: '#F3E5AB',
-                  fontSize: '0.8rem',
-                  fontWeight: '700',
-                  cursor: 'pointer'
-                }}
-              >
-                🏛 Vào Cổng Admin
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

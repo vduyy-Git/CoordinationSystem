@@ -27,15 +27,12 @@
       </a>
       <a class="sidebar-item " href="requests.html">
         <span class="si-icon">📤</span> Gửi yêu cầu hỗ trợ
-        <span class="si-badge">Mới</span>
       </a>
       <a class="sidebar-item " href="tracking.html">
         <span class="si-icon">🔍</span> Theo dõi yêu cầu
-        <span class="si-badge">2</span>
       </a>
       <a class="sidebar-item " href="feedback.html">
         <span class="si-icon">🔔</span> Thông báo &amp; Phản hồi
-        <span class="si-badge" style="background:var(--red);color:#fff;">1</span>
       </a>
       <div class="sidebar-section" style="margin-top:14px;"></div>
       <a class="sidebar-item" href="../index.html" style="color:rgba(255,255,255,0.7); font-weight:600;">
@@ -47,10 +44,10 @@
     </div>
     <div class="sidebar-footer">
       <div class="sidebar-user" onclick="location.href='profile.html'">
-        <div class="sidebar-avatar">LH</div>
+        <div class="sidebar-avatar" data-profile-initials>…</div>
         <div class="sidebar-user-info">
-          <div class="sidebar-user-name">Lê Thị Hoa</div>
-          <div class="sidebar-user-role">Người dân (Tổ 2, KP.3)</div>
+          <div class="sidebar-user-name">Đang tải hồ sơ…</div>
+          <div class="sidebar-user-role">Người dân</div>
         </div>
       </div>
     </div>
@@ -64,7 +61,7 @@
         🚨 Gửi Yêu Cầu Hỗ Trợ
       </a>
       <button class="btn btn-ghost btn-sm" onclick="location.href='feedback.html'" title="Thông báo">
-        🔔 Thông báo <span class="badge badge-urgent" style="font-size:0.65rem;">1</span>
+        🔔 Thông báo
       </button>
       <button class="btn btn-ghost btn-sm" onclick="location.href='../index.html'" title="Trang chủ">
         🏠 Trang chủ
@@ -80,7 +77,7 @@
           <p>Quản lý thông tin định danh, hoàn cảnh gia đình, nhóm đối tượng an sinh và bảo mật</p>
         </div>
         <div style="display:flex; gap:8px;">
-          <button class="btn btn-primary" onclick="alert('Lưu thay đổi hồ sơ thành công!');">💾 Lưu cập nhật</button>
+          <button class="btn btn-primary" type="button" onclick="document.querySelector('#profileForm')?.requestSubmit();">💾 Lưu cập nhật</button>
         </div>
       </div>
 
@@ -88,20 +85,19 @@
         <!-- Avatar & Summary Card -->
         <div class="card" style="text-align:center;">
           <div class="card-body">
-            <div style="width:84px; height:84px; border-radius:50%; background:var(--gradient-moss); color:#fff; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:800; margin:0 auto 14px; box-shadow:0 4px 16px rgba(74,122,66,0.3);">
-              LH
+            <div data-profile-initials style="width:84px; height:84px; border-radius:50%; background:var(--gradient-moss); color:#fff; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:800; margin:0 auto 14px; box-shadow:0 4px 16px rgba(74,122,66,0.3);">
+              …
             </div>
-            <h3 style="font-size:1.2rem; font-weight:800; color:var(--text-dark);">Lê Thị Hoa</h3>
-            <p style="font-size:0.8rem; color:var(--text-light); margin-top:2px;">CCCD: 079198002345</p>
+            <h3 data-profile-name style="font-size:1.2rem; font-weight:800; color:var(--text-dark);">Đang tải hồ sơ…</h3>
+            <p style="font-size:0.8rem; color:var(--text-light); margin-top:2px;">CCCD: <span data-profile-citizen-id>Chưa cập nhật</span></p>
             <div style="margin:12px 0;">
-              <span class="badge badge-approved">ĐÃ ĐỊNH DANH ĐIỆN TỬ</span>
+              <span class="badge" data-profile-status>Trạng thái hồ sơ</span>
             </div>
             <div class="divider-gold"></div>
             <div style="text-align:left; font-size:0.82rem; color:var(--text-mid); line-height:1.7;">
-              <div>📍 <strong>Tổ 2, Khu phố 3, Phường Mỹ Hòa</strong></div>
-              <div>📱 <strong>0912.345.678</strong></div>
-              <div>👥 <strong>Nhân khẩu trong hộ:</strong> 4 người</div>
-              <div>🏷 <strong>Nhóm đối tượng:</strong> Người cao tuổi, Hộ khó khăn</div>
+              <div>📍 <strong data-profile-address>Chưa cập nhật địa chỉ</strong></div>
+              <div>📱 <strong data-profile-phone>Chưa cập nhật số điện thoại</strong></div>
+              <div>🏷 <strong>Nhóm đối tượng:</strong> <span data-profile-group>Chưa cập nhật</span></div>
             </div>
           </div>
         </div>
@@ -112,56 +108,45 @@
             <div class="card-title">📝 Cập Nhật Thông Tin Cá Nhân & Hộ Gia Đình</div>
           </div>
           <div class="card-body">
-            <form onsubmit="event.preventDefault(); alert('Cập nhật thông tin thành công!');">
+            <form id="profileForm">
               <div class="grid-2">
                 <div class="form-group">
                   <label class="form-label">Họ và tên</label>
-                  <input type="text" class="form-control" value="Lê Thị Hoa" required/>
+                  <input id="profileFullName" type="text" class="form-control" autocomplete="name" required/>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Số Căn cước công dân (CCCD)</label>
-                  <input type="text" class="form-control" value="079198002345" required/>
+                  <input id="profileCitizenId" type="text" class="form-control" inputmode="numeric" minlength="12" maxlength="12" pattern="[0-9]{12}" title="CCCD phải gồm đúng 12 chữ số" autocomplete="off" required/>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Số điện thoại liên lạc</label>
-                  <input type="tel" class="form-control" value="0912345678" required/>
+                  <input id="profilePhone" type="tel" class="form-control" autocomplete="tel" required/>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Ngày sinh</label>
-                  <input type="date" class="form-control" value="1982-05-18"/>
+                  <input id="profileBirthDate" type="date" class="form-control"/>
                 </div>
               </div>
 
               <div class="form-group">
                 <label class="form-label">Địa chỉ nơi cư trú hiện tại</label>
-                <input type="text" class="form-control" value="Số 45/12 đường Mỹ Hòa, Tổ 2, Khu phố 3" required/>
+                <input id="profileAddress" type="text" class="form-control" autocomplete="street-address" required/>
               </div>
 
               <div class="grid-2">
                 <div class="form-group">
                   <label class="form-label">Khu vực / Tổ dân phố</label>
-                  <select class="form-control">
-                    <option selected>Tổ dân phố 2</option>
-                    <option>Tổ dân phố 1</option>
-                    <option>Tổ dân phố 3</option>
-                    <option>Tổ dân phố 4</option>
-                  </select>
+                  <input id="profileWard" type="text" class="form-control" placeholder="Nhập khu vực hoặc tổ dân phố"/>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Phân nhóm đối tượng an sinh</label>
-                  <select class="form-control">
-                    <option selected>Có người cao tuổi trong hộ</option>
-                    <option>Hộ nghèo / Cận nghèo</option>
-                    <option>Có người khuyết tật</option>
-                    <option>Có trẻ em dưới 6 tuổi</option>
-                    <option>Phụ nữ mang thai / đơn thân</option>
-                  </select>
+                  <input id="profileBeneficiaryGroup" type="text" class="form-control" placeholder="Nhập nhóm an sinh"/>
                 </div>
               </div>
 
               <div class="form-group">
                 <label class="form-label">Mô tả hoàn cảnh khó khăn cụ thể</label>
-                <textarea class="form-control">Hộ gia đình có mẹ già 78 tuổi bị huyết áp cao, chồng làm thuê thu nhập bấp bênh, nhà ở vùng thấp trũng ngập lụt mỗi mùa mưa.</textarea>
+                <textarea id="profileSituation" class="form-control" placeholder="Mô tả hoàn cảnh gia đình nếu cần"></textarea>
               </div>
 
               <div style="display:flex; justify-content:flex-end; gap:10px;">
@@ -173,6 +158,8 @@
       </div>
     </div>
   </main>
+  <script src="../api-client.js"></script>
+  <script src="api-bindings.js"></script>
 </body>
 </html>
 

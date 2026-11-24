@@ -371,6 +371,7 @@
     </div>
   </main>
 
+  <script src="../../api-client.js"></script>
   <script>
     // Render bar chart
     const data = [
@@ -382,6 +383,18 @@
       { label: 'T7', don: 62, req: 48, ship: 38 },
       { label: 'CN', don: 47, req: 35, ship: 28 },
     ];
+    async function loadDashboardSummary() {
+      if (!CoordAPI.requireSession('../../index.html')) return;
+      const summary = await CoordAPI.get('/dashboard/summary');
+      const stats = document.querySelectorAll('.stat-value');
+      if (stats.length >= 4) {
+        stats[0].textContent = summary.donations;
+        stats[1].textContent = summary.requests;
+        stats[2].textContent = summary.allocations;
+        stats[3].textContent = summary.shipments;
+      }
+    }
+    loadDashboardSummary().catch(CoordAPI.error);
     const max = 70;
     const wrap = document.getElementById('chartGroup');
     wrap.style.display = 'flex'; wrap.style.gap = '12px';

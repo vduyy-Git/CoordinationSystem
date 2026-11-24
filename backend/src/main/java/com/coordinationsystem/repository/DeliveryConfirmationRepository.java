@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface DeliveryConfirmationRepository extends JpaRepository<DeliveryConfirmation, Long> {
     List<DeliveryConfirmation> findByRecipient_EmailIgnoreCaseOrderByConfirmedAtDesc(String email);
+    boolean existsByShipment_Id(Long shipmentId);
 }

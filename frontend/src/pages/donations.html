@@ -202,9 +202,9 @@
           <div class="form-group">
             <label class="form-label">📦 Loại quyên góp</label>
             <select class="form-input">
-              <option>DONATED — Quyên góp</option>
-              <option>SPONSORED — Tài trợ</option>
-              <option>PROVIDED — Cung cấp</option>
+              <option value="DONATED">DONATED — Quyên góp</option>
+              <option value="SPONSORED">SPONSORED — Tài trợ</option>
+              <option value="PROVIDED">PROVIDED — Cung cấp</option>
             </select>
           </div>
           <div class="form-group">
@@ -231,17 +231,17 @@
         <div id="itemsContainer">
           <div class="item-row">
             <select class="form-input" style="padding:8px;">
-              <option>Mì ăn liền (thùng)</option>
-              <option>Gạo (kg)</option>
-              <option>Nước uống đóng chai (chai)</option>
-              <option>Khẩu trang y tế (hộp)</option>
-              <option>Quần áo (bộ)</option>
+              <option value="1">Mì ăn liền (thùng)</option>
+              <option value="2">Gạo (kg)</option>
+              <option value="3">Nước uống đóng chai (chai)</option>
+              <option value="4">Khẩu trang y tế (hộp)</option>
+              <option value="5">Quần áo (bộ)</option>
             </select>
             <input type="number" class="form-input" style="padding:8px;" placeholder="0" min="1" />
             <select class="form-input" style="padding:8px;">
-              <option>Mới</option>
-              <option>Còn tốt</option>
-              <option>Đã qua sử dụng</option>
+              <option value="NEW">Mới</option>
+              <option value="GOOD">Còn tốt</option>
+              <option value="USED">Đã qua sử dụng</option>
             </select>
             <button type="button" class="btn-sm btn-sm-reject" style="padding:8px 10px;">✕</button>
           </div>
@@ -284,8 +284,11 @@
     </div>
   </div>
 
+  <script src="../../api-client.js"></script>
   <script>
-    const donations = [
+    let donations = [];
+    let catalogItems = [];
+    const legacyDonations = [
       { code:'DON-2026-0247', type:'DONATED', status:'PENDING', address:'123 Lê Lợi, Q.1, TP.HCM', donor:'Nguyễn Văn A', items:[{name:'Mì ăn liền',qty:50,unit:'thùng'},{name:'Gạo',qty:100,unit:'kg'}], time:'2 phút trước' },
       { code:'DON-2026-0246', type:'SPONSORED', status:'APPROVED', address:'45 Nguyễn Trãi, Q.5, TP.HCM', donor:'Công ty ABC', items:[{name:'Nước uống đóng chai',qty:200,unit:'chai'},{name:'Khẩu trang y tế',qty:30,unit:'hộp'}], time:'1 giờ trước' },
       { code:'DON-2026-0245', type:'DONATED', status:'COMPLETED', address:'88 Điện Biên Phủ, Bình Thạnh', donor:'Trần Thị B', items:[{name:'Quần áo',qty:20,unit:'bộ'}], time:'3 giờ trước' },
@@ -315,7 +318,7 @@
             <span class="badge ${statusMap[d.status].cls}">${statusMap[d.status].label}</span>
           </div>
           <div class="donation-items-preview">
-            ${d.items.map(it=>`<span class="item-chip">${it.name}: ${it.qty} ${it.unit}</span>`).join('')}
+              ${(d.items || []).map(it=>`<span class="item-chip">${it.name}: ${it.qty} ${it.unit}</span>`).join('')}
           </div>
           <div class="donation-footer">
             <div class="donor-info">
@@ -366,8 +369,35 @@
 
     function openCreateModal() { document.getElementById('createModal').style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function approveDonation(code) { alert(`Đã duyệt: ${code}`); }
-    function rejectDonation(code) { alert(`Từ chối: ${code}`); }
+    async function loadDonations() {
+      if (!CoordAPI.requireSession('../../index.html')) return;
+      const [data, lines, items] = await Promise.all([CoordAPI.get('/donations'), CoordAPI.get('/donation-items'), CoordAPI.get('/items')]);
+      catalogItems = items;
+      const byDonation = new Map();
+      lines.forEach(line => {
+        const key = line.donation?.id;
+        if (!byDonation.has(key)) byDonation.set(key, []);
+        byDonation.get(key).push({ name:line.item?.name || 'Vật tư', qty:line.offeredQuantity, unit:line.item?.unit?.symbol || '' });
+      });
+      donations = data.map(d => ({ id:d.id, code:d.donationCode, type:d.donationType, status:d.status,
+        address:d.pickupAddress, donor:d.donor?.fullName || d.donor?.email || '', items:byDonation.get(d.id) || [], time:d.createdAt || '' }));
+      populateDonationItems(); renderDonations();
+    }
+
+    function populateDonationItems() {
+      document.querySelectorAll('#itemsContainer .item-row select:first-child').forEach(select => {
+        select.innerHTML = catalogItems.map(item => `<option value="${item.id}">${item.name} (${item.unit?.symbol || ''})</option>`).join('');
+      });
+    }
+
+    async function approveDonation(code) { await decideDonation(code, 'approve'); }
+    async function rejectDonation(code) { await decideDonation(code, 'reject'); }
+    async function decideDonation(code, action) {
+      const donation = donations.find(item => item.code === code);
+      if (!donation) return;
+      try { await CoordAPI.post(`/donations/${donation.id}/${action}`, {}); await loadDonations(); }
+      catch (error) { CoordAPI.error(error); }
+    }
 
     function addItemRow() {
       const c = document.getElementById('itemsContainer');
@@ -375,11 +405,10 @@
       div.className = 'item-row';
       div.innerHTML = `
         <select class="form-input" style="padding:8px;">
-          <option>Mì ăn liền (thùng)</option><option>Gạo (kg)</option>
-          <option>Nước uống (chai)</option><option>Khẩu trang (hộp)</option><option>Quần áo (bộ)</option>
+          ${catalogItems.map(item => `<option value="${item.id}">${item.name} (${item.unit?.symbol || ''})</option>`).join('')}
         </select>
         <input type="number" class="form-input" style="padding:8px;" placeholder="0" min="1"/>
-        <select class="form-input" style="padding:8px;"><option>Mới</option><option>Còn tốt</option><option>Đã qua sử dụng</option></select>
+        <select class="form-input" style="padding:8px;"><option value="NEW">Mới</option><option value="GOOD">Còn tốt</option><option value="USED">Đã qua sử dụng</option></select>
         <button type="button" class="btn-sm btn-sm-reject" onclick="this.closest('.item-row').remove()">✕</button>
       `;
       c.appendChild(div);
@@ -387,8 +416,18 @@
 
     function submitDonation(e) {
       e.preventDefault();
-      closeModal('createModal');
-      alert('Hồ sơ quyên góp đã được gửi thành công! Mã: DON-2026-' + (248 + Math.floor(Math.random()*10)));
+      const form = e.currentTarget;
+      const type = form.querySelector('select').value;
+      const inputs = form.querySelectorAll('input[type="text"]');
+      const note = form.querySelector('textarea').value;
+      const items = Array.from(form.querySelectorAll('#itemsContainer .item-row')).map(row => ({
+        itemId:Number(row.querySelector('select:first-child').value),
+        offeredQuantity:Number(row.querySelector('input[type="number"]').value),
+        itemCondition:row.querySelector('select:last-of-type').value
+      })).filter(item => item.itemId && item.offeredQuantity > 0);
+      CoordAPI.post('/donations', { donationType:type, pickupAddress:inputs[0].value.trim(), note, items })
+        .then(async created => { closeModal('createModal'); form.reset(); alert(`Đã gửi quyên góp ${created.donationCode}.`); await loadDonations(); })
+        .catch(CoordAPI.error);
     }
 
     // Close on overlay click
@@ -396,7 +435,7 @@
       el.addEventListener('click', e => { if(e.target === el) el.style.display = 'none'; });
     });
 
-    renderDonations();
+    loadDonations().catch(CoordAPI.error);
   </script>
 </body>
 </html>
