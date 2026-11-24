@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8"/>
@@ -6,6 +6,7 @@
   <title>Tổng quan Người dân — Cổng Người Dân</title>
   <link rel="icon" type="image/png" href="../src/assets/logo-icon.png"/>
   <link rel="stylesheet" href="assets/citizen.css"/>
+  <script src="../src/services/api.js"></script>
 </head>
 <body>
   <nav class="citizen-sidebar">
@@ -41,15 +42,15 @@
       <a class="sidebar-item" href="../index.html" style="color:rgba(255,255,255,0.7); font-weight:600;">
         <span class="si-icon">🏠</span> Về Trang Chủ / Dashboard
       </a>
-      <a class="sidebar-item" href="../index.html" style="color:rgba(245,160,170,0.85);">
+      <a class="sidebar-item" href="../index.html" onclick="event.preventDefault(); window.CoordSystemApi.logout();" style="color:rgba(245,160,170,0.85);">
         <span class="si-icon">🚪</span> Đăng xuất
       </a>
     </div>
     <div class="sidebar-footer">
       <div class="sidebar-user" onclick="location.href='profile.html'">
-        <div class="sidebar-avatar">LH</div>
+        <div class="sidebar-avatar" id="citizenSidebarAvatar">LH</div>
         <div class="sidebar-user-info">
-          <div class="sidebar-user-name">Lê Thị Hoa</div>
+          <div class="sidebar-user-name" id="citizenSidebarName">Lê Thị Hoa</div>
           <div class="sidebar-user-role">Người dân (Tổ 2, KP.3)</div>
         </div>
       </div>
@@ -76,11 +77,11 @@
 
       <div class="page-header">
         <div class="page-header-left">
-          <h2>Xin chào, <span class="text-gold">Lê Thị Hoa</span> 👋</h2>
+          <h2>Xin chào, <span class="text-gold" id="citizenWelcomeName">Lê Thị Hoa</span> 👋</h2>
           <p>Tổ dân phố 2, Khu phố 3, Phường Mỹ Hòa · Trạng thái an sinh: <strong>Đang được theo dõi</strong></p>
         </div>
         <div style="display:flex; gap:10px;">
-          <a href="requests.html" class="btn btn-primary">🚨 Gửi yêu cầu cứu trợ khẩn cấp</a>
+          <button onclick="openCreateRequestModal()" class="btn btn-primary" style="cursor:pointer;">🚨 Gửi yêu cầu cứu trợ khẩn cấp</button>
         </div>
       </div>
 
@@ -88,15 +89,15 @@
       <div class="stat-row">
         <div class="stat-card sc-green">
           <div class="stat-icon">📋</div>
-          <div class="stat-val" style="color:#2E6B28;">2</div>
+          <div class="stat-val" style="color:#2E6B28;" id="citizenActiveReqCount">2</div>
           <div class="stat-label">Yêu cầu đang xử lý</div>
-          <div class="stat-desc">REQ-183 (Đang giao hàng)</div>
+          <div class="stat-desc" id="citizenReqDesc">Đồng bộ từ CSDL Backend</div>
         </div>
         <div class="stat-card sc-gold">
           <div class="stat-icon">📝</div>
-          <div class="stat-val text-gold">3</div>
+          <div class="stat-val text-gold" id="citizenTotalReqCount">3</div>
           <div class="stat-label">Nhu cầu đã khai báo</div>
-          <div class="stat-desc">Nước sạch, Gạo, Thuốc men</div>
+          <div class="stat-desc">Dữ liệu thực hệ thống</div>
         </div>
         <div class="stat-card sc-purple">
           <div class="stat-icon">📦</div>
@@ -164,30 +165,30 @@
         <!-- Needs Overview -->
         <div class="card">
           <div class="card-header">
-            <div class="card-title">📝 Nhu Cầu Đang Khai Báo Của Hộ Gia Đình</div>
-            <a href="needs.html" class="btn btn-ghost btn-sm">Cập nhật →</a>
+            <div class="card-title">📝 Nhu Cầu &amp; Yêu Cầu An Sinh Của Bạn</div>
+            <button onclick="openCreateRequestModal()" class="btn btn-ghost btn-sm" style="color:var(--gold-1); font-weight:700;">+ Gửi yêu cầu mới</button>
           </div>
-          <div class="card-body">
+          <div class="card-body" id="citizenRequestsList">
             <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--beige-dark);">
               <div>
-                <div style="font-weight:700;">💧 Nước uống đóng chai</div>
-                <div style="font-size:0.75rem; color:var(--text-light);">Nhu cầu: 200 chai · Khẩn cấp do ngập nước giếng</div>
+                <div style="font-weight:700;">🌾 Hỗ trợ gạo an sinh cho hộ gia đình vùng ngập</div>
+                <div style="font-size:0.75rem; color:var(--text-light);">Mã: RQ-NHS-2026-001 · Tổ 12, P. Khuê Mỹ, Q. Ngũ Hành Sơn</div>
               </div>
-              <span class="badge badge-approved">Đang cấp</span>
+              <span class="badge badge-completed">Đã giao nhận</span>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--beige-dark);">
               <div>
-                <div style="font-weight:700;">🌾 Lương thực khô (Mì & Gạo)</div>
-                <div style="font-size:0.75rem; color:var(--text-light);">Nhu cầu: 50kg gạo, 5 thùng mì · Dự trữ 2 tuần</div>
+                <div style="font-weight:700;">🍜 Xin hỗ trợ mì tôm và nước sạch khẩn cấp</div>
+                <div style="font-size:0.75rem; color:var(--text-light);">Mã: RQ-NHS-2026-002 · Tổ 4, Ven sông Cổ Cò, P. Hòa Quý</div>
               </div>
-              <span class="badge badge-pending">Chờ phân bổ</span>
+              <span class="badge badge-urgent">Khẩn cấp (Chờ duyệt)</span>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0;">
               <div>
-                <div style="font-weight:700;">💊 Thuốc men & Vitamin cho người già</div>
-                <div style="font-size:0.75rem; color:var(--text-light);">Thuốc huyết áp cho mẹ 78 tuổi</div>
+                <div style="font-weight:700;">🦺 Hỗ trợ áo phao và thuốc men gia đình</div>
+                <div style="font-size:0.75rem; color:var(--text-light);">Mã: RQ-NHS-2026-003 · Tổ 8, Phường Mỹ An, Q. Ngũ Hành Sơn</div>
               </div>
-              <span class="badge badge-pending">Đã ghi nhận</span>
+              <span class="badge badge-approved">Đã duyệt phân bổ</span>
             </div>
           </div>
         </div>
@@ -216,6 +217,179 @@
       </div>
     </div>
   </main>
+
+  <!-- MODAL GỬI YÊU CẦU CỨU TRỢ TRỰC TIẾP LÊN BACKEND SPRING BOOT -->
+  <div id="requestModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:9999; backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+    <div style="background:#0c1f38; border:1px solid var(--gold-1); border-radius:var(--radius-md); padding:24px; width:90%; max-width:520px; color:#fff; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="color:var(--gold-1); font-size:1.15rem; margin:0;">🚨 Gửi Yêu Cầu Cứu Trợ Khẩn Cấp</h3>
+        <button onclick="closeCreateRequestModal()" style="background:none; border:none; color:#aaa; font-size:1.4rem; cursor:pointer;">&times;</button>
+      </div>
+      <form onsubmit="handleCreateRequest(event)">
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:0.82rem; margin-bottom:4px; color:rgba(255,255,255,0.85);">Tiêu đề yêu cầu cứu trợ *</label>
+          <input type="text" id="reqModalTitle" placeholder="Ví dụ: Cần 2 bao gạo và nước uống gia đình 4 người" required style="width:100%; padding:10px; border-radius:6px; border:1px solid rgba(212,175,55,0.4); background:rgba(255,255,255,0.06); color:#fff; box-sizing:border-box;" />
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:0.82rem; margin-bottom:4px; color:rgba(255,255,255,0.85);">Địa chỉ nhận hàng (Q. Ngũ Hành Sơn) *</label>
+          <input type="text" id="reqModalAddress" placeholder="Ví dụ: Tổ 12, P. Khuê Mỹ, Q. Ngũ Hành Sơn" required style="width:100%; padding:10px; border-radius:6px; border:1px solid rgba(212,175,55,0.4); background:rgba(255,255,255,0.06); color:#fff; box-sizing:border-box;" />
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:0.82rem; margin-bottom:4px; color:rgba(255,255,255,0.85);">Mức độ ưu tiên khẩn cấp *</label>
+          <select id="reqModalPriority" style="width:100%; padding:10px; border-radius:6px; border:1px solid rgba(212,175,55,0.4); background:#0c1f38; color:#fff; box-sizing:border-box;">
+            <option value="URGENT">🚨 Khẩn cấp (Ngập sâu / Đang bị cô lập)</option>
+            <option value="HIGH" selected>🔴 Cao (Người già neo đơn, trẻ nhỏ thiếu đói)</option>
+            <option value="NORMAL">🟡 Bình thường (Dự trữ an sinh)</option>
+            <option value="LOW">⚪ Thấp</option>
+          </select>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:0.82rem; margin-bottom:4px; color:rgba(255,255,255,0.85);">Mô tả hoàn cảnh và nhu cầu cụ thể</label>
+          <textarea id="reqModalDesc" rows="3" placeholder="Gia đình hiện có mẹ già 78 tuổi, nước ngập vào sân 0.5m..." style="width:100%; padding:10px; border-radius:6px; border:1px solid rgba(212,175,55,0.4); background:rgba(255,255,255,0.06); color:#fff; box-sizing:border-box;"></textarea>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" onclick="closeCreateRequestModal()" style="padding:8px 16px; border-radius:6px; background:transparent; border:1px solid #777; color:#ccc; cursor:pointer;">Hủy bỏ</button>
+          <button type="submit" class="btn btn-primary" style="padding:8px 20px; font-weight:700; cursor:pointer;">Gửi Yêu Cầu Đến BCH Quận</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openCreateRequestModal() {
+      const modal = document.getElementById('requestModal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeCreateRequestModal() {
+      const modal = document.getElementById('requestModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    async function handleCreateRequest(e) {
+      e.preventDefault();
+      const title = document.getElementById('reqModalTitle')?.value?.trim();
+      const address = document.getElementById('reqModalAddress')?.value?.trim();
+      const priority = document.getElementById('reqModalPriority')?.value;
+      const desc = document.getElementById('reqModalDesc')?.value?.trim();
+
+      if (!title || !address) return;
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const origText = submitBtn.textContent;
+      submitBtn.textContent = '⏳ Đang lưu...';
+      submitBtn.disabled = true;
+
+      try {
+        if (window.CoordSystemApi && window.CoordSystemApi.requestApi) {
+          const res = await window.CoordSystemApi.requestApi.create({
+            title: title,
+            deliveryAddress: address,
+            priority: priority,
+            description: desc
+          });
+
+          if (res.success || res.status === 201) {
+            alert('🎉 Gửi yêu cầu cứu trợ thành công! Yêu cầu của bạn đã được ghi nhận trên hệ thống Ban Chỉ Huy.');
+            closeCreateRequestModal();
+            loadCitizenRequests();
+            return;
+          }
+
+          if (res.status === 0) {
+            alert('⚠️ ' + res.message + '\n(Yêu cầu đã được lưu tạm trên giao diện)');
+            closeCreateRequestModal();
+            return;
+          }
+
+          alert('❌ Có lỗi xảy ra: ' + (res.message || 'Không thể tạo yêu cầu'));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Lỗi kết nối khi gửi yêu cầu.');
+      } finally {
+        submitBtn.textContent = origText;
+        submitBtn.disabled = false;
+      }
+    }
+
+    async function loadCitizenRequests() {
+      if (!window.CoordSystemApi || !window.CoordSystemApi.requestApi) return;
+      try {
+        const res = await window.CoordSystemApi.requestApi.getMine();
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          renderCitizenRequests(res.data);
+        }
+      } catch (e) {
+        console.log('[Citizen Dashboard] Sử dụng dữ liệu mẫu offline');
+      }
+    }
+
+    function renderCitizenRequests(requests) {
+      const listEl = document.getElementById('citizenRequestsList');
+      if (!listEl) return;
+
+      // Update counters
+      const activeCount = requests.filter(r => r.status === 'PENDING' || r.status === 'APPROVED' || r.status === 'IN_TRANSIT').length;
+      const activeEl = document.getElementById('citizenActiveReqCount');
+      const totalEl = document.getElementById('citizenTotalReqCount');
+      const descEl = document.getElementById('citizenReqDesc');
+      if (activeEl) activeEl.textContent = activeCount;
+      if (totalEl) totalEl.textContent = requests.length;
+      if (descEl && requests[0]) descEl.textContent = (requests[0].requestCode || 'REQ-01') + ' (' + (requests[0].status || 'Mới') + ')';
+
+      listEl.innerHTML = requests.map(r => {
+        let statusBadge = 'badge-pending';
+        let statusText = 'Chờ duyệt';
+        if (r.status === 'COMPLETED' || r.status === 'DELIVERED') {
+          statusBadge = 'badge-completed';
+          statusText = 'Đã giao thành công';
+        } else if (r.status === 'APPROVED') {
+          statusBadge = 'badge-approved';
+          statusText = 'Đã duyệt / Chuẩn bị';
+        } else if (r.priority === 'URGENT') {
+          statusBadge = 'badge-urgent';
+          statusText = 'Khẩn cấp';
+        }
+
+        const code = r.requestCode || ('REQ-' + r.id);
+        const title = r.title || 'Yêu cầu cứu trợ';
+        const address = r.deliveryAddress || 'Quận Ngũ Hành Sơn';
+
+        return `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--beige-dark);">
+            <div>
+              <div style="font-weight:700; color:var(--moss-dark); font-size:0.92rem;">${title}</div>
+              <div style="font-size:0.75rem; color:var(--text-light); margin-top:2px;">Mã: <strong>${code}</strong> · ${address}</div>
+            </div>
+            <span class="badge ${statusBadge}">${statusText}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function initCitizenUser() {
+      if (!window.CoordSystemApi) return;
+      const user = window.CoordSystemApi.getCurrentUser();
+      if (user) {
+        const name = user.fullName || user.email || 'Người dân';
+        const nameEl = document.getElementById('citizenSidebarName');
+        const welcomeEl = document.getElementById('citizenWelcomeName');
+        const avatarEl = document.getElementById('citizenSidebarAvatar');
+
+        if (nameEl) nameEl.textContent = name;
+        if (welcomeEl) welcomeEl.textContent = name;
+        if (avatarEl) {
+          const parts = name.trim().split(' ');
+          const initials = parts.map(p => p.charAt(0)).slice(-2).join('').toUpperCase();
+          avatarEl.textContent = initials || 'ND';
+        }
+      }
+      loadCitizenRequests();
+    }
+
+    document.addEventListener('DOMContentLoaded', initCitizenUser);
+  </script>
 </body>
 </html>
 

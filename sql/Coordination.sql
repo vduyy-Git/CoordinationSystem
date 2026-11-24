@@ -491,25 +491,29 @@ VALUES
 (N'Hộp', N'hộp'),
 (N'Chai', N'chai'),
 (N'Bộ', N'bộ'),
-(N'Lít', N'lít');
+(N'Lít', N'lít'),
+(N'Chiếc', N'chiếc');
 
 -- Danh mục
 INSERT INTO categories (name, description)
 VALUES
-(N'Thực phẩm', N'Các loại thực phẩm thiết yếu'),
-(N'Nước uống', N'Nước uống và đồ uống'),
-(N'Y tế', N'Vật tư và dụng cụ y tế'),
-(N'Quần áo', N'Quần áo và đồ dùng cá nhân'),
-(N'Đồ dùng sinh hoạt', N'Các vật dụng thiết yếu');
+(N'Thực phẩm & Lương thực', N'Gạo, mì ăn liền và thực phẩm khô dự trữ phòng bão lũ'),
+(N'Nước sạch & Đồ uống', N'Nước uống tinh khiết đóng chai và nước sát khuẩn'),
+(N'Y tế & Cứu thương', N'Túi sơ cấp cứu, thuốc men thiết yếu và thiết bị y tế lưu động'),
+(N'Thiết bị & Cứu nạn', N'Ca-nô, áo phao, máy bơm chìm và đèn pin cứu hộ bão lũ'),
+(N'Quần áo & Đồ dùng an sinh', N'Chăn màn, áo ấm và đồ dùng thiết yếu cho người dân');
 
 -- Vật tư mẫu
 INSERT INTO items (category_id, unit_id, name, description)
 VALUES
-(1, 1, N'Mì ăn liền', N'Mì ăn liền đóng thùng'),
-(1, 2, N'Gạo', N'Gạo đóng bao'),
-(2, 5, N'Nước uống đóng chai', N'Nước uống đóng chai'),
-(3, 4, N'Khẩu trang y tế', N'Khẩu trang y tế đóng hộp'),
-(4, 6, N'Quần áo', N'Quần áo sử dụng được');
+(1, 2, N'Gạo trắng ST25', N'Gạo đóng bao 25kg tiêu chuẩn an sinh xã hội Quận Ngũ Hành Sơn'),
+(1, 1, N'Mì tôm Hảo Hảo', N'Mì tôm ăn liền đóng thùng 30 gói, dự trữ phòng chống thiên tai'),
+(2, 5, N'Nước khoáng Lavie 500ml', N'Nước khoáng tinh khiết đóng thùng 24 chai phục vụ vùng ngập mặn/ngập úng'),
+(4, 3, N'Áo phao cứu sinh đạt chuẩn', N'Áo phao xốp có còi báo hiệu, đạt chuẩn PCTT & TKCN'),
+(3, 6, N'Túi thuốc sơ cấp cứu & Vitamin', N'Bộ túi thuốc gia đình gồm bông băng gạc, cồn đỏ, panadol, vitamin C'),
+(4, 8, N'Máy bơm chìm hút ngập lũ', N'Máy bơm công suất lớn giải cứu các điểm ngập úng ven sông Cổ Cò'),
+(4, 3, N'Đèn pin sạc đội đầu & Pin', N'Đèn pin LED chống thấm nước kèm pin sạc dự phòng cứu nạn ban đêm'),
+(4, 8, N'Ca-nô cứu nạn vỏ nhôm', N'Ca-nô cứu hộ tốc độ cao phục vụ sơ tán dân ven biển Non Nước và ven sông');
 GO
 
 -- Indexes for common ownership, status, and audit queries

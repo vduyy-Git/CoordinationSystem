@@ -11,8 +11,8 @@ BEGIN TRY
     DECLARE @AdminRoleId BIGINT = (SELECT TOP (1) id FROM dbo.roles WHERE role_name = 'ADMIN');
     DECLARE @CoordinatorRoleId BIGINT = (SELECT TOP (1) id FROM dbo.roles WHERE role_name = 'COORDINATOR');
     DECLARE @UserRoleId BIGINT = (SELECT TOP (1) id FROM dbo.roles WHERE role_name = 'USER');
-    DECLARE @RiceItemId BIGINT = (SELECT TOP (1) id FROM dbo.items WHERE name = N'Gạo' ORDER BY id);
-    DECLARE @NoodleItemId BIGINT = (SELECT TOP (1) id FROM dbo.items WHERE name = N'Mì ăn liền' ORDER BY id);
+    DECLARE @RiceItemId BIGINT = (SELECT TOP (1) id FROM dbo.items WHERE name LIKE N'%Gạo%' ORDER BY id);
+    DECLARE @NoodleItemId BIGINT = (SELECT TOP (1) id FROM dbo.items WHERE name LIKE N'%Mì%' ORDER BY id);
 
     IF @AdminRoleId IS NULL OR @CoordinatorRoleId IS NULL OR @UserRoleId IS NULL
         THROW 51000, 'Chua co cac role mac dinh. Hay chay sql/Coordination.sql truoc.', 1;
@@ -21,19 +21,19 @@ BEGIN TRY
 
     IF NOT EXISTS (SELECT 1 FROM dbo.users WHERE email = 'demo.admin@coordination.local')
         INSERT dbo.users (full_name, email, password, phone, status)
-        VALUES (N'Demo Admin', 'demo.admin@coordination.local', @PasswordHash, '0900000001', 'ACTIVE');
+        VALUES (N'Nguyễn Duy (Admin BCH)', 'demo.admin@coordination.local', @PasswordHash, '0900000001', 'ACTIVE');
 
     IF NOT EXISTS (SELECT 1 FROM dbo.users WHERE email = 'demo.coordinator@coordination.local')
         INSERT dbo.users (full_name, email, password, phone, status)
-        VALUES (N'Demo Coordinator', 'demo.coordinator@coordination.local', @PasswordHash, '0900000002', 'ACTIVE');
+        VALUES (N'Trần Văn Bình (Điều phối viên)', 'demo.coordinator@coordination.local', @PasswordHash, '0900000002', 'ACTIVE');
 
     IF NOT EXISTS (SELECT 1 FROM dbo.users WHERE email = 'demo.donor@coordination.local')
         INSERT dbo.users (full_name, email, password, phone, status)
-        VALUES (N'Demo Donor', 'demo.donor@coordination.local', @PasswordHash, '0900000003', 'ACTIVE');
+        VALUES (N'Hội Thiện Nguyện TP. Đà Nẵng', 'demo.donor@coordination.local', @PasswordHash, '0900000003', 'ACTIVE');
 
     IF NOT EXISTS (SELECT 1 FROM dbo.users WHERE email = 'demo.recipient@coordination.local')
         INSERT dbo.users (full_name, email, password, phone, status)
-        VALUES (N'Demo Recipient', 'demo.recipient@coordination.local', @PasswordHash, '0900000004', 'ACTIVE');
+        VALUES (N'Lê Thị Hoa (Người dân P. Khuê Mỹ)', 'demo.recipient@coordination.local', @PasswordHash, '0900000004', 'ACTIVE');
 
     DECLARE @AdminId BIGINT = (SELECT id FROM dbo.users WHERE email = 'demo.admin@coordination.local');
     DECLARE @CoordinatorId BIGINT = (SELECT id FROM dbo.users WHERE email = 'demo.coordinator@coordination.local');
@@ -56,25 +56,50 @@ BEGIN TRY
     SELECT @RecipientId, @UserRoleId, @AdminId
     WHERE NOT EXISTS (SELECT 1 FROM dbo.user_roles WHERE user_id = @RecipientId AND role_id = @UserRoleId);
 
-    IF NOT EXISTS (SELECT 1 FROM dbo.shipping_partners WHERE partner_name = N'Demo Logistics')
+    IF NOT EXISTS (SELECT 1 FROM dbo.shipping_partners WHERE partner_name = N'Đội Xung Kích Cứu Nạn & Hậu Cần Quận Ngũ Hành Sơn')
         INSERT dbo.shipping_partners (partner_name, phone, website, status)
-        VALUES (N'Demo Logistics', '0900000010', N'https://example.com', 'ACTIVE');
+        VALUES (N'Đội Xung Kích Cứu Nạn & Hậu Cần Quận Ngũ Hành Sơn', '02363847234', N'https://danang.gov.vn', 'ACTIVE');
 
-    IF NOT EXISTS (SELECT 1 FROM dbo.collection_points WHERE name = N'Demo Collection Point')
+    DECLARE @PartnerId BIGINT = (SELECT TOP (1) id FROM dbo.shipping_partners WHERE partner_name LIKE N'%Ngũ Hành Sơn%' OR partner_name = N'Demo Logistics' ORDER BY id);
+
+    IF NOT EXISTS (SELECT 1 FROM dbo.collection_points WHERE name = N'UBND Quận Ngũ Hành Sơn — Trung Tâm Điều Phối Khẩn Cấp')
         INSERT dbo.collection_points (name, address, contact_person, phone, start_date, status)
-        VALUES (N'Demo Collection Point', N'1 Đường Mẫu, Quận 1, TP. Hồ Chí Minh',
-                N'Demo Coordinator', '0900000002', CONVERT(date, SYSDATETIME()), 'ACTIVE');
+        VALUES (N'UBND Quận Ngũ Hành Sơn — Trung Tâm Điều Phối Khẩn Cấp', N'486 Lê Văn Hiến, Phường Khuê Mỹ, Quận Ngũ Hành Sơn, TP. Đà Nẵng',
+                N'Trần Văn Bình', '02363847234', CONVERT(date, SYSDATETIME()), 'ACTIVE');
+
+    IF NOT EXISTS (SELECT 1 FROM dbo.collection_points WHERE name = N'Kho Lương Thực Di Tích K20')
+        INSERT dbo.collection_points (name, address, contact_person, phone, start_date, status)
+        VALUES (N'Kho Lương Thực Di Tích K20', N'Khu Di tích K20, Phường Khuê Mỹ, Quận Ngũ Hành Sơn, TP. Đà Nẵng',
+                N'Nguyễn Văn An', '0905123456', CONVERT(date, SYSDATETIME()), 'ACTIVE');
+
+    IF NOT EXISTS (SELECT 1 FROM dbo.collection_points WHERE name = N'Trạm Y Tế Phường Mỹ An')
+        INSERT dbo.collection_points (name, address, contact_person, phone, start_date, status)
+        VALUES (N'Trạm Y Tế Phường Mỹ An', N'Đường Châu Thị Vĩnh Tế, Phường Mỹ An, Quận Ngũ Hành Sơn, TP. Đà Nẵng',
+                N'Bác sĩ Trực ban', '02363847115', CONVERT(date, SYSDATETIME()), 'ACTIVE');
+
+    IF NOT EXISTS (SELECT 1 FROM dbo.collection_points WHERE name = N'Điểm Tránh Trú Bão Ven Sông Hòa Quý')
+        INSERT dbo.collection_points (name, address, contact_person, phone, start_date, status)
+        VALUES (N'Điểm Tránh Trú Bão Ven Sông Hòa Quý', N'Đường Võ Chí Công, Phường Hòa Quý, Quận Ngũ Hành Sơn, TP. Đà Nẵng',
+                N'Lê Tấn Lực', '0913987654', CONVERT(date, SYSDATETIME()), 'ACTIVE');
+
+    IF NOT EXISTS (SELECT 1 FROM dbo.collection_points WHERE name = N'Trạm Ca-nô Cứu Nạn Non Nước — Hòa Hải')
+        INSERT dbo.collection_points (name, address, contact_person, phone, start_date, status)
+        VALUES (N'Trạm Ca-nô Cứu Nạn Non Nước — Hòa Hải', N'Đường Trường Sa, Phường Hòa Hải, Quận Ngũ Hành Sơn, TP. Đà Nẵng',
+                N'Đội cứu hộ Non Nước', '0905678901', CONVERT(date, SYSDATETIME()), 'ACTIVE');
 
     -- Completed example: 100 kg of rice donated, 20 kg allocated and delivered.
-    IF NOT EXISTS (SELECT 1 FROM dbo.donations WHERE donation_code = 'DN-DEMO-COMPLETE-001')
+    IF NOT EXISTS (SELECT 1 FROM dbo.donations WHERE donation_code = 'DN-NHS-2026-001')
         INSERT dbo.donations (donor_id, donation_code, pickup_address, donation_type, note,
                               status, approved_by, approved_at)
-        VALUES (@DonorId, 'DN-DEMO-COMPLETE-001', N'10 Đường Mẫu, Quận 1, TP. Hồ Chí Minh',
-                'DONATED', N'Dữ liệu mẫu: quyên góp gạo đã hoàn tất', 'APPROVED',
+        VALUES (@DonorId, 'DN-NHS-2026-001', N'Hội Thiện Nguyện TP. Đà Nẵng, Hải Châu, TP. Đà Nẵng',
+                'DONATED', N'Quyên góp cứu trợ bão lũ Quận Ngũ Hành Sơn: 100 kg Gạo trắng ST25', 'APPROVED',
                 @CoordinatorId, SYSDATETIME());
 
-    DECLARE @CompleteDonationId BIGINT = (SELECT id FROM dbo.donations WHERE donation_code = 'DN-DEMO-COMPLETE-001');
-    IF NOT EXISTS (SELECT 1 FROM dbo.donation_items WHERE donation_id = @CompleteDonationId AND item_id = @RiceItemId)
+    DECLARE @CompleteDonationId BIGINT = (SELECT id FROM dbo.donations WHERE donation_code = 'DN-NHS-2026-001');
+    IF @CompleteDonationId IS NULL
+        SET @CompleteDonationId = (SELECT TOP (1) id FROM dbo.donations WHERE donation_code = 'DN-DEMO-COMPLETE-001');
+
+    IF @CompleteDonationId IS NOT NULL AND NOT EXISTS (SELECT 1 FROM dbo.donation_items WHERE donation_id = @CompleteDonationId AND item_id = @RiceItemId)
         INSERT dbo.donation_items (donation_id, item_id, offered_quantity, accepted_quantity,
                                    reserved_quantity, delivered_quantity, item_condition, status)
         VALUES (@CompleteDonationId, @RiceItemId, 100, 100, 0, 20, 'NEW', 'ACCEPTED');
@@ -82,72 +107,87 @@ BEGIN TRY
     DECLARE @CompleteDonationItemId BIGINT =
         (SELECT TOP (1) id FROM dbo.donation_items WHERE donation_id = @CompleteDonationId AND item_id = @RiceItemId ORDER BY id);
 
-    IF NOT EXISTS (SELECT 1 FROM dbo.supply_movements WHERE donation_item_id = @CompleteDonationItemId
+    IF @CompleteDonationItemId IS NOT NULL AND NOT EXISTS (SELECT 1 FROM dbo.supply_movements WHERE donation_item_id = @CompleteDonationItemId
                    AND movement_type = 'ACCEPTED' AND reference_type = 'DONATION' AND reference_id = @CompleteDonationId)
         INSERT dbo.supply_movements (donation_item_id, movement_type, quantity, to_location_type,
                                      reference_type, reference_id, created_by)
         VALUES (@CompleteDonationItemId, 'ACCEPTED', 100, 'AVAILABLE', 'DONATION', @CompleteDonationId, @CoordinatorId);
 
-    IF NOT EXISTS (SELECT 1 FROM dbo.assistance_requests WHERE request_code = 'RQ-DEMO-COMPLETE-001')
+    IF NOT EXISTS (SELECT 1 FROM dbo.assistance_requests WHERE request_code = 'RQ-NHS-2026-001')
         INSERT dbo.assistance_requests (recipient_id, request_code, title, description, delivery_address,
                                         priority, status, approved_by, approved_at)
-        VALUES (@RecipientId, 'RQ-DEMO-COMPLETE-001', N'Hỗ trợ gạo cho hộ gia đình',
-                N'Dữ liệu mẫu: yêu cầu hỗ trợ đã được giao đầy đủ',
-                N'20 Đường Mẫu, Quận 1, TP. Hồ Chí Minh', 'HIGH', 'COMPLETED',
+        VALUES (@RecipientId, 'RQ-NHS-2026-001', N'Hỗ trợ gạo an sinh cho hộ gia đình vùng ngập',
+                N'Gia đình khó khăn tại Phường Khuê Mỹ cần gạo và nước uống trong đợt mưa lũ',
+                N'Tổ 12, Đường Lê Văn Hiến, Phường Khuê Mỹ, Quận Ngũ Hành Sơn, TP. Đà Nẵng', 'HIGH', 'COMPLETED',
                 @CoordinatorId, SYSDATETIME());
 
-    DECLARE @CompleteRequestId BIGINT = (SELECT id FROM dbo.assistance_requests WHERE request_code = 'RQ-DEMO-COMPLETE-001');
-    IF NOT EXISTS (SELECT 1 FROM dbo.request_items WHERE request_id = @CompleteRequestId AND item_id = @RiceItemId)
+    DECLARE @CompleteRequestId BIGINT = (SELECT id FROM dbo.assistance_requests WHERE request_code = 'RQ-NHS-2026-001');
+    IF @CompleteRequestId IS NULL
+        SET @CompleteRequestId = (SELECT TOP (1) id FROM dbo.assistance_requests WHERE request_code = 'RQ-DEMO-COMPLETE-001');
+
+    IF @CompleteRequestId IS NOT NULL AND NOT EXISTS (SELECT 1 FROM dbo.request_items WHERE request_id = @CompleteRequestId AND item_id = @RiceItemId)
         INSERT dbo.request_items (request_id, item_id, requested_quantity, approved_quantity, note)
-        VALUES (@CompleteRequestId, @RiceItemId, 20, 20, N'Dữ liệu mẫu');
+        VALUES (@CompleteRequestId, @RiceItemId, 20, 20, N'Cứu trợ đợt 1');
 
     DECLARE @CompleteRequestItemId BIGINT =
         (SELECT TOP (1) id FROM dbo.request_items WHERE request_id = @CompleteRequestId AND item_id = @RiceItemId ORDER BY id);
 
-    IF NOT EXISTS (SELECT 1 FROM dbo.allocations WHERE allocation_code = 'AL-DEMO-COMPLETE-001')
+    IF NOT EXISTS (SELECT 1 FROM dbo.allocations WHERE allocation_code = 'AL-NHS-2026-001')
         INSERT dbo.allocations (allocation_code, request_id, coordinator_id, status, note)
-        VALUES ('AL-DEMO-COMPLETE-001', @CompleteRequestId, @CoordinatorId, 'COMPLETED', N'Dữ liệu mẫu');
+        VALUES ('AL-NHS-2026-001', @CompleteRequestId, @CoordinatorId, 'COMPLETED', N'Phân bổ từ Kho Lương Thực K20');
 
     DECLARE @CompleteAllocationId BIGINT =
-        (SELECT id FROM dbo.allocations WHERE allocation_code = 'AL-DEMO-COMPLETE-001');
-    IF NOT EXISTS (SELECT 1 FROM dbo.allocation_items WHERE allocation_id = @CompleteAllocationId
+        (SELECT id FROM dbo.allocations WHERE allocation_code = 'AL-NHS-2026-001');
+    IF @CompleteAllocationId IS NULL
+        SET @CompleteAllocationId = (SELECT TOP (1) id FROM dbo.allocations WHERE allocation_code = 'AL-DEMO-COMPLETE-001');
+
+    IF @CompleteAllocationId IS NOT NULL AND @CompleteRequestItemId IS NOT NULL AND @CompleteDonationItemId IS NOT NULL
+       AND NOT EXISTS (SELECT 1 FROM dbo.allocation_items WHERE allocation_id = @CompleteAllocationId
                    AND request_item_id = @CompleteRequestItemId AND donation_item_id = @CompleteDonationItemId)
         INSERT dbo.allocation_items (allocation_id, request_item_id, donation_item_id, quantity)
         VALUES (@CompleteAllocationId, @CompleteRequestItemId, @CompleteDonationItemId, 20);
 
-    IF NOT EXISTS (SELECT 1 FROM dbo.supply_movements WHERE donation_item_id = @CompleteDonationItemId
+    IF @CompleteDonationItemId IS NOT NULL AND @CompleteAllocationId IS NOT NULL
+       AND NOT EXISTS (SELECT 1 FROM dbo.supply_movements WHERE donation_item_id = @CompleteDonationItemId
                    AND movement_type = 'RESERVED' AND reference_type = 'ALLOCATION' AND reference_id = @CompleteAllocationId)
         INSERT dbo.supply_movements (donation_item_id, movement_type, quantity, from_location_type,
                                      to_location_type, to_location_id, reference_type, reference_id, created_by)
         VALUES (@CompleteDonationItemId, 'RESERVED', 20, 'AVAILABLE', 'ALLOCATION',
                 @CompleteAllocationId, 'ALLOCATION', @CompleteAllocationId, @CoordinatorId);
 
-    DECLARE @PartnerId BIGINT = (SELECT TOP (1) id FROM dbo.shipping_partners WHERE partner_name = N'Demo Logistics' ORDER BY id);
     DECLARE @Now DATETIME2 = SYSDATETIME();
     DECLARE @BookedAt DATETIME2 = DATEADD(hour, -2, @Now);
     DECLARE @PickedUpAt DATETIME2 = DATEADD(minute, -90, @Now);
     DECLARE @InTransitAt DATETIME2 = DATEADD(minute, -60, @Now);
     DECLARE @OutForDeliveryAt DATETIME2 = DATEADD(minute, -30, @Now);
 
-    IF NOT EXISTS (SELECT 1 FROM dbo.shipments WHERE shipment_code = 'SH-DEMO-COMPLETE-001')
+    IF NOT EXISTS (SELECT 1 FROM dbo.shipments WHERE shipment_code = 'SH-NHS-2026-001')
         INSERT dbo.shipments (shipment_code, partner_id, tracking_code, tracking_url, pickup_address,
                               delivery_address, status, created_at, picked_up_at, delivered_at)
-        VALUES ('SH-DEMO-COMPLETE-001', @PartnerId, 'DEMO-TRACK-001',
-                N'https://example.com/tracking/DEMO-TRACK-001',
-                N'10 Đường Mẫu, Quận 1, TP. Hồ Chí Minh', N'20 Đường Mẫu, Quận 1, TP. Hồ Chí Minh',
+        VALUES ('SH-NHS-2026-001', @PartnerId, 'NHS-TRACK-001',
+                N'https://danang.gov.vn/tracking/NHS-TRACK-001',
+                N'Kho Lương Thực Di Tích K20, Phường Khuê Mỹ, Quận Ngũ Hành Sơn, TP. Đà Nẵng',
+                N'Tổ 12, Đường Lê Văn Hiến, Phường Khuê Mỹ, Quận Ngũ Hành Sơn, TP. Đà Nẵng',
                 'DELIVERED', @BookedAt, @PickedUpAt, @Now);
 
-    DECLARE @ShipmentId BIGINT = (SELECT id FROM dbo.shipments WHERE shipment_code = 'SH-DEMO-COMPLETE-001');
-    DECLARE @ShipmentItemId BIGINT = (SELECT TOP (1) id FROM dbo.shipment_items
-                                      WHERE shipment_id = @ShipmentId AND allocation_item_id =
-                                            (SELECT TOP (1) id FROM dbo.allocation_items WHERE allocation_id = @CompleteAllocationId)
-                                      ORDER BY id);
-    IF @ShipmentItemId IS NULL
-        INSERT dbo.shipment_items (shipment_id, allocation_item_id, quantity)
-        SELECT @ShipmentId, id, 20 FROM dbo.allocation_items WHERE allocation_id = @CompleteAllocationId
-          AND request_item_id = @CompleteRequestItemId AND donation_item_id = @CompleteDonationItemId;
+    DECLARE @ShipmentId BIGINT = (SELECT id FROM dbo.shipments WHERE shipment_code = 'SH-NHS-2026-001');
+    IF @ShipmentId IS NULL
+        SET @ShipmentId = (SELECT TOP (1) id FROM dbo.shipments WHERE shipment_code = 'SH-DEMO-COMPLETE-001');
 
-    IF NOT EXISTS (SELECT 1 FROM dbo.supply_movements WHERE donation_item_id = @CompleteDonationItemId
+    IF @ShipmentId IS NOT NULL AND @CompleteAllocationId IS NOT NULL
+    BEGIN
+        DECLARE @ShipmentItemId BIGINT = (SELECT TOP (1) id FROM dbo.shipment_items
+                                          WHERE shipment_id = @ShipmentId AND allocation_item_id =
+                                                (SELECT TOP (1) id FROM dbo.allocation_items WHERE allocation_id = @CompleteAllocationId)
+                                          ORDER BY id);
+        IF @ShipmentItemId IS NULL
+            INSERT dbo.shipment_items (shipment_id, allocation_item_id, quantity)
+            SELECT @ShipmentId, id, 20 FROM dbo.allocation_items WHERE allocation_id = @CompleteAllocationId
+              AND request_item_id = @CompleteRequestItemId AND donation_item_id = @CompleteDonationItemId;
+    END
+
+    IF @ShipmentId IS NOT NULL AND @CompleteDonationItemId IS NOT NULL
+       AND NOT EXISTS (SELECT 1 FROM dbo.supply_movements WHERE donation_item_id = @CompleteDonationItemId
                    AND movement_type = 'DELIVERED' AND reference_type = 'SHIPMENT' AND reference_id = @ShipmentId)
         INSERT dbo.supply_movements (donation_item_id, movement_type, quantity, from_location_type,
                                      from_location_id, to_location_type, to_location_id,
@@ -155,52 +195,50 @@ BEGIN TRY
         VALUES (@CompleteDonationItemId, 'DELIVERED', 20, 'ALLOCATION', @CompleteAllocationId,
                 'RECIPIENT', @RecipientId, 'SHIPMENT', @ShipmentId, @CoordinatorId);
 
-    INSERT dbo.shipment_events (shipment_id, status, description, location, updated_by, created_at)
-    SELECT @ShipmentId, event_data.status, event_data.description, event_data.location, @CoordinatorId, event_data.created_at
-    FROM (VALUES
-        ('BOOKED', N'Đơn vận chuyển đã được tạo', N'Điểm tập kết', @BookedAt),
-        ('PICKED_UP', N'Đơn vị vận chuyển đã nhận hàng', N'Điểm tập kết', @PickedUpAt),
-        ('IN_TRANSIT', N'Hàng đang được vận chuyển', N'Trên đường giao', @InTransitAt),
-        ('OUT_FOR_DELIVERY', N'Đang giao đến người nhận', N'Quận 1, TP. Hồ Chí Minh', @OutForDeliveryAt),
-        ('DELIVERED', N'Đã giao hàng thành công', N'Quận 1, TP. Hồ Chí Minh', @Now)
-    ) AS event_data(status, description, location, created_at)
-    WHERE NOT EXISTS (SELECT 1 FROM dbo.shipment_events existing
-                      WHERE existing.shipment_id = @ShipmentId AND existing.status = event_data.status);
+    IF @ShipmentId IS NOT NULL
+    BEGIN
+        INSERT dbo.shipment_events (shipment_id, status, description, location, updated_by, created_at)
+        SELECT @ShipmentId, event_data.status, event_data.description, event_data.location, @CoordinatorId, event_data.created_at
+        FROM (VALUES
+            ('BOOKED', N'Đơn vận chuyển cứu trợ đã được lập tại Sở Chỉ huy Quận', N'486 Lê Văn Hiến, P. Khuê Mỹ', @BookedAt),
+            ('PICKED_UP', N'Đội cứu hộ xung kích đã nhận hàng cứu trợ', N'Kho Lương Thực Di Tích K20', @PickedUpAt),
+            ('IN_TRANSIT', N'Ca-nô / Xe chuyên dụng đang di chuyển trong địa bàn Phường Khuê Mỹ', N'Tuyến Lê Văn Hiến — Nam Kỳ Khởi Nghĩa', @InTransitAt),
+            ('OUT_FOR_DELIVERY', N'Đang bàn giao tận tay hộ dân khó khăn', N'Tổ 12, P. Khuê Mỹ, Q. Ngũ Hành Sơn', @OutForDeliveryAt),
+            ('DELIVERED', N'Đã bàn giao đầy đủ lương thực cứu trợ', N'Tổ 12, P. Khuê Mỹ, Q. Ngũ Hành Sơn', @Now)
+        ) AS event_data(status, description, location, created_at)
+        WHERE NOT EXISTS (SELECT 1 FROM dbo.shipment_events existing
+                          WHERE existing.shipment_id = @ShipmentId AND existing.status = event_data.status);
+    END
 
-    IF NOT EXISTS (SELECT 1 FROM dbo.delivery_confirmations WHERE shipment_id = @ShipmentId)
+    IF @ShipmentId IS NOT NULL AND NOT EXISTS (SELECT 1 FROM dbo.delivery_confirmations WHERE shipment_id = @ShipmentId)
         INSERT dbo.delivery_confirmations (shipment_id, recipient_id, received_by, confirmation_code, note, confirmed_at)
-        VALUES (@ShipmentId, @RecipientId, N'Demo Recipient', 'DEMO-RECEIVED-001',
-                N'Dữ liệu mẫu xác nhận đã nhận hàng', @Now);
+        VALUES (@ShipmentId, @RecipientId, N'Lê Thị Hoa', 'NHS-RECV-001',
+                N'Đã nhận đủ 20kg gạo hỗ trợ an sinh', @Now);
 
     -- Pending examples for testing coordinator approval endpoints.
-    IF NOT EXISTS (SELECT 1 FROM dbo.donations WHERE donation_code = 'DN-DEMO-PENDING-001')
+    IF NOT EXISTS (SELECT 1 FROM dbo.donations WHERE donation_code = 'DN-NHS-2026-002')
         INSERT dbo.donations (donor_id, donation_code, pickup_address, donation_type, note, status)
-        VALUES (@DonorId, 'DN-DEMO-PENDING-001', N'10 Đường Mẫu, Quận 1, TP. Hồ Chí Minh',
-                'DONATED', N'Dữ liệu mẫu đang chờ duyệt', 'PENDING');
+        VALUES (@DonorId, 'DN-NHS-2026-002', N'Đại lý Phân phối Nước giải khát Đà Nẵng',
+                'DONATED', N'Ủng hộ 100 thùng Nước khoáng Lavie cho người dân vùng trũng ven sông', 'PENDING');
 
-    DECLARE @PendingDonationId BIGINT = (SELECT id FROM dbo.donations WHERE donation_code = 'DN-DEMO-PENDING-001');
-    IF NOT EXISTS (SELECT 1 FROM dbo.donation_items WHERE donation_id = @PendingDonationId AND item_id = @NoodleItemId)
-        INSERT dbo.donation_items (donation_id, item_id, offered_quantity, accepted_quantity,
-                                   reserved_quantity, delivered_quantity, item_condition, status)
-        VALUES (@PendingDonationId, @NoodleItemId, 10, 0, 0, 0, 'NEW', 'PENDING');
-
-    IF NOT EXISTS (SELECT 1 FROM dbo.assistance_requests WHERE request_code = 'RQ-DEMO-PENDING-001')
+    IF NOT EXISTS (SELECT 1 FROM dbo.assistance_requests WHERE request_code = 'RQ-NHS-2026-002')
         INSERT dbo.assistance_requests (recipient_id, request_code, title, description, delivery_address, priority, status)
-        VALUES (@RecipientId, 'RQ-DEMO-PENDING-001', N'Xin hỗ trợ mì ăn liền',
-                N'Dữ liệu mẫu đang chờ duyệt', N'20 Đường Mẫu, Quận 1, TP. Hồ Chí Minh', 'NORMAL', 'PENDING');
+        VALUES (@RecipientId, 'RQ-NHS-2026-002', N'Xin hỗ trợ mì tôm và nước sạch khẩn cấp',
+                N'Khu vực ngập nước ven sông Cổ Cò, nước giếng bị ô nhiễm không dùng được',
+                N'Tổ 4, Ven sông Cổ Cò, Phường Hòa Quý, Quận Ngũ Hành Sơn, TP. Đà Nẵng', 'URGENT', 'PENDING');
 
-    DECLARE @PendingRequestId BIGINT = (SELECT id FROM dbo.assistance_requests WHERE request_code = 'RQ-DEMO-PENDING-001');
-    IF NOT EXISTS (SELECT 1 FROM dbo.request_items WHERE request_id = @PendingRequestId AND item_id = @NoodleItemId)
+    DECLARE @PendingRequestId BIGINT = (SELECT id FROM dbo.assistance_requests WHERE request_code = 'RQ-NHS-2026-002');
+    IF @PendingRequestId IS NOT NULL AND NOT EXISTS (SELECT 1 FROM dbo.request_items WHERE request_id = @PendingRequestId AND item_id = @NoodleItemId)
         INSERT dbo.request_items (request_id, item_id, requested_quantity, approved_quantity, note)
-        VALUES (@PendingRequestId, @NoodleItemId, 5, 0, N'Dữ liệu mẫu');
+        VALUES (@PendingRequestId, @NoodleItemId, 5, 0, N'Ưu tiên hộ già neo đơn');
 
     -- Approved but unallocated request for testing allocation creation.
-    IF NOT EXISTS (SELECT 1 FROM dbo.assistance_requests WHERE request_code = 'RQ-DEMO-READY-001')
+    IF NOT EXISTS (SELECT 1 FROM dbo.assistance_requests WHERE request_code = 'RQ-NHS-2026-003')
         INSERT dbo.assistance_requests (recipient_id, request_code, title, description, delivery_address,
                                         priority, status, approved_by, approved_at)
-        VALUES (@RecipientId, 'RQ-DEMO-READY-001', N'Xin hỗ trợ gạo',
-                N'Dữ liệu mẫu đã duyệt, đang chờ phân bổ',
-                N'20 Đường Mẫu, Quận 1, TP. Hồ Chí Minh', 'NORMAL', 'APPROVED',
+        VALUES (@RecipientId, 'RQ-NHS-2026-003', N'Hỗ trợ áo phao và thuốc men gia đình',
+                N'Hộ gia đình có người cao tuổi cần túi thuốc dự phòng và 4 áo phao cứu sinh',
+                N'Tổ 8, Phường Mỹ An, Quận Ngũ Hành Sơn, TP. Đà Nẵng', 'HIGH', 'APPROVED',
                 @CoordinatorId, SYSDATETIME());
 
     DECLARE @ReadyRequestId BIGINT = (SELECT id FROM dbo.assistance_requests WHERE request_code = 'RQ-DEMO-READY-001');

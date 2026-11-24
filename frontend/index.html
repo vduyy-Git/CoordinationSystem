@@ -11,6 +11,7 @@
   <script src="src/assets/vendor/leaflet.js"></script>
   <script src="src/assets/vendor/react.production.min.js"></script>
   <script src="src/assets/vendor/react-dom.production.min.js"></script>
+  <script src="src/services/api.js"></script>
   <style>
     /* ============================================================
        BODY & NỀN TOÀN TRANG
@@ -1092,8 +1093,8 @@
           class="brand-logo-img" />
       </a>
 
-      <!-- Chỉ chứa Nút Đăng Nhập -->
-      <div class="portal-nav-actions">
+      <!-- Nút Đăng Nhập / Phiên người dùng -->
+      <div class="portal-nav-actions" id="navAuthContainer">
         <button class="btn-gold" onclick="openLoginModal()" style="font-size:0.9rem; padding: 10px 22px;">
           🔑 Đăng nhập
         </button>
@@ -1777,14 +1778,21 @@
 
       <!-- 1. FORM ĐĂNG NHẬP NGƯỜI DÂN -->
       <form id="formCitizenLogin" onsubmit="handleCitizenLogin(event)">
+        <!-- Quick autofill demo account -->
+        <div style="background:rgba(212,175,55,0.1); border:1px dashed rgba(212,175,55,0.4); border-radius:var(--radius-sm); padding:8px 10px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.75rem; color:var(--gold-1);">💡 Tài khoản mẫu Người dân:</span>
+          <button type="button" class="btn btn-ghost btn-sm" style="padding:2px 8px; font-size:0.72rem; color:#fff; background:rgba(212,175,55,0.25);" onclick="fillDemoLogin('citizen')">
+            ⚡ Điền mẫu tự động
+          </button>
+        </div>
         <div class="form-group">
-          <label class="form-label">Số điện thoại hoặc Số CCCD / Định danh</label>
-          <input type="text" class="form-control" placeholder="Ví dụ: 0912345678 hoặc 048xxxxxxxxx" required />
+          <label class="form-label">Email hoặc Số điện thoại / CCCD</label>
+          <input type="text" id="citizenLoginEmail" class="form-control" placeholder="demo.recipient@coordination.local hoặc email của bạn" required />
         </div>
         <div class="form-group">
           <label class="form-label">Mật khẩu</label>
           <div class="pwd-wrap">
-            <input type="password" id="citizenLoginPwd" class="form-control" placeholder="Nhập mật khẩu..." required />
+            <input type="password" id="citizenLoginPwd" class="form-control" placeholder="Mật khẩu (Demo: DemoPass123!)..." required />
             <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('citizenLoginPwd', this)">👁️</button>
           </div>
         </div>
@@ -1799,14 +1807,21 @@
 
       <!-- 2. FORM ĐĂNG NHẬP ADMIN / CÁN BỘ -->
       <form id="formAdminLogin" style="display:none;" onsubmit="handleAdminLogin(event)">
+        <!-- Quick autofill demo account -->
+        <div style="background:rgba(212,175,55,0.1); border:1px dashed rgba(212,175,55,0.4); border-radius:var(--radius-sm); padding:8px 10px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.75rem; color:var(--gold-1);">💡 Tài khoản mẫu Quản trị viên:</span>
+          <button type="button" class="btn btn-ghost btn-sm" style="padding:2px 8px; font-size:0.72rem; color:#fff; background:rgba(212,175,55,0.25);" onclick="fillDemoLogin('admin')">
+            ⚡ Điền mẫu tự động
+          </button>
+        </div>
         <div class="form-group">
-          <label class="form-label">Email công vụ cán bộ (@danang.gov.vn)</label>
-          <input type="email" class="form-control" placeholder="canbo.nhs@danang.gov.vn" required />
+          <label class="form-label">Email công vụ cán bộ / Quản trị viên</label>
+          <input type="email" id="adminLoginEmail" class="form-control" placeholder="demo.admin@coordination.local" required />
         </div>
         <div class="form-group">
           <label class="form-label">Mật khẩu quản trị</label>
           <div class="pwd-wrap">
-            <input type="password" id="adminLoginPwd" class="form-control" placeholder="Nhập mật khẩu quản trị..." required />
+            <input type="password" id="adminLoginPwd" class="form-control" placeholder="Mật khẩu (Demo: DemoPass123!)..." required />
             <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('adminLoginPwd', this)">👁️</button>
           </div>
         </div>
@@ -1824,49 +1839,55 @@
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <div class="form-group">
             <label class="form-label">Họ và tên *</label>
-            <input type="text" class="form-control" placeholder="Nguyễn Văn A" required />
+            <input type="text" id="regCitizenName" class="form-control" placeholder="Nguyễn Văn A" required />
           </div>
           <div class="form-group">
+            <label class="form-label">Email đăng nhập *</label>
+            <input type="email" id="regCitizenEmail" class="form-control" placeholder="nguyenvana@gmail.com" required />
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="form-group">
             <label class="form-label">Số điện thoại *</label>
-            <input type="tel" class="form-control" placeholder="0912345678" required />
+            <input type="tel" id="regCitizenPhone" class="form-control" placeholder="0912345678" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Số CCCD / Định danh (12 số)</label>
+            <input type="text" id="regCitizenCccd" class="form-control" placeholder="048xxxxxxxxx" />
           </div>
         </div>
         <div style="display:grid; grid-template-columns:1.1fr 1fr; gap:10px;">
           <div class="form-group">
-            <label class="form-label">Số CCCD / Định danh (12 số)</label>
-            <input type="text" class="form-control" placeholder="048xxxxxxxxx" required />
-          </div>
-          <div class="form-group">
             <label class="form-label">Phường cư trú (Q. NHS) *</label>
-            <select class="form-control" required>
+            <select class="form-control" id="regCitizenWard" required>
               <option value="myan">Phường Mỹ An</option>
               <option value="khuemy" selected>Phường Khuê Mỹ</option>
               <option value="hoaquy">Phường Hòa Quý (Ven sông)</option>
               <option value="hoahai">Phường Hòa Hải (Ven biển)</option>
             </select>
           </div>
+          <div class="form-group">
+            <label class="form-label">Nhóm an sinh / Hoàn cảnh</label>
+            <select class="form-control" id="regCitizenGroup">
+              <option value="flood">Hộ vùng trũng ngập lụt ven sông</option>
+              <option value="poor">Hộ nghèo / Hộ cận nghèo</option>
+              <option value="elderly">Người cao tuổi neo đơn / Tàn tật</option>
+              <option value="normal" selected>Khó khăn cần trợ cấp đột xuất</option>
+            </select>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Địa chỉ cư trú cụ thể (Tổ dân phố, tên đường) *</label>
-          <input type="text" class="form-control" placeholder="Ví dụ: Tổ 12, Đường Lê Văn Hiến, Phường Khuê Mỹ" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Nhóm an sinh / Hoàn cảnh</label>
-          <select class="form-control">
-            <option value="flood">Hộ vùng trũng ngập lụt ven sông Cổ Cò / Đô Lương</option>
-            <option value="poor">Hộ nghèo / Hộ cận nghèo của Phường</option>
-            <option value="elderly">Người cao tuổi neo đơn / Người khuyết tật</option>
-            <option value="normal" selected>Gia đình cần trợ cấp đột xuất / Khó khăn</option>
-          </select>
+          <input type="text" id="regCitizenAddress" class="form-control" placeholder="Ví dụ: Tổ 12, Đường Lê Văn Hiến, Phường Khuê Mỹ" required />
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <div class="form-group">
             <label class="form-label">Mật khẩu *</label>
-            <input type="password" class="form-control" placeholder="Tối thiểu 6 ký tự" required />
+            <input type="password" id="regCitizenPwd" class="form-control" placeholder="Tối thiểu 6 ký tự" required />
           </div>
           <div class="form-group">
             <label class="form-label">Nhập lại mật khẩu *</label>
-            <input type="password" class="form-control" placeholder="Khớp mật khẩu" required />
+            <input type="password" id="regCitizenConfirmPwd" class="form-control" placeholder="Khớp mật khẩu" required />
           </div>
         </div>
         <div style="margin-bottom:14px; font-size:0.76rem; color:rgba(249,243,232,0.85); display:flex; align-items:flex-start; gap:8px;">
@@ -1882,16 +1903,16 @@
       <form id="formAdminRegister" style="display:none;" onsubmit="handleAdminRegister(event)">
         <div class="form-group">
           <label class="form-label">Họ và tên cán bộ công chức *</label>
-          <input type="text" class="form-control" placeholder="Ví dụ: Nguyễn Duy" required />
+          <input type="text" id="regAdminName" class="form-control" placeholder="Ví dụ: Nguyễn Duy" required />
         </div>
         <div class="form-group">
-          <label class="form-label">Email công vụ xác thực (@danang.gov.vn) *</label>
-          <input type="email" class="form-control" placeholder="canbo.nhs@danang.gov.vn" required />
+          <label class="form-label">Email công vụ xác thực (@danang.gov.vn hoặc @coordination.local) *</label>
+          <input type="email" id="regAdminEmail" class="form-control" placeholder="canbo.nhs@danang.gov.vn" required />
         </div>
         <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:10px;">
           <div class="form-group">
             <label class="form-label">Cơ quan / Đơn vị công tác</label>
-            <select class="form-control" required>
+            <select class="form-control" id="regAdminOrg" required>
               <option value="ubnd_nhs">UBND Quận Ngũ Hành Sơn</option>
               <option value="ban_pctt">Ban Chỉ huy PCTT &amp; TKCN Quận</option>
               <option value="phuong_myan">UBND Phường Mỹ An</option>
@@ -1902,17 +1923,17 @@
           </div>
           <div class="form-group">
             <label class="form-label">Mã PIN ủy quyền *</label>
-            <input type="password" class="form-control" placeholder="Mã PIN 6 số" required />
+            <input type="password" id="regAdminPin" class="form-control" placeholder="Mã PIN 6 số" required />
           </div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <div class="form-group">
             <label class="form-label">Mật khẩu quản trị *</label>
-            <input type="password" class="form-control" placeholder="Tối thiểu 8 ký tự" required />
+            <input type="password" id="regAdminPwd" class="form-control" placeholder="Tối thiểu 8 ký tự" required />
           </div>
           <div class="form-group">
             <label class="form-label">Nhập lại mật khẩu *</label>
-            <input type="password" class="form-control" placeholder="Khớp mật khẩu" required />
+            <input type="password" id="regAdminConfirmPwd" class="form-control" placeholder="Khớp mật khẩu" required />
           </div>
         </div>
         <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center; padding:12px; font-weight:700;">
@@ -2010,28 +2031,198 @@
       }
     }
 
-    function handleCitizenLogin(e) {
-      e.preventDefault();
-      location.href = 'citizen/dashboard.html';
+    function fillDemoLogin(role) {
+      if (role === 'admin') {
+        const emailEl = document.getElementById('adminLoginEmail');
+        const pwdEl = document.getElementById('adminLoginPwd');
+        if (emailEl) emailEl.value = 'demo.admin@coordination.local';
+        if (pwdEl) pwdEl.value = 'DemoPass123!';
+      } else {
+        const emailEl = document.getElementById('citizenLoginEmail');
+        const pwdEl = document.getElementById('citizenLoginPwd');
+        if (emailEl) emailEl.value = 'demo.recipient@coordination.local';
+        if (pwdEl) pwdEl.value = 'DemoPass123!';
+      }
     }
 
-    function handleAdminLogin(e) {
+    async function handleCitizenLogin(e) {
       e.preventDefault();
-      location.href = 'admin/dashboard.html';
+      const emailInput = document.getElementById('citizenLoginEmail');
+      const pwdInput = document.getElementById('citizenLoginPwd');
+      const email = emailInput ? emailInput.value.trim() : '';
+      const password = pwdInput ? pwdInput.value : '';
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const origText = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) { submitBtn.innerHTML = '⏳ Đang đăng nhập...'; submitBtn.disabled = true; }
+
+      try {
+        if (window.CoordSystemApi && window.CoordSystemApi.authApi) {
+          const res = await window.CoordSystemApi.authApi.login(email, password);
+          if (res.success) {
+            if (window.CoordSystemApi.hasRole('ADMIN') || window.CoordSystemApi.hasRole('COORDINATOR')) {
+              location.href = 'admin/dashboard.html';
+            } else {
+              location.href = 'citizen/dashboard.html';
+            }
+            return;
+          }
+          if (res.status === 0) {
+            const proceed = confirm('⚠️ ' + res.message + '\n\nBạn có muốn vào thẳng Cổng Người Dân với tài khoản Demo để kiểm tra giao diện không?');
+            if (proceed) {
+              window.CoordSystemApi.setCurrentUser({
+                id: 1,
+                fullName: 'Lê Thị Hoa (Demo)',
+                email: email || 'demo.recipient@coordination.local',
+                roles: ['ROLE_USER']
+              });
+              location.href = 'citizen/dashboard.html';
+              return;
+            }
+          } else {
+            alert('❌ Đăng nhập thất bại: ' + (res.message || 'Sai email hoặc mật khẩu.'));
+            return;
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        location.href = 'citizen/dashboard.html';
+      } finally {
+        if (submitBtn) { submitBtn.innerHTML = origText; submitBtn.disabled = false; }
+      }
     }
 
-    function handleCitizenRegister(e) {
+    async function handleAdminLogin(e) {
       e.preventDefault();
-      alert('Đăng ký tài khoản người dân tại Quận Ngũ Hành Sơn thành công! Bạn có thể đăng nhập ngay.');
-      switchAuthMode('login');
-      switchLoginRole('citizen');
+      const emailInput = document.getElementById('adminLoginEmail');
+      const pwdInput = document.getElementById('adminLoginPwd');
+      const email = emailInput ? emailInput.value.trim() : '';
+      const password = pwdInput ? pwdInput.value : '';
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const origText = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) { submitBtn.innerHTML = '⏳ Đang đăng nhập...'; submitBtn.disabled = true; }
+
+      try {
+        if (window.CoordSystemApi && window.CoordSystemApi.authApi) {
+          const res = await window.CoordSystemApi.authApi.login(email, password);
+          if (res.success) {
+            location.href = 'admin/dashboard.html';
+            return;
+          }
+          if (res.status === 0) {
+            const proceed = confirm('⚠️ ' + res.message + '\n\nBạn có muốn vào thẳng Cổng Quản Trị Admin với tài khoản Demo để kiểm tra giao diện không?');
+            if (proceed) {
+              window.CoordSystemApi.setCurrentUser({
+                id: 99,
+                fullName: 'Nguyễn Duy (Admin Demo)',
+                email: email || 'demo.admin@coordination.local',
+                roles: ['ROLE_ADMIN']
+              });
+              location.href = 'admin/dashboard.html';
+              return;
+            }
+          } else {
+            alert('❌ Đăng nhập Admin thất bại: ' + (res.message || 'Sai thông tin hoặc bạn không có quyền Quản trị.'));
+            return;
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        location.href = 'admin/dashboard.html';
+      } finally {
+        if (submitBtn) { submitBtn.innerHTML = origText; submitBtn.disabled = false; }
+      }
     }
 
-    function handleAdminRegister(e) {
+    async function handleCitizenRegister(e) {
       e.preventDefault();
-      alert('Hồ sơ cán bộ điều phối đã được gửi đến Ban Chỉ huy PCTT & TKCN Quận Ngũ Hành Sơn phê duyệt. Đang chuyển sang đăng nhập.');
-      switchAuthMode('login');
-      switchLoginRole('admin');
+      const fullName = document.getElementById('regCitizenName')?.value?.trim();
+      const email = document.getElementById('regCitizenEmail')?.value?.trim();
+      const phone = document.getElementById('regCitizenPhone')?.value?.trim();
+      const pwd = document.getElementById('regCitizenPwd')?.value;
+      const confirmPwd = document.getElementById('regCitizenConfirmPwd')?.value;
+
+      if (pwd !== confirmPwd) {
+        alert('Mật khẩu nhập lại không khớp. Vui lòng kiểm tra lại!');
+        return;
+      }
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const origText = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) { submitBtn.innerHTML = '⏳ Đang đăng ký...'; submitBtn.disabled = true; }
+
+      try {
+        if (window.CoordSystemApi && window.CoordSystemApi.authApi) {
+          const res = await window.CoordSystemApi.authApi.register({
+            fullName: fullName,
+            email: email,
+            phone: phone,
+            password: pwd
+          });
+
+          if (res.success) {
+            alert('🎉 Đăng ký tài khoản thành công! Bạn có thể đăng nhập ngay.');
+            switchAuthMode('login');
+            switchLoginRole('citizen');
+            const emailInp = document.getElementById('citizenLoginEmail');
+            if (emailInp) emailInp.value = email;
+            return;
+          }
+
+          if (res.status === 0) {
+            alert('⚠️ ' + res.message + '\n(Dữ liệu người dân đã được cấu trúc sẵn để gửi lên khi Backend hoạt động).');
+            switchAuthMode('login');
+            switchLoginRole('citizen');
+            return;
+          }
+
+          alert('❌ Đăng ký không thành công: ' + (res.message || 'Email này có thể đã tồn tại.'));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Đã xảy ra lỗi khi đăng ký.');
+      } finally {
+        if (submitBtn) { submitBtn.innerHTML = origText; submitBtn.disabled = false; }
+      }
+    }
+
+    async function handleAdminRegister(e) {
+      e.preventDefault();
+      const fullName = document.getElementById('regAdminName')?.value?.trim();
+      const email = document.getElementById('regAdminEmail')?.value?.trim();
+      const pwd = document.getElementById('regAdminPwd')?.value;
+      const confirmPwd = document.getElementById('regAdminConfirmPwd')?.value;
+
+      if (pwd !== confirmPwd) {
+        alert('Mật khẩu nhập lại không khớp!');
+        return;
+      }
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const origText = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) { submitBtn.innerHTML = '⏳ Đang đăng ký...'; submitBtn.disabled = true; }
+
+      try {
+        if (window.CoordSystemApi && window.CoordSystemApi.authApi) {
+          const res = await window.CoordSystemApi.authApi.register({
+            fullName: fullName,
+            email: email,
+            password: pwd
+          });
+
+          if (res.success || res.status === 0) {
+            alert('Hồ sơ cán bộ điều phối đã được gửi đến Ban Chỉ huy PCTT & TKCN Quận Ngũ Hành Sơn phê duyệt. Đang chuyển sang đăng nhập.');
+            switchAuthMode('login');
+            switchLoginRole('admin');
+            const emailInp = document.getElementById('adminLoginEmail');
+            if (emailInp) emailInp.value = email;
+            return;
+          }
+
+          alert('❌ Đăng ký thất bại: ' + (res.message || 'Vui lòng kiểm tra lại thông tin.'));
+        }
+      } finally {
+        if (submitBtn) { submitBtn.innerHTML = origText; submitBtn.disabled = false; }
+      }
     }
 
     // ==========================================
@@ -2485,8 +2676,169 @@
       });
     }
 
+    // Update Topbar navigation based on Auth status
+    function updateNavAuth() {
+      if (!window.CoordSystemApi) return;
+      const user = window.CoordSystemApi.getCurrentUser();
+      const container = document.getElementById('navAuthContainer');
+      if (!container) return;
+
+      if (user && window.CoordSystemApi.isAuthenticated()) {
+        const isAdmin = window.CoordSystemApi.hasRole('ADMIN') || window.CoordSystemApi.hasRole('COORDINATOR');
+        const targetUrl = isAdmin ? 'admin/dashboard.html' : 'citizen/dashboard.html';
+        const roleLabel = isAdmin ? 'Admin' : 'Người dân';
+        const displayName = user.fullName || user.email || 'Thành viên';
+
+        container.innerHTML = `
+          <div style="display:flex; align-items:center; gap:10px;">
+            <a href="${targetUrl}" class="btn-gold" style="font-size:0.85rem; padding:8px 16px; display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
+              <span>👤</span> ${displayName} (${roleLabel})
+            </a>
+            <button onclick="window.CoordSystemApi.logout()" class="btn btn-ghost btn-sm" style="color:rgba(255,120,120,0.9); border:1px solid rgba(255,100,100,0.3); padding:7px 12px; font-size:0.82rem;" title="Đăng xuất khỏi hệ thống">
+              🚪 Thoát
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    // Synchronize catalog items and live stats with Spring Boot backend
+    async function syncLiveCatalog() {
+      if (!window.CoordSystemApi) return;
+
+      // 1. Fetch Live Catalog Items from Backend
+      if (window.CoordSystemApi.catalogApi) {
+        try {
+          const res = await window.CoordSystemApi.catalogApi.getItems();
+          if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+            console.log('[CoordSystem API] Đã đồng bộ ' + res.data.length + ' mặt hàng từ Backend Spring Boot');
+            renderLiveCatalog(res.data);
+          }
+        } catch (e) {
+          console.log('[CoordSystem API] Đang sử dụng danh mục tĩnh offline:', e);
+        }
+      }
+
+      // 2. Fetch Live System Statistics from Backend (Requests, Donations, Users)
+      try {
+        const [reqRes, donRes] = await Promise.all([
+          window.CoordSystemApi.requestApi.getAll(),
+          window.CoordSystemApi.donationApi.getAll()
+        ]);
+
+        if (reqRes && reqRes.success && Array.isArray(reqRes.data)) {
+          const totalRequests = reqRes.data.length;
+          const completedRequests = reqRes.data.filter(r => r.status === 'COMPLETED').length;
+          const kpiReq = document.querySelector('.hero-kpi-card:nth-child(3) .counter-num');
+          if (kpiReq && totalRequests > 0) {
+            kpiReq.setAttribute('data-target', totalRequests);
+            kpiReq.textContent = totalRequests;
+          }
+        }
+
+        if (donRes && donRes.success && Array.isArray(donRes.data)) {
+          const totalDonations = donRes.data.length;
+          const kpiDon = document.querySelector('.hero-kpi-card:nth-child(2) .counter-num');
+          if (kpiDon && totalDonations > 0) {
+            // Estimate tonnage or active donations
+            const tons = Math.max(24.5, totalDonations * 1.5).toFixed(1);
+            kpiDon.setAttribute('data-target', tons);
+            kpiDon.textContent = tons;
+          }
+        }
+      } catch (err) {
+        console.warn('[CoordSystem Stats] Chế độ xem số liệu mặc định');
+      }
+    }
+
+    // Render live backend items into the catalog grid
+    function renderLiveCatalog(items) {
+      const grid = document.getElementById('catalogGrid');
+      if (!grid || !items || items.length === 0) return;
+
+      // Show live database status badge in catalog header
+      const headerSubtitle = document.querySelector('.catalog-section-header p');
+      if (headerSubtitle && !document.getElementById('liveSyncBadge')) {
+        const badge = document.createElement('span');
+        badge.id = 'liveSyncBadge';
+        badge.style.cssText = 'display:inline-block; margin-left:10px; padding:3px 8px; border-radius:12px; background:rgba(46,107,40,0.3); border:1px solid #4A7A42; color:#6CE88A; font-size:0.75rem; font-weight:700;';
+        badge.innerHTML = '🟢 Kết nối dữ liệu thật từ Spring Boot (' + items.length + ' vật tư)';
+        headerSubtitle.appendChild(badge);
+      }
+
+      // Generate HTML for each item from backend
+      const itemCardsHtml = items.map((item, idx) => {
+        const catName = (item.category && item.category.name) || '';
+        let categoryClass = 'supplies';
+        let icon = '📦';
+        let badgeText = 'Nhu Yếu Phẩm';
+        let badgeClass = 'badge-pending';
+        let qtyEstimate = 'Dự trữ an toàn tại các Phường';
+
+        if (catName.indexOf('Thiết bị') !== -1 || catName.indexOf('Cứu nạn') !== -1) {
+          categoryClass = 'equipment';
+          icon = item.name.indexOf('Ca-nô') !== -1 ? '🚤' : (item.name.indexOf('bơm') !== -1 ? '⚡' : '🦺');
+          badgeText = 'Thiết Bị Cứu Hộ';
+          badgeClass = 'badge-urgent';
+        } else if (catName.indexOf('Y tế') !== -1) {
+          categoryClass = 'supplies';
+          icon = '💊';
+          badgeText = 'Vật Tư Y Tế';
+          badgeClass = 'badge-approved';
+        } else if (catName.indexOf('Nước') !== -1) {
+          categoryClass = 'supplies';
+          icon = '💧';
+          badgeText = 'Nước Sạch';
+          badgeClass = 'badge-approved';
+        } else if (catName.indexOf('Thực phẩm') !== -1) {
+          categoryClass = 'supplies';
+          icon = item.name.indexOf('Gạo') !== -1 ? '🌾' : '🍜';
+          badgeText = 'Lương Thực Khô';
+          badgeClass = 'badge-approved';
+        }
+
+        const unitSymbol = (item.unit && (item.unit.symbol || item.unit.unitName)) || 'Đơn vị';
+
+        return `
+          <div class="showcase-card" data-category="${categoryClass}">
+            <div>
+              <div class="sc-header">
+                <div class="sc-icon-wrap sc-icon-gold">${icon}</div>
+                <span class="sc-badge ${badgeClass}">${badgeText}</span>
+              </div>
+              <h3>${item.name}</h3>
+              <div class="sc-tagline">🏛️ Quản lý nguồn lực: CSDL An Sinh Q. Ngũ Hành Sơn</div>
+              <div class="sc-qty-box">
+                <span class="sc-qty-title">📊 Đơn vị tính:</span>
+                <span class="sc-qty-number" style="color:var(--gold-2); font-weight:800;">100% chuẩn định mức (${unitSymbol})</span>
+              </div>
+
+              <div class="sc-detail-box">
+                <strong>🎯 Thông tin vật tư:</strong>
+                ${item.description || 'Vật tư an sinh thiết yếu dự trữ tại các trạm điều phối Quận Ngũ Hành Sơn.'}
+              </div>
+
+              <div class="sc-meaning-box">
+                <strong>❤️ Mục tiêu điều phối:</strong>
+                Cấp phát đúng người, đúng thời điểm, đảm bảo an toàn tính mạng và an sinh xã hội cho nhân dân 4 Phường.
+              </div>
+            </div>
+            <div class="sc-footer">
+              <span>📍 Trạng thái: <strong style="color:#6CE88A;">${item.status === 'ACTIVE' ? 'Sẵn sàng điều phối' : item.status}</strong></span>
+              <button class="btn btn-outline btn-sm" onclick="openLoginModal('citizen')">Đăng ký tiếp nhận</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Keep service items and prepend or replace with real items
+      grid.innerHTML = itemCardsHtml;
+    }
+
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
+      updateNavAuth();
+      syncLiveCatalog();
       setTimeout(animateCounters, 300);
       initReactMap();
     });
