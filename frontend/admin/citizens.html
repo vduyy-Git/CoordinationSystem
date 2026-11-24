@@ -92,25 +92,32 @@
       </div>
 
       <div class="tab-nav">
-        <button class="tab-btn active" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">Tất cả (1,840)</button>
-        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">👴 Cao tuổi (420)</button>
-        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">👶 Trẻ em (350)</button>
-        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">♿ Khuyết tật (180)</button>
-        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">🏠 Hộ nghèo (580)</button>
-        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">🤰 Phụ nữ mang thai (85)</button>
+        <button type="button" class="tab-btn active" data-group="all" data-label="Tất cả">Tất cả (1,840)</button>
+        <button type="button" class="tab-btn" data-group="elderly" data-label="👴 Cao tuổi">👴 Cao tuổi (420)</button>
+        <button type="button" class="tab-btn" data-group="children" data-label="👶 Trẻ em">👶 Trẻ em (350)</button>
+        <button type="button" class="tab-btn" data-group="disability" data-label="♿ Khuyết tật">♿ Khuyết tật (180)</button>
+        <button type="button" class="tab-btn" data-group="poor" data-label="🏠 Hộ nghèo">🏠 Hộ nghèo (580)</button>
+        <button type="button" class="tab-btn" data-group="pregnant" data-label="🤰 Phụ nữ mang thai">🤰 Phụ nữ mang thai (85)</button>
       </div>
 
       <div class="filter-bar">
-        <input type="search" placeholder="🔍 Tìm theo họ tên, số CCCD, số điện thoại, địa chỉ..." />
-        <select><option value="">Tất cả khu vực / Tổ dân phố</option><option>Tổ 1</option><option>Tổ 2</option><option>Tổ 3</option><option>Tổ 4</option></select>
-        <select><option value="">Mức ưu tiên nhu cầu</option><option>Ưu tiên 1 — Khẩn cấp</option><option>Ưu tiên 2 — Cao</option><option>Ưu tiên 3 — Thường</option></select>
-        <button class="btn btn-primary btn-sm">Tìm kiếm</button>
+        <input type="search" id="citizenSearch" placeholder="🔍 Tìm theo họ tên, số CCCD, số điện thoại, địa chỉ..." />
+        <select id="citizenWardFilter"><option value="">Tất cả khu vực / Tổ dân phố</option></select>
+        <select id="citizenPriorityFilter">
+          <option value="">Mọi mức ưu tiên</option>
+          <option value="URGENT">Ưu tiên 1 — Khẩn cấp</option>
+          <option value="HIGH">Ưu tiên 2 — Cao</option>
+          <option value="NORMAL">Ưu tiên 3 — Thường</option>
+          <option value="LOW">Ưu tiên 4 — Thấp</option>
+        </select>
+        <button type="button" class="btn btn-primary btn-sm" id="citizenSearchButton">Tìm kiếm</button>
       </div>
 
       <div class="card">
         <div class="card-body" style="overflow-x:auto;">
-          <table class="admin-table">
-            <thead><tr><th></th><th>Họ tên & SĐT</th><th>CCCD</th><th>Nhóm đối tượng</th><th>Khu vực</th><th>Nhu cầu hiện tại</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+          <table class="admin-table" id="citizensTable">
+            <caption>Bảng hồ sơ người dân và nhu cầu hỗ trợ</caption>
+            <thead><tr><th></th><th>Họ tên &amp; SĐT</th><th>CCCD</th><th>Nhóm đối tượng</th><th>Khu vực</th><th>Nhu cầu hiện tại</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
             <tbody>
               <tr>
                 <td><div class="avatar avatar-sm avatar-brown">NB</div></td>
@@ -162,19 +169,21 @@
         <div class="modal modal-lg">
           <div class="modal-header"><div class="modal-title text-gold">＋ Thêm Hồ sơ Người dân</div><button class="modal-close" onclick="this.closest('.modal-overlay').style.display='none'">✕</button></div>
           <div class="divider-gold"></div>
-          <form onsubmit="event.preventDefault();this.closest('.modal-overlay').style.display='none';alert('Thêm hồ sơ thành công!');">
+          <form id="adminCitizenForm">
             <div class="grid-2">
-              <div class="form-group"><label class="form-label">👤 Họ và tên</label><input class="form-control" placeholder="Họ và tên người dân..." required/></div>
-              <div class="form-group"><label class="form-label">🆔 Số CCCD</label><input class="form-control" placeholder="12 chữ số..."/></div>
-              <div class="form-group"><label class="form-label">📱 Số điện thoại</label><input class="form-control" placeholder="09xxxxxxxxx"/></div>
-              <div class="form-group"><label class="form-label">📅 Ngày sinh</label><input type="date" class="form-control"/></div>
+              <div class="form-group"><label class="form-label">👤 Họ và tên</label><input name="fullName" class="form-control" placeholder="Họ và tên người dân..." required/></div>
+              <div class="form-group"><label class="form-label">🆔 Số CCCD</label><input name="citizenId" class="form-control" inputmode="numeric" maxlength="12" placeholder="12 chữ số..."/></div>
+              <div class="form-group"><label class="form-label">📱 Số điện thoại</label><input name="phone" class="form-control" placeholder="09xxxxxxxxx" required/></div>
+              <div class="form-group"><label class="form-label">📅 Ngày sinh</label><input name="birthDate" type="date" class="form-control"/></div>
+              <div class="form-group"><label class="form-label">📧 Email đăng nhập</label><input name="email" type="email" class="form-control" placeholder="email@example.com" required/></div>
+              <div class="form-group"><label class="form-label">🔑 Mật khẩu khởi tạo</label><input name="password" type="password" class="form-control" minlength="8" required/></div>
             </div>
-            <div class="form-group"><label class="form-label">📍 Địa chỉ cư trú</label><input class="form-control" placeholder="Số nhà, tổ dân phố, ấp/khu phố..."/></div>
+            <div class="form-group"><label class="form-label">📍 Địa chỉ cư trú</label><input name="address" class="form-control" placeholder="Số nhà, tổ dân phố, ấp/khu phố..."/></div>
             <div class="grid-2">
-              <div class="form-group"><label class="form-label">👥 Nhóm đối tượng</label><select class="form-control"><option>Cao tuổi</option><option>Trẻ em</option><option>Khuyết tật</option><option>Hộ nghèo</option><option>Phụ nữ mang thai</option><option>Khác</option></select></div>
-              <div class="form-group"><label class="form-label">🗺 Khu vực</label><select class="form-control"><option>Tổ 1</option><option>Tổ 2</option><option>Tổ 3</option><option>Tổ 4</option></select></div>
+              <div class="form-group"><label class="form-label">👥 Nhóm đối tượng</label><select name="beneficiaryGroup" class="form-control"><option value="">Chưa phân nhóm</option><option>Người cao tuổi</option><option>Trẻ em</option><option>Người khuyết tật</option><option>Hộ nghèo</option><option>Phụ nữ mang thai</option><option>Khác</option></select></div>
+              <div class="form-group"><label class="form-label">🗺 Khu vực</label><input name="ward" class="form-control" placeholder="Tên phường / xã..."/></div>
             </div>
-            <div class="form-group"><label class="form-label">📋 Nhu cầu hỗ trợ cụ thể</label><textarea class="form-control" placeholder="Mô tả nhu cầu cần hỗ trợ: vật tư, mức độ cấp thiết, người phụ thuộc..."></textarea></div>
+            <div class="form-group"><label class="form-label">📋 Nhu cầu hỗ trợ cụ thể</label><textarea name="situationDescription" class="form-control" placeholder="Mô tả nhu cầu cần hỗ trợ: vật tư, mức độ cấp thiết, người phụ thuộc..."></textarea></div>
             <div style="display:flex;gap:10px;justify-content:flex-end;"><button type="button" class="btn btn-ghost" onclick="this.closest('.modal-overlay').style.display='none'">Hủy</button><button type="submit" class="btn btn-primary">✅ Lưu hồ sơ</button></div>
           </form>
         </div>

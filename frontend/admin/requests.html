@@ -79,77 +79,35 @@
       <div class="page-header">
         <div class="page-header-left">
           <h2>📋 Tiếp nhận &amp; Xử lý Yêu cầu</h2>
-          <p>Phân loại yêu cầu, AI phân tích chấm mức ưu tiên, duyệt / từ chối / yêu cầu bổ sung thông tin</p>
+          <p>Danh sách yêu cầu hỗ trợ, mức ưu tiên và trạng thái xử lý từ hệ thống</p>
         </div>
-        <button class="btn btn-primary" onclick="alert('Mở form ghi nhận yêu cầu hỗ trợ mới!');">＋ Tiếp nhận yêu cầu</button>
       </div>
 
       <div class="stat-row">
-        <div class="stat-card sc-red"><div class="stat-icon">🚨</div><div class="stat-val" style="color:#B02A3A;">8</div><div class="stat-label">Khẩn cấp (URGENT)</div></div>
-        <div class="stat-card sc-gold"><div class="stat-icon">⏳</div><div class="stat-val text-gold">42</div><div class="stat-label">Chờ xét duyệt</div></div>
-        <div class="stat-card sc-blue"><div class="stat-icon">🔄</div><div class="stat-val" style="color:#2A5FAA;">38</div><div class="stat-label">Đang phân bổ</div></div>
-        <div class="stat-card sc-green"><div class="stat-icon">✅</div><div class="stat-val" style="color:#2E6B28;">68</div><div class="stat-label">Đã hoàn thành</div></div>
-      </div>
-
-      <!-- AI Banner -->
-      <div class="alert alert-info" style="margin-bottom:16px;">
-        <span>🤖</span>
-        <div><strong>AI Assistant (Chấm điểm ưu tiên tự động):</strong> Đã phân tích nội dung và định vị 8 yêu cầu khẩn cấp từ khu vực ngập sâu An Giang. Gợi ý ưu tiên nước sạch và lương thực ăn liền. <button class="btn btn-purple btn-sm" style="margin-left:8px;" onclick="location.href='allocations.html'">Xem đề xuất AI →</button></div>
+        <div class="stat-card sc-red"><div class="stat-icon">🚨</div><div class="stat-val" style="color:#B02A3A;">—</div><div class="stat-label">Khẩn cấp (URGENT)</div></div>
+        <div class="stat-card sc-gold"><div class="stat-icon">⏳</div><div class="stat-val text-gold">—</div><div class="stat-label">Chờ xét duyệt</div></div>
+        <div class="stat-card sc-blue"><div class="stat-icon">🔄</div><div class="stat-val" style="color:#2A5FAA;">—</div><div class="stat-label">Đang phân bổ</div></div>
+        <div class="stat-card sc-green"><div class="stat-icon">✅</div><div class="stat-val" style="color:#2E6B28;">—</div><div class="stat-label">Đã hoàn thành</div></div>
       </div>
 
       <div class="tab-nav">
-        <button class="tab-btn active" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">Tất cả yêu cầu (156)</button>
-        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">🚨 Khẩn cấp (8)</button>
-        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">⏳ Chờ duyệt (42)</button>
-        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">✅ Đã xử lý (68)</button>
-        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">❌ Đã từ chối (3)</button>
+        <button type="button" class="tab-btn active" data-request-filter="all" data-label="Tất cả yêu cầu">Tất cả yêu cầu</button>
+        <button type="button" class="tab-btn" data-request-filter="urgent" data-label="🚨 Khẩn cấp">🚨 Khẩn cấp</button>
+        <button type="button" class="tab-btn" data-request-filter="pending" data-label="⏳ Chờ duyệt">⏳ Chờ duyệt</button>
+        <button type="button" class="tab-btn" data-request-filter="processed" data-label="✅ Đã xử lý">✅ Đã xử lý</button>
+        <button type="button" class="tab-btn" data-request-filter="rejected" data-label="❌ Đã từ chối">❌ Đã từ chối</button>
+      </div>
+
+      <div class="filter-bar">
+        <input type="search" id="adminRequestSearch" placeholder="🔍 Tìm theo mã, người yêu cầu, tiêu đề, địa chỉ..." />
+        <select id="adminRequestPriority"><option value="">Mọi mức ưu tiên</option><option value="URGENT">Khẩn cấp</option><option value="HIGH">Cao</option><option value="NORMAL">Thường</option><option value="LOW">Thấp</option></select>
       </div>
 
       <div class="card"><div class="card-body" style="overflow-x:auto;">
-        <table class="admin-table">
-          <thead><tr><th>Mã đơn</th><th>Người yêu cầu</th><th>Tiêu đề nhu cầu</th><th>Mức ưu tiên</th><th>AI Score</th><th>Trạng thái</th><th>Thời gian</th><th>Thao tác cán bộ</th></tr></thead>
-          <tbody>
-            <tr style="background:rgba(217,64,80,0.05);">
-              <td style="font-family:monospace;color:var(--gold-1);font-weight:700;">REQ-183</td>
-              <td style="font-weight:700;">Lê Thị Hoa<div style="font-size:0.75rem;color:var(--text-light);">📱 0912345678</div></td>
-              <td>Nước uống khẩn cấp cho 50 hộ dân cô lập</td>
-              <td><span class="badge badge-urgent">🚨 URGENT</span></td>
-              <td><span class="ai-tag">9.8/10</span></td>
-              <td><span class="badge badge-pending">Chờ duyệt</span></td>
-              <td style="color:var(--text-light);">15 phút trước</td>
-              <td><div style="display:flex;gap:4px;"><button class="btn btn-success btn-sm" onclick="alert('Đã phê duyệt yêu cầu REQ-183!');">✓ Duyệt</button><button class="btn btn-danger btn-sm" onclick="alert('Từ chối yêu cầu!');">✕</button><button class="btn btn-ghost btn-icon btn-sm">👁</button></div></td>
-            </tr>
-            <tr style="background:rgba(217,64,80,0.05);">
-              <td style="font-family:monospace;color:var(--gold-1);font-weight:700;">REQ-182</td>
-              <td style="font-weight:700;">Trần Văn Nam<div style="font-size:0.75rem;color:var(--text-light);">📱 0988776655</div></td>
-              <td>Lương thực khô cứu trợ vùng lũ An Giang</td>
-              <td><span class="badge badge-high">🔴 HIGH</span></td>
-              <td><span class="ai-tag">8.9/10</span></td>
-              <td><span class="badge badge-pending">Chờ duyệt</span></td>
-              <td style="color:var(--text-light);">1 giờ trước</td>
-              <td><div style="display:flex;gap:4px;"><button class="btn btn-success btn-sm" onclick="alert('Đã phê duyệt yêu cầu REQ-182!');">✓ Duyệt</button><button class="btn btn-danger btn-sm">✕</button><button class="btn btn-ghost btn-icon btn-sm">👁</button></div></td>
-            </tr>
-            <tr>
-              <td style="font-family:monospace;color:var(--gold-1);font-weight:700;">REQ-181</td>
-              <td style="font-weight:700;">Nguyễn Thị Mai<div style="font-size:0.75rem;color:var(--text-light);">📱 0933221100</div></td>
-              <td>Khẩu trang y tế bổ sung cho trạm y tế phường</td>
-              <td><span class="badge badge-normal">🟡 NORMAL</span></td>
-              <td><span class="ai-tag">6.5/10</span></td>
-              <td><span class="badge badge-approved">Đã duyệt - Chờ hàng</span></td>
-              <td style="color:var(--text-light);">Hôm qua</td>
-              <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon btn-sm">👁</button></div></td>
-            </tr>
-            <tr>
-              <td style="font-family:monospace;color:var(--gold-1);font-weight:700;">REQ-180</td>
-              <td style="font-weight:700;">Phạm Đức Long<div style="font-size:0.75rem;color:var(--text-light);">📱 0900112233</div></td>
-              <td>Quần áo trẻ em cho mái ấm mùa mưa</td>
-              <td><span class="badge badge-low">⚪ LOW</span></td>
-              <td><span class="ai-tag">4.2/10</span></td>
-              <td><span class="badge badge-transit">Đang giao hàng</span></td>
-              <td style="color:var(--text-light);">2 ngày trước</td>
-              <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon btn-sm">👁</button></div></td>
-            </tr>
-          </tbody>
+        <table class="admin-table" id="adminRequestsTable">
+          <caption>Bảng yêu cầu hỗ trợ cần tiếp nhận và xử lý</caption>
+          <thead><tr><th>Mã đơn</th><th>Người yêu cầu</th><th>Tiêu đề nhu cầu</th><th>Mức ưu tiên</th><th>Vật tư yêu cầu</th><th>Trạng thái</th><th>Thời gian</th><th>Thao tác cán bộ</th></tr></thead>
+          <tbody><tr><td colspan="8">Đang tải yêu cầu từ máy chủ...</td></tr></tbody>
         </table>
       </div></div>
     </div>

@@ -5,7 +5,7 @@ Spring Boot REST API for coordinating donations, assistance requests, inventory 
 ## Run locally
 
 1. Install Java 17+ and SQL Server.
-2. Run `sql/Coordination.sql` to recreate `CoordinationDB` and its complete schema, then run `sql/CoordinationData.sql` to add demo data. **Running `Coordination.sql` deletes the existing database and all its data first.**
+2. Run `sql/Coordination.sql` to recreate `CoordinationDB` and its complete schema (tables and indexes), then run `sql/CoordinationData.sql` to seed roles, catalog items, demo accounts, and sample operational data. The data script is repeatable. **Running `Coordination.sql` deletes the existing database and all its data first.**
 3. Set `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, and `APP_TOKEN_SECRET`. The token secret must contain at least 32 bytes; the app refuses to start without it. Set `APP_STAFF_REGISTRATION_PIN` to a private six-digit code if staff applications are enabled.
 4. For the first administrator, also set `APP_BOOTSTRAP_ADMIN_EMAIL` and `APP_BOOTSTRAP_ADMIN_PASSWORD` (12+ characters). The bootstrap only creates a new account; it will not promote an existing user.
 5. Start the API from `backend` with `mvn spring-boot:run` or `mvnw.cmd spring-boot:run`.
@@ -18,7 +18,7 @@ Frontend API routes and example request bodies are documented in [backend/API.md
 
 ### Sample database data
 
-After creating the schema, run `sql/CoordinationData.sql` in SQL Server Management Studio. The script is transactional and can be run again without duplicating its demo records. It creates demo accounts, pending records for approval, an approved request ready for allocation, and one completed donation-to-delivery history. It prints the generated database IDs needed in Swagger request bodies after seeding. When running it with `sqlcmd`, use UTF-8 input (`-f 65001`) so Vietnamese catalog names match correctly.
+After creating the schema with `sql/Coordination.sql`, run `sql/CoordinationData.sql` in SQL Server Management Studio. The script is transactional and can be run again without duplicating its records. It seeds default roles, units, categories, catalog items, demo accounts, pending records for approval, approved requests ready for allocation, one completed donation-to-delivery history, and extended sample accounts, social services, registrations, and collection points, then prints summary database records. When running it with `sqlcmd`, use UTF-8 input (`-f 65001`) so Vietnamese catalog names match correctly.
 
 All demo accounts use the password `DemoPass123!`:
 
@@ -27,9 +27,11 @@ All demo accounts use the password `DemoPass123!`:
 - `demo.donor@coordination.local` — `USER`
 - `demo.recipient@coordination.local` — `USER`
 
+Additional seeded accounts in `sql/CoordinationData.sql` use the same password for active accounts. Examples: `demo.citizen.hieu@coordination.local`, `demo.citizen.hong@coordination.local`, and `demo.coordinator.an@coordination.local`. `demo.citizen.tam@coordination.local` is intentionally `LOCKED` for status-filter demonstrations.
+
 After starting the API and serving `frontend` on an allowed local origin (port 5500 or 5173), sign in through the login form using one of the seeded accounts above.
 
-Use `RQ-DEMO-READY-001` to test allocation creation. The completed example uses `DN-DEMO-COMPLETE-001`, `RQ-DEMO-COMPLETE-001`, and `SH-DEMO-COMPLETE-001`.
+Use `RQ-DEMO-READY-001` to test allocation creation. The core completed example uses `DN-NHS-2026-001`, `RQ-NHS-2026-001`, and `SH-NHS-2026-001`.
 
 ## Authentication
 

@@ -81,44 +81,28 @@
           <h2>📦 Quản lý Nguồn lực</h2>
           <p>Nguồn lực theo nhiều cấp, kiểm soát số lượng &amp; tình trạng, quản lý đơn vị cung cấp và điểm tập kết</p>
         </div>
-        <button class="btn btn-primary" onclick="alert('Mở form tiếp nhận nguồn lực mới!');">＋ Tiếp nhận nguồn lực</button>
       </div>
 
       <div class="stat-row">
-        <div class="stat-card sc-gold"><div class="stat-icon">📦</div><div class="stat-val text-gold">12.5t</div><div class="stat-label">Tổng hàng hóa (tấn)</div></div>
-        <div class="stat-card sc-green"><div class="stat-icon">🏢</div><div class="stat-val" style="color:#2E6B28;">8</div><div class="stat-label">Đơn vị cung cấp</div></div>
-        <div class="stat-card sc-blue"><div class="stat-icon">📍</div><div class="stat-val" style="color:#2A5FAA;">5</div><div class="stat-label">Điểm tập kết</div></div>
-        <div class="stat-card sc-red"><div class="stat-icon">⚠️</div><div class="stat-val" style="color:#B02A3A;">3</div><div class="stat-label">Vật tư sắp hết</div></div>
+        <div class="stat-card sc-gold"><div class="stat-icon">📦</div><div class="stat-val text-gold">—</div><div class="stat-label">Mặt hàng có tồn kho</div></div>
+        <div class="stat-card sc-green"><div class="stat-icon">🏢</div><div class="stat-val" style="color:#2E6B28;">—</div><div class="stat-label">Đơn vị đã cung cấp</div></div>
+        <div class="stat-card sc-blue"><div class="stat-icon">📍</div><div class="stat-val" style="color:#2A5FAA;">—</div><div class="stat-label">Điểm tập kết</div></div>
+        <div class="stat-card sc-red"><div class="stat-icon">⚠️</div><div class="stat-val" style="color:#B02A3A;">—</div><div class="stat-label">Vật tư hết hàng</div></div>
       </div>
 
       <div class="tab-nav">
-        <button class="tab-btn active" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">📦 Tồn kho vật tư</button>
-        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">🏢 Đơn vị cung cấp</button>
-        <button class="tab-btn" onclick="document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));this.classList.add('active');">📍 Điểm tập kết</button>
+        <button type="button" class="tab-btn active" data-resource-view="inventory">📦 Tồn kho vật tư</button>
+        <button type="button" class="tab-btn" data-resource-view="providers">🏢 Đơn vị cung cấp</button>
+        <button type="button" class="tab-btn" data-resource-view="points">📍 Điểm tập kết</button>
       </div>
 
       <div class="card">
         <div class="card-header"><div class="card-title">📦 Chi tiết Tồn kho & Tình trạng Khả dụng</div></div>
         <div class="card-body" style="overflow-x:auto;">
-          <table class="admin-table">
+          <table class="admin-table" id="adminResourcesTable">
+            <caption>Bảng tồn kho và khả năng đáp ứng vật tư</caption>
             <thead><tr><th>Tên vật tư</th><th>Danh mục</th><th>Đơn vị</th><th>Tổng tiếp nhận</th><th>Đã phân bổ</th><th>Còn khả dụng</th><th>Mức đáp ứng</th><th>Thao tác</th></tr></thead>
-            <tbody>
-              <tr><td style="font-weight:700;">🍜 Mì ăn liền đóng thùng</td><td>Thực phẩm</td><td>Thùng</td><td style="font-weight:700;">500</td><td>160</td><td style="color:#2E6B28;font-weight:700;">340</td>
-                <td><div class="progress-bar" style="width:120px;"><div class="progress-fill pf-green" style="width:68%;"></div></div><span style="font-size:0.72rem;color:var(--text-light);">68% - Đủ nguồn</span></td>
-                <td><button class="btn btn-ghost btn-sm">Điều phối</button></td></tr>
-              <tr><td style="font-weight:700;">🌾 Gạo đóng bao (50kg)</td><td>Thực phẩm</td><td>Kg</td><td style="font-weight:700;">500</td><td>415</td><td style="color:#A05500;font-weight:700;">85</td>
-                <td><div class="progress-bar" style="width:120px;"><div class="progress-fill" style="width:17%;background:#FF9040;"></div></div><span style="font-size:0.72rem;color:#A05500;">17% - Cảnh báo thiếu</span></td>
-                <td><button class="btn btn-outline btn-sm">Bổ sung</button></td></tr>
-              <tr><td style="font-weight:700;">💧 Nước uống đóng chai (500ml)</td><td>Nước uống</td><td>Chai</td><td style="font-weight:700;">1,500</td><td>260</td><td style="color:#2E6B28;font-weight:700;">1,240</td>
-                <td><div class="progress-bar" style="width:120px;"><div class="progress-fill pf-green" style="width:82%;"></div></div><span style="font-size:0.72rem;color:var(--text-light);">82% - Dồi dào</span></td>
-                <td><button class="btn btn-ghost btn-sm">Điều phối</button></td></tr>
-              <tr><td style="font-weight:700;">😷 Khẩu trang y tế kháng khuẩn</td><td>Y tế</td><td>Hộp</td><td style="font-weight:700;">200</td><td>200</td><td style="color:#B02A3A;font-weight:700;">0</td>
-                <td><div class="progress-bar" style="width:120px;"><div class="progress-fill pf-red" style="width:0%;"></div></div><span style="font-size:0.72rem;color:#B02A3A;">Hết hàng - Khẩn cấp</span></td>
-                <td><button class="btn btn-danger btn-sm">Kêu gọi</button></td></tr>
-              <tr><td style="font-weight:700;">👕 Quần áo & đồ dùng cá nhân</td><td>Nhu yếu phẩm</td><td>Bộ</td><td style="font-weight:700;">140</td><td>98</td><td style="color:#A05500;font-weight:700;">42</td>
-                <td><div class="progress-bar" style="width:120px;"><div class="progress-fill pf-gold" style="width:30%;"></div></div><span style="font-size:0.72rem;color:var(--text-light);">30% - Sắp cạn</span></td>
-                <td><button class="btn btn-outline btn-sm">Tiếp nhận</button></td></tr>
-            </tbody>
+            <tbody><tr><td colspan="8">Đang tải tồn kho từ máy chủ...</td></tr></tbody>
           </table>
         </div>
       </div>

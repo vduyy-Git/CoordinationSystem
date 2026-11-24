@@ -73,14 +73,6 @@ CREATE TABLE user_roles (
 );
 GO
 
--- Khởi tạo các quyền mặc định
-INSERT INTO roles (role_name, description)
-VALUES
-('USER', N'Người dùng thông thường'),
-('ADMIN', N'Quản trị viên hệ thống'),
-('COORDINATOR', N'Người điều phối vật tư');
-GO
-
 -- 4. CATEGORIES
 CREATE TABLE categories (
     id BIGINT IDENTITY(1,1) PRIMARY KEY,
@@ -493,40 +485,6 @@ CREATE TABLE attachments (
     CONSTRAINT FK_attachments_users
         FOREIGN KEY (uploaded_by) REFERENCES users(id)
 );
-GO
-
--- Đơn vị tính
-INSERT INTO units (unit_name, symbol)
-VALUES
-(N'Thùng', N'thùng'),
-(N'Kilogram', N'kg'),
-(N'Cái', N'cái'),
-(N'Hộp', N'hộp'),
-(N'Chai', N'chai'),
-(N'Bộ', N'bộ'),
-(N'Lít', N'lít'),
-(N'Chiếc', N'chiếc');
-
--- Danh mục
-INSERT INTO categories (name, description)
-VALUES
-(N'Thực phẩm & Lương thực', N'Gạo, mì ăn liền và thực phẩm khô dự trữ phòng bão lũ'),
-(N'Nước sạch & Đồ uống', N'Nước uống tinh khiết đóng chai và nước sát khuẩn'),
-(N'Y tế & Cứu thương', N'Túi sơ cấp cứu, thuốc men thiết yếu và thiết bị y tế lưu động'),
-(N'Thiết bị & Cứu nạn', N'Ca-nô, áo phao, máy bơm chìm và đèn pin cứu hộ bão lũ'),
-(N'Quần áo & Đồ dùng an sinh', N'Chăn màn, áo ấm và đồ dùng thiết yếu cho người dân');
-
--- Vật tư mẫu
-INSERT INTO items (category_id, unit_id, name, description)
-VALUES
-(1, 2, N'Gạo trắng ST25', N'Gạo đóng bao 25kg tiêu chuẩn an sinh xã hội Quận Ngũ Hành Sơn'),
-(1, 1, N'Mì tôm Hảo Hảo', N'Mì tôm ăn liền đóng thùng 30 gói, dự trữ phòng chống thiên tai'),
-(2, 5, N'Nước khoáng Lavie 500ml', N'Nước khoáng tinh khiết đóng thùng 24 chai phục vụ vùng ngập mặn/ngập úng'),
-(4, 3, N'Áo phao cứu sinh đạt chuẩn', N'Áo phao xốp có còi báo hiệu, đạt chuẩn PCTT & TKCN'),
-(3, 6, N'Túi thuốc sơ cấp cứu & Vitamin', N'Bộ túi thuốc gia đình gồm bông băng gạc, cồn đỏ, panadol, vitamin C'),
-(4, 8, N'Máy bơm chìm hút ngập lũ', N'Máy bơm công suất lớn giải cứu các điểm ngập úng ven sông Cổ Cò'),
-(4, 3, N'Đèn pin sạc đội đầu & Pin', N'Đèn pin LED chống thấm nước kèm pin sạc dự phòng cứu nạn ban đêm'),
-(4, 8, N'Ca-nô cứu nạn vỏ nhôm', N'Ca-nô cứu hộ tốc độ cao phục vụ sơ tán dân ven biển Non Nước và ven sông');
 GO
 
 -- Indexes for common ownership, status, and audit queries

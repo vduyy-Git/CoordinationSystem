@@ -91,58 +91,25 @@
 
       <!-- Services Panel -->
       <div id="panelSvc">
-        <div class="grid-3">
-          <div class="card"><div class="card-body" style="text-align:center;">
-            <div style="font-size:2.5rem;margin-bottom:8px;">🏥</div><div style="font-weight:800;font-size:1rem;">Y tế & Cấp cứu</div>
-            <div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">Khám sức khỏe lưu động, cấp phát thuốc, sơ cứu khẩn cấp</div>
-            <div class="divider-gold"></div>
-            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>Trạng thái</span><span class="badge badge-active">Đang hoạt động</span></div>
-          </div></div>
-          <div class="card"><div class="card-body" style="text-align:center;">
-            <div style="font-size:2.5rem;margin-bottom:8px;">🍚</div><div style="font-weight:800;font-size:1rem;">Cung cấp Lương thực</div>
-            <div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">Phân phát gạo, mì ăn liền, nước sạch tận nhà cho hộ cô lập</div>
-            <div class="divider-gold"></div>
-            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>Trạng thái</span><span class="badge badge-active">Đang hoạt động</span></div>
-          </div></div>
-          <div class="card"><div class="card-body" style="text-align:center;">
-            <div style="font-size:2.5rem;margin-bottom:8px;">👕</div><div style="font-weight:800;font-size:1rem;">Quần áo &amp; Chăn ấm</div>
-            <div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">Tiếp nhận và phân phát quần áo trẻ em, người già, chăn màn</div>
-            <div class="divider-gold"></div>
-            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>Trạng thái</span><span class="badge badge-active">Đang hoạt động</span></div>
-          </div></div>
-          <div class="card"><div class="card-body" style="text-align:center;">
-            <div style="font-size:2.5rem;margin-bottom:8px;">🏠</div><div style="font-weight:800;font-size:1rem;">Hỗ trợ Tạm cư & Nhà ở</div>
-            <div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">Bố trí điểm tạm cư vùng ngập, gia cố nhà dột nát</div>
-            <div class="divider-gold"></div>
-            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>Trạng thái</span><span class="badge badge-active">Đang hoạt động</span></div>
-          </div></div>
-          <div class="card"><div class="card-body" style="text-align:center;">
-            <div style="font-size:2.5rem;margin-bottom:8px;">📚</div><div style="font-weight:800;font-size:1rem;">Hỗ trợ Giáo dục</div>
-            <div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">Cấp phát tập vở, sách giáo khoa, học bổng an sinh</div>
-            <div class="divider-gold"></div>
-            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>Trạng thái</span><span class="badge badge-active">Đang hoạt động</span></div>
-          </div></div>
-          <div class="card"><div class="card-body" style="text-align:center;">
-            <div style="font-size:2.5rem;margin-bottom:8px;">⚖️</div><div style="font-weight:800;font-size:1rem;">Tư vấn Pháp lý & Chính sách</div>
-            <div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">Hướng dẫn thủ tục trợ cấp xã hội, giấy tờ tùy thân</div>
-            <div class="divider-gold"></div>
-            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>Trạng thái</span><span class="badge badge-active">Đang hoạt động</span></div>
-          </div></div>
+        <div class="grid-3" id="adminServiceCards"><div class="card"><div class="card-body">Đang tải dịch vụ từ máy chủ...</div></div></div>
+        <div class="card" style="margin-top:18px;">
+          <div class="card-body" style="overflow-x:auto;">
+            <table class="admin-table" id="adminServicesTable">
+              <caption>Bảng danh mục dịch vụ an sinh</caption>
+              <thead><tr><th>Tên dịch vụ</th><th>Loại dịch vụ</th><th>Mô tả</th><th>Phạm vi phục vụ</th><th>Trạng thái</th><th>Điện thoại liên hệ</th></tr></thead>
+              <tbody><tr><td colspan="6">Đang tải dịch vụ...</td></tr></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
       <!-- Equipment Panel -->
       <div id="panelDev" style="display:none;">
         <div class="card"><div class="card-body" style="overflow-x:auto;">
-          <table class="admin-table">
-            <thead><tr><th>Thiết bị</th><th>Phân loại</th><th>Tổng số</th><th>Khả dụng</th><th>Tình trạng kỹ thuật</th><th>Vị trí lưu kho</th><th>Thao tác</th></tr></thead>
-            <tbody>
-              <tr><td style="font-weight:700;">🔌 Máy phát điện công nghiệp 5kW</td><td>Nguồn điện</td><td>3 máy</td><td>2 máy</td><td><span class="badge badge-active">Tốt, sẵn sàng</span></td><td>Điểm tập kết số 1</td><td><button class="btn btn-ghost btn-icon">✏️</button></td></tr>
-              <tr><td style="font-weight:700;">💧 Hệ thống lọc nước RO dã chiến</td><td>Nước sạch</td><td>5 bộ</td><td>5 bộ</td><td><span class="badge badge-active">Hoạt động tốt</span></td><td>Kho trung tâm Xã</td><td><button class="btn btn-ghost btn-icon">✏️</button></td></tr>
-              <tr><td style="font-weight:700;">🏕 Lều bạt cứu hộ chống bão</td><td>Tạm cư</td><td>20 bộ</td><td>5 bộ</td><td><span class="badge badge-pending">Đang sử dụng: 15</span></td><td>Khu tạm cư Tổ 2</td><td><button class="btn btn-ghost btn-icon">✏️</button></td></tr>
-              <tr><td style="font-weight:700;">🛏 Giường gấp y tế cơ động</td><td>Y tế</td><td>50 chiếc</td><td>30 chiếc</td><td><span class="badge badge-active">Sẵn sàng điều phối</span></td><td>Trạm y tế Xã</td><td><button class="btn btn-ghost btn-icon">✏️</button></td></tr>
-              <tr><td style="font-weight:700;">📡 Bộ đàm liên lạc cứu trợ VHF</td><td>Viễn thông</td><td>12 chiếc</td><td>10 chiếc</td><td><span class="badge badge-locked">2 máy đang bảo dưỡng</span></td><td>Trụ sở UBND Xã</td><td><button class="btn btn-ghost btn-icon">✏️</button></td></tr>
-            </tbody>
+          <table class="admin-table" id="adminEquipmentTable">
+            <caption>Bảng thiết bị cứu trợ và tình trạng khả dụng</caption>
+            <thead><tr><th>Vật tư / thiết bị</th><th>Phân loại</th><th>Đã tiếp nhận</th><th>Khả dụng</th><th>Đơn vị</th></tr></thead>
+            <tbody><tr><td colspan="5">Đang tải danh mục vật tư từ máy chủ...</td></tr></tbody>
           </table>
         </div></div>
       </div>
@@ -152,10 +119,12 @@
         <div class="modal">
           <div class="modal-header"><div class="modal-title text-gold">＋ Thêm Dịch vụ / Thiết bị</div><button class="modal-close" onclick="this.closest('.modal-overlay').style.display='none'">✕</button></div>
           <div class="divider-gold"></div>
-          <form onsubmit="event.preventDefault();this.closest('.modal-overlay').style.display='none';alert('Thêm thành công!');">
-            <div class="form-group"><label class="form-label">Phân loại</label><select class="form-control"><option>Dịch vụ an sinh</option><option>Thiết bị cứu trợ</option></select></div>
-            <div class="form-group"><label class="form-label">Tên gọi</label><input class="form-control" placeholder="Tên dịch vụ hoặc thiết bị..." required/></div>
-            <div class="form-group"><label class="form-label">Mô tả & Hướng dẫn</label><textarea class="form-control" placeholder="Chi tiết thông số, quy trình phục vụ..."></textarea></div>
+          <form id="adminServiceForm">
+            <div class="form-group"><label class="form-label">Phân loại</label><select class="form-control" id="adminResourceType"><option value="SERVICE">Dịch vụ an sinh</option><option value="EQUIPMENT">Thiết bị / vật tư</option></select></div>
+            <div class="form-group"><label class="form-label">Tên gọi</label><input class="form-control" name="name" placeholder="Tên dịch vụ hoặc thiết bị..." required/></div>
+            <div class="form-group" id="adminServiceFields"><label class="form-label">Khu vực phục vụ</label><input class="form-control" name="serviceArea" placeholder="Phường / địa bàn phục vụ"/><label class="form-label" style="margin-top:10px;">Điện thoại liên hệ</label><input class="form-control" name="contactPhone" placeholder="Số liên hệ"/></div>
+            <div class="form-group" id="adminEquipmentFields" hidden><label class="form-label">Danh mục</label><select class="form-control" name="categoryId"></select><label class="form-label" style="margin-top:10px;">Đơn vị tính</label><select class="form-control" name="unitId"></select></div>
+            <div class="form-group"><label class="form-label">Mô tả & Hướng dẫn</label><textarea class="form-control" name="description" placeholder="Chi tiết thông số, quy trình phục vụ..."></textarea></div>
             <div style="display:flex;gap:10px;justify-content:flex-end;"><button type="button" class="btn btn-ghost" onclick="this.closest('.modal-overlay').style.display='none'">Hủy</button><button type="submit" class="btn btn-primary">✅ Lưu dữ liệu</button></div>
           </form>
         </div>

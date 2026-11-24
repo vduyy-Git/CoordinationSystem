@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8"/>
@@ -85,64 +85,65 @@
       </div>
 
       <div class="stat-row">
-        <div class="stat-card sc-gold"><div class="stat-icon">👥</div><div class="stat-val text-gold">48</div><div class="stat-label">Tổng tài khoản</div></div>
-        <div class="stat-card sc-green"><div class="stat-icon">✅</div><div class="stat-val" style="color:#2E6B28;">42</div><div class="stat-label">Đang hoạt động</div></div>
-        <div class="stat-card sc-red"><div class="stat-icon">🔒</div><div class="stat-val" style="color:#B02A3A;">3</div><div class="stat-label">Đang bị khóa</div></div>
-        <div class="stat-card sc-blue"><div class="stat-icon">⏳</div><div class="stat-val" style="color:#2A5FAA;">3</div><div class="stat-label">Chờ xác minh</div></div>
+        <div class="stat-card sc-gold"><div class="stat-icon">👥</div><div class="stat-val text-gold">—</div><div class="stat-label">Tổng tài khoản</div></div>
+        <div class="stat-card sc-green"><div class="stat-icon">✅</div><div class="stat-val" style="color:#2E6B28;">—</div><div class="stat-label">Đang hoạt động</div></div>
+        <div class="stat-card sc-red"><div class="stat-icon">🔒</div><div class="stat-val" style="color:#B02A3A;">—</div><div class="stat-label">Đang bị khóa</div></div>
+        <div class="stat-card sc-blue"><div class="stat-icon">⏳</div><div class="stat-val" style="color:#2A5FAA;">—</div><div class="stat-label">Chờ xác minh</div></div>
       </div>
 
       <div class="filter-bar">
-        <input type="search" placeholder="🔍 Tìm theo tên, email, số điện thoại..." />
-        <select><option value="">Tất cả vai trò</option><option>ADMIN (Quản trị viên)</option><option>COORDINATOR (Điều phối viên)</option><option>USER (Người dân)</option></select>
-        <select><option value="">Tất cả trạng thái</option><option>ACTIVE</option><option>INACTIVE</option><option>LOCKED</option></select>
-        <button class="btn btn-primary btn-sm">Lọc dữ liệu</button>
+        <input type="search" id="accountSearch" placeholder="🔍 Tìm theo tên, CCCD, số điện thoại..." />
+        <select id="accountRoleFilter"><option value="">Tất cả vai trò</option><option value="ADMIN">ADMIN (Quản trị viên)</option><option value="COORDINATOR">COORDINATOR (Điều phối viên)</option><option value="USER">USER (Người dân)</option></select>
+        <select id="accountStatusFilter"><option value="">Tất cả trạng thái</option><option value="ACTIVE">ACTIVE</option><option value="INACTIVE">INACTIVE</option><option value="LOCKED">LOCKED</option></select>
+        <button type="button" class="btn btn-primary btn-sm" id="accountFilterButton">Lọc dữ liệu</button>
       </div>
 
       <div class="card">
         <div class="card-body" style="overflow-x:auto;">
-          <table class="admin-table">
-            <thead><tr><th></th><th>Họ tên</th><th>Email</th><th>SĐT</th><th>Vai trò</th><th>Trạng thái</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>
+          <table class="admin-table" id="accountsTable">
+            <caption>Bảng tài khoản người dùng và quyền truy cập</caption>
+            <thead><tr><th></th><th style="white-space:normal;word-break:break-word;min-width:120px;max-width:200px;">Họ tên</th><th>CCCD</th><th>SĐT</th><th>Vai trò</th><th>Trạng thái</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>
             <tbody>
               <tr>
-                <td><div class="avatar avatar-sm avatar-gold">ND</div></td>
-                <td style="font-weight:700;">Nguyễn Duy</td>
-                <td>nguyenduy@email.com</td><td>0901234567</td>
+                <td><div class="avatar avatar-sm avatar-dark">D</div></td>
+                <td style="font-weight:700;white-space:normal;word-break:break-word;">Nguyễn Duy</td>
+                <td>040100000001</td><td>0901234567</td>
                 <td><span class="badge badge-admin">⚙️ ADMIN</span></td>
                 <td><span class="badge badge-active">ACTIVE</span></td>
                 <td style="color:var(--text-light);">01/01/2026</td>
                 <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon" title="Sửa">✏️</button><button class="btn btn-ghost btn-icon" title="Khóa">🔒</button></div></td>
               </tr>
               <tr>
-                <td><div class="avatar avatar-sm avatar-purple">TM</div></td>
-                <td style="font-weight:700;">Trần Minh</td>
-                <td>tranminh@email.com</td><td>0909876543</td>
+                <td><div class="avatar avatar-sm avatar-dark">M</div></td>
+                <td style="font-weight:700;white-space:normal;word-break:break-word;">Trần Minh</td>
+                <td>040200000002</td><td>0909876543</td>
                 <td><span class="badge badge-coord">🎯 COORDINATOR</span></td>
                 <td><span class="badge badge-active">ACTIVE</span></td>
                 <td style="color:var(--text-light);">15/03/2026</td>
                 <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon">✏️</button><button class="btn btn-ghost btn-icon">🔒</button></div></td>
               </tr>
               <tr>
-                <td><div class="avatar avatar-sm avatar-green">LH</div></td>
-                <td style="font-weight:700;">Lê Thị Hoa</td>
-                <td>lethihoa@email.com</td><td>0912345678</td>
+                <td><div class="avatar avatar-sm avatar-dark">H</div></td>
+                <td style="font-weight:700;white-space:normal;word-break:break-word;">Lê Thị Hoa</td>
+                <td>040300000003</td><td>0912345678</td>
                 <td><span class="badge badge-user">👤 USER (Người dân)</span></td>
                 <td><span class="badge badge-active">ACTIVE</span></td>
                 <td style="color:var(--text-light);">20/06/2026</td>
                 <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon">✏️</button><button class="btn btn-ghost btn-icon">🔒</button></div></td>
               </tr>
               <tr>
-                <td><div class="avatar avatar-sm avatar-brown">PL</div></td>
-                <td style="font-weight:700;">Phạm Đức Long</td>
-                <td>phamlong@email.com</td><td>0918765432</td>
+                <td><div class="avatar avatar-sm avatar-dark">L</div></td>
+                <td style="font-weight:700;white-space:normal;word-break:break-word;">Phạm Đức Long</td>
+                <td>040400000004</td><td>0918765432</td>
                 <td><span class="badge badge-user">👤 USER (Người dân)</span></td>
                 <td><span class="badge badge-locked">🔒 LOCKED</span></td>
                 <td style="color:var(--text-light);">05/08/2026</td>
                 <td><div style="display:flex;gap:4px;"><button class="btn btn-ghost btn-icon">✏️</button><button class="btn btn-success btn-icon btn-sm" title="Mở khóa">🔓</button></div></td>
               </tr>
               <tr>
-                <td><div class="avatar avatar-sm avatar-purple">NM</div></td>
-                <td style="font-weight:700;">Nguyễn Mai</td>
-                <td>nguyenmai@email.com</td><td>0923456789</td>
+                <td><div class="avatar avatar-sm avatar-dark">M</div></td>
+                <td style="font-weight:700;white-space:normal;word-break:break-word;">Nguyễn Mai</td>
+                <td>040500000005</td><td>0923456789</td>
                 <td><span class="badge badge-coord">🎯 COORDINATOR</span></td>
                 <td><span class="badge badge-active">ACTIVE</span></td>
                 <td style="color:var(--text-light);">01/09/2026</td>
@@ -161,16 +162,16 @@
             <button class="modal-close" onclick="document.getElementById('addUserModal').style.display='none'">✕</button>
           </div>
           <div class="divider-gold"></div>
-          <form onsubmit="event.preventDefault();document.getElementById('addUserModal').style.display='none';alert('Tạo tài khoản thành công!');">
+          <form id="createAccountForm">
             <div class="grid-2">
-              <div class="form-group"><label class="form-label">👤 Họ và tên</label><input type="text" class="form-control" placeholder="Nguyễn Văn A" required/></div>
-              <div class="form-group"><label class="form-label">📧 Email</label><input type="email" class="form-control" placeholder="email@example.com" required/></div>
-              <div class="form-group"><label class="form-label">📱 Số điện thoại</label><input type="tel" class="form-control" placeholder="0901234567"/></div>
+              <div class="form-group"><label class="form-label">👤 Họ và tên</label><input name="fullName" type="text" class="form-control" placeholder="Nguyễn Văn A" required/></div>
+              <div class="form-group"><label class="form-label">📧 Email</label><input name="email" type="email" class="form-control" placeholder="email@example.com" required/></div>
+              <div class="form-group"><label class="form-label">📱 Số điện thoại</label><input name="phone" type="tel" class="form-control" placeholder="0901234567"/></div>
               <div class="form-group"><label class="form-label">🔑 Vai trò</label>
-                <select class="form-control"><option>USER — Người dân</option><option>COORDINATOR — Điều phối viên</option><option>ADMIN — Quản trị viên</option></select>
+                <select name="roleId" id="createAccountRole" class="form-control" required><option value="">Đang tải vai trò...</option></select>
               </div>
             </div>
-            <div class="form-group"><label class="form-label">🔒 Mật khẩu</label><input type="password" class="form-control" placeholder="Tối thiểu 8 ký tự" required/></div>
+            <div class="form-group"><label class="form-label">🔒 Mật khẩu</label><input name="password" type="password" class="form-control" placeholder="Tối thiểu 8 ký tự" minlength="8" required/></div>
             <div style="display:flex;gap:10px;justify-content:flex-end;">
               <button type="button" class="btn btn-ghost" onclick="document.getElementById('addUserModal').style.display='none'">Hủy</button>
               <button type="submit" class="btn btn-primary">✅ Tạo tài khoản</button>
