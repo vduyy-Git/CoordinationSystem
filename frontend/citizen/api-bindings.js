@@ -21,7 +21,12 @@
       const name = node.querySelector('strong, .sidebar-user-name');
       if (name) name.textContent = profile.fullName || '';
     });
+    const displayName = profile.fullName || 'Người dân';
+    const initials = displayName.split(/\s+/).filter(Boolean).slice(-2).map(part => part[0]).join('').toLocaleUpperCase('vi-VN') || 'ND';
+    document.querySelectorAll('.sidebar-avatar, #citizenSidebarAvatar').forEach(node => node.textContent = initials);
+    document.querySelectorAll('.sidebar-user-role').forEach(node => node.textContent = profile.ward ? `Người dân (${profile.ward})` : 'Người dân');
     renderProfile();
+    populateProfileForm();
     return profile;
   }
 
@@ -41,23 +46,56 @@
     if (role) role.textContent = profile.ward ? `Người dân (${profile.ward})` : 'Người dân';
   }
 
+  function showProfileMessage(message, isError = false) {
+    const node = document.querySelector('#profileMessage');
+    if (!node) return;
+    node.hidden = false;
+    node.textContent = message;
+    node.style.background = isError ? 'var(--red-pale)' : 'var(--moss-pale)';
+    node.style.color = isError ? 'var(--red)' : 'var(--moss-dark)';
+  }
+
   async function loadDashboard() {
-    const [summary, notices, shipments] = await Promise.all([
-      api.get('/dashboard/summary'), api.get('/notifications/mine'), api.get('/shipments/mine')
+    const [summary, notices, shipments, requests] = await Promise.all([
+      api.get('/dashboard/summary'), api.get('/notifications/mine'), api.get('/shipments/mine'), api.get('/assistance-requests/mine')
     ]);
     const vals = document.querySelectorAll('.stat-val');
     if (vals.length >= 4) {
-      vals[0].textContent = summary.requestsByStatus?.PENDING || 0;
+      const closedStatuses = new Set(['COMPLETED', 'REJECTED', 'CANCELLED', 'DELIVERED', 'RETURNED']);
+      vals[0].textContent = requests.filter(r => !closedStatuses.has(String(r.status).toUpperCase())).length;
       vals[1].textContent = summary.requests || 0;
       vals[2].textContent = summary.shipmentsByStatus?.DELIVERED || 0;
       vals[3].textContent = notices.length;
     }
-    const hello = document.querySelector('.page-header h2');
-    if (hello && profile) hello.innerHTML = `Xin chào, <span class="text-gold">${escapeHtml(profile.fullName)}</span> 👋`;
-    const current = shipments.find(s => !['DELIVERED','CANCELLED','RETURNED'].includes(s.status));
+    const welcomeName = document.querySelector('#citizenWelcomeName');
+    if (welcomeName) welcomeName.textContent = profile?.fullName || 'Người dân';
+    const welcomeSummary = document.querySelector('#citizenWelcomeSummary');
+    if (welcomeSummary) welcomeSummary.textContent = [profile?.ward, profile?.address].filter(Boolean).join(' · ') || 'Hãy cập nhật địa chỉ trong hồ sơ để nhận hỗ trợ chính xác.';
+
+    const requestList = document.querySelector('#citizenRequestsList');
+    if (requestList) requestList.innerHTML = requests.map(r => `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--beige-dark);gap:12px;">
+      <div><div style="font-weight:700;">${escapeHtml(r.title || 'Yêu cầu hỗ trợ')}</div><div style="font-size:0.75rem;color:var(--text-light);">${escapeHtml(r.requestCode || '')} · ${date(r.createdAt)}</div></div>
+      <span class="badge">${escapeHtml(r.status || '—')}</span></div>`).join('') || '<p>Bạn chưa gửi yêu cầu hỗ trợ nào.</p>';
+
+    const noticeList = document.querySelector('#citizenDashboardNotices');
+    if (noticeList) noticeList.innerHTML = notices.slice(0, 3).map(n => `<div style="padding:10px 0;border-bottom:1px solid var(--beige-dark);">
+      <div style="font-weight:700;color:var(--moss-dark);font-size:0.9rem;">${escapeHtml(n.title)}</div>
+      <div style="font-size:0.78rem;color:var(--text-light);margin-top:2px;">${escapeHtml(n.message)} · ${date(n.createdAt)}</div></div>`).join('') || '<p>Chưa có thông báo.</p>';
+
+    const current = shipments.find(s => !['DELIVERED','CANCELLED','RETURNED'].includes(String(s.status).toUpperCase())) || shipments[0];
+    const shipmentTitle = document.querySelector('#citizenShipmentTitle');
+    const shipmentStatus = document.querySelector('#citizenShipmentStatus');
+    const shipmentDetails = document.querySelector('#citizenShipmentDetails');
     if (current) {
-      const card = document.querySelector('.card[style*="border: 2px solid #A3D49B"]');
-      if (card) card.querySelector('.card-title').textContent = `🚚 Chuyến giao đang xử lý: ${current.shipmentCode}`;
+      if (shipmentTitle) shipmentTitle.textContent = `Mã chuyến: ${current.shipmentCode || current.id}`;
+      if (shipmentStatus) shipmentStatus.textContent = current.status || 'Đang xử lý';
+      if (shipmentDetails) shipmentDetails.innerHTML = `<p><strong>Địa chỉ giao:</strong> ${escapeHtml(current.deliveryAddress || 'Chưa có địa chỉ')}</p>
+        <p><strong>Mã theo dõi:</strong> ${escapeHtml(current.trackingCode || 'Chưa có')}</p>
+        <p><strong>Ngày tạo:</strong> ${date(current.createdAt) || '—'}</p>
+        <a href="tracking.html" class="btn btn-outline btn-sm" style="margin-top:10px;">Xem lộ trình chi tiết</a>`;
+    } else if (shipmentDetails) {
+      shipmentDetails.innerHTML = '<p>Hiện chưa có chuyến giao hỗ trợ.</p>';
+      if (shipmentStatus) shipmentStatus.textContent = 'Chưa có chuyến giao';
     }
   }
 
@@ -131,24 +169,34 @@
     };
   }
 
-  function bindProfile() {
-    if (page !== 'profile') return;
-    const form=document.querySelector('form');
-    if (!form) return;
-    const fields={
+  function profileFormFields(form) {
+    return {
       fullName:form.querySelector('#profileFullName'), citizenId:form.querySelector('#profileCitizenId'),
       phone:form.querySelector('#profilePhone'), birthDate:form.querySelector('#profileBirthDate'),
       address:form.querySelector('#profileAddress'), ward:form.querySelector('#profileWard'),
       beneficiaryGroup:form.querySelector('#profileBeneficiaryGroup'), situationDescription:form.querySelector('#profileSituation')
     };
-    if (profile) {
-      fields.fullName.value=profile.fullName||''; fields.citizenId.value=profile.citizenId||'';
-      fields.phone.value=profile.phone||''; fields.birthDate.value=profile.birthDate ? String(profile.birthDate).slice(0,10) : '';
-      fields.address.value=profile.address||''; fields.ward.value=profile.ward||'';
-      fields.beneficiaryGroup.value=profile.beneficiaryGroup||''; fields.situationDescription.value=profile.situationDescription||'';
-    }
-    form.onsubmit=async e=>{
+  }
+
+  function populateProfileForm() {
+    if (page !== 'profile' || !profile) return;
+    const form=document.querySelector('#profileForm');
+    if (!form) return;
+    const fields=profileFormFields(form);
+    fields.fullName.value=profile.fullName||''; fields.citizenId.value=profile.citizenId||'';
+    fields.phone.value=profile.phone||''; fields.birthDate.value=profile.birthDate ? String(profile.birthDate).slice(0,10) : '';
+    fields.address.value=profile.address||''; fields.ward.value=profile.ward||'';
+    fields.beneficiaryGroup.value=profile.beneficiaryGroup||''; fields.situationDescription.value=profile.situationDescription||'';
+  }
+
+  function bindProfile() {
+    if (page !== 'profile') return;
+    const form=document.querySelector('#profileForm');
+    if (!form) return;
+    form.addEventListener('submit', async e=>{
       e.preventDefault();
+      if (!profile) return showProfileMessage('Chưa tải được hồ sơ. Hãy tải lại trang rồi thử lại.', true);
+      const fields=profileFormFields(form);
       try {
         const updated=await api.put('/profile',{fullName:fields.fullName.value.trim(),email:profile.email,phone:fields.phone.value.trim(),citizenId:fields.citizenId.value.trim(),
           birthDate:fields.birthDate.value||null,address:fields.address.value.trim(),ward:fields.ward.value.trim(),beneficiaryGroup:fields.beneficiaryGroup.value.trim(),
@@ -156,10 +204,10 @@
         profile=updated || {...profile,fullName:fields.fullName.value.trim(),phone:fields.phone.value.trim(),citizenId:fields.citizenId.value.trim(),
           birthDate:fields.birthDate.value||null,address:fields.address.value.trim(),ward:fields.ward.value.trim(),beneficiaryGroup:fields.beneficiaryGroup.value.trim(),
           situationDescription:fields.situationDescription.value.trim()};
-        renderProfile(); alert('Đã cập nhật hồ sơ.');
+        renderProfile(); showProfileMessage('Đã cập nhật hồ sơ.');
       }
-      catch(error) { api.error(error); }
-    };
+      catch(error) { showProfileMessage(error?.message || 'Không thể cập nhật hồ sơ.', true); }
+    });
   }
 
   window.registerService = async function (name) {
@@ -185,6 +233,7 @@
     };
   }
 
+  bindProfile();
   (async function init() {
     try {
       await loadProfile();
@@ -193,6 +242,9 @@
       if (page === 'requests') await loadRequests();
       if (page === 'tracking') await loadTracking();
       if (page === 'feedback') await loadFeedback();
-      bindRequestForms(); bindProfile(); await bindFeedback();
-    } catch(error) { api.error(error); }
+      bindRequestForms(); await bindFeedback();
+    } catch(error) {
+      if (page === 'profile') showProfileMessage(error?.message || 'Không thể tải hồ sơ.', true);
+      else api.error(error);
+    }
   })();})();

@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="assets/admin.css"/>
   <link rel="stylesheet" href="../src/assets/vendor/leaflet.css"/>
   <script src="../src/assets/vendor/leaflet.js"></script>
+  <script src="../src/services/api.js"></script>
 </head>
 <body>
   <nav class="admin-sidebar">
@@ -26,9 +27,17 @@
       <div class="sidebar-section" style="margin-top:6px;">Báo cáo</div>
       <a class="sidebar-item" href="reports.html"><span class="si-icon">📈</span> Thống kê &amp; Báo cáo</a>
       <div class="sidebar-section" style="margin-top:12px;"></div>
-      <a class="sidebar-item" href="../index.html" style="color:rgba(217,64,80,0.7);"><span class="si-icon">🚪</span> Đăng xuất</a>
+      <a class="sidebar-item" href="../index.html" onclick="event.preventDefault(); window.CoordSystemApi.logout();" style="color:rgba(217,64,80,0.85);"><span class="si-icon">🚪</span> Đăng xuất</a>
     </div>
-    <div class="sidebar-footer"><div class="sidebar-user"><div class="sidebar-avatar">AD</div><div class="sidebar-user-info"><div class="sidebar-user-name">Nguyễn Duy</div><div class="sidebar-user-role">Quản trị viên hệ thống</div></div></div></div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="adminSidebarAvatar">AD</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="adminSidebarName">Nguyễn Duy</div>
+          <div class="sidebar-user-role" id="adminSidebarRole">Quản trị viên hệ thống</div>
+        </div>
+      </div>
+    </div>
   </nav>
   <header class="admin-topbar">
     <div class="topbar-left"><div class="topbar-breadcrumb">🏛 Admin <span style="color:var(--beige-mid);">›</span> <span class="bc-active">Dashboard</span></div></div>
@@ -43,7 +52,7 @@
     <div class="page-header">
       <div class="page-header-left">
         <h2>📊 Dashboard Tổng quan</h2>
-        <p>Xin chào, <strong>Nguyễn Duy</strong> — Thứ Bảy, 22/11/2026</p>
+        <p>Xin chào, <strong id="adminWelcomeName">Nguyễn Duy</strong> — Hệ Thống Điều Phối Quận Ngũ Hành Sơn</p>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-outline btn-sm">📅 Tuần này</button>
@@ -52,10 +61,10 @@
     </div>
 
     <div class="stat-row">
-      <div class="stat-card sc-gold"><div class="stat-icon">👥</div><div class="stat-val text-gold">1,840</div><div class="stat-label">Người dân đã đăng ký</div><div class="stat-delta up">↑ +23 tuần này</div></div>
-      <div class="stat-card sc-green"><div class="stat-icon">📋</div><div class="stat-val" style="color:#2E6B28;">156</div><div class="stat-label">Yêu cầu đang xử lý</div><div class="stat-delta up">↑ +12 mới hôm nay</div></div>
-      <div class="stat-card sc-blue"><div class="stat-icon">📦</div><div class="stat-val" style="color:#2A5FAA;">2,450</div><div class="stat-label">Nguồn lực đã phân bổ</div><div class="stat-delta up">↑ +85 so với tuần trước</div></div>
-      <div class="stat-card sc-red"><div class="stat-icon">🚨</div><div class="stat-val" style="color:#B02A3A;">8</div><div class="stat-label">Yêu cầu khẩn cấp</div><div class="stat-delta down">⚠ Cần xử lý ngay</div></div>
+      <div class="stat-card sc-gold"><div class="stat-icon">👥</div><div class="stat-val text-gold" id="adminRegisteredCount">1,840</div><div class="stat-label">Người dân đã đăng ký</div><div class="stat-delta up">↑ +23 tuần này</div></div>
+      <div class="stat-card sc-green"><div class="stat-icon">📋</div><div class="stat-val" style="color:#2E6B28;" id="adminRequestsCount">156</div><div class="stat-label">Yêu cầu đang xử lý</div><div class="stat-delta up">↑ +12 mới hôm nay</div></div>
+      <div class="stat-card sc-blue"><div class="stat-icon">📦</div><div class="stat-val" style="color:#2A5FAA;" id="adminAllocationsCount">2,450</div><div class="stat-label">Nguồn lực đã phân bổ</div><div class="stat-delta up">↑ +85 so với tuần trước</div></div>
+      <div class="stat-card sc-red"><div class="stat-icon">🚨</div><div class="stat-val" style="color:#B02A3A;" id="adminUrgentCount">8</div><div class="stat-label">Yêu cầu khẩn cấp</div><div class="stat-delta down">⚠ Cần xử lý ngay</div></div>
     </div>
 
     <!-- Bản Đồ Điều Phối Thực Địa Quận Ngũ Hành Sơn -->
@@ -86,20 +95,19 @@
       <div class="card">
         <div class="card-header"><div class="card-title">📋 Yêu cầu theo Mức ưu tiên</div><button class="btn btn-ghost btn-sm" onclick="location.href='requests.html'">Xem tất cả →</button></div>
         <div class="card-body">
-          <div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>🚨 Khẩn cấp</span><span style="font-weight:700;color:var(--red);">8</span></div><div class="progress-bar"><div class="progress-fill pf-red" style="width:100%;"></div></div></div>
-          <div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>🔴 Cao</span><span style="font-weight:700;color:#A05500;">32</span></div><div class="progress-bar"><div class="progress-fill" style="width:65%;background:#FF9040;"></div></div></div>
-          <div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>🟡 Bình thường</span><span style="font-weight:700;color:var(--gold-1);">78</span></div><div class="progress-bar"><div class="progress-fill pf-gold" style="width:45%;"></div></div></div>
-          <div><div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>⚪ Thấp</span><span style="font-weight:700;color:var(--text-light);">38</span></div><div class="progress-bar"><div class="progress-fill" style="width:20%;background:#bbb;"></div></div></div>
+          <div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>🚨 Khẩn cấp</span><span style="font-weight:700;color:var(--red);" id="adminUrgentStat">8</span></div><div class="progress-bar"><div class="progress-fill pf-red" style="width:100%;"></div></div></div>
+          <div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>🔴 Cao</span><span style="font-weight:700;color:#A05500;" id="adminHighStat">32</span></div><div class="progress-bar"><div class="progress-fill" style="width:65%;background:#FF9040;"></div></div></div>
+          <div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>🟡 Bình thường</span><span style="font-weight:700;color:var(--gold-1);" id="adminNormalStat">78</span></div><div class="progress-bar"><div class="progress-fill pf-gold" style="width:45%;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:0.84rem;margin-bottom:4px;"><span>⚪ Thấp</span><span style="font-weight:700;color:var(--text-light);" id="adminLowStat">38</span></div><div class="progress-bar"><div class="progress-fill" style="width:20%;background:#bbb;"></div></div></div>
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><div class="card-title">🔔 Hoạt động gần đây</div><span class="badge badge-active" style="font-size:0.68rem;">Trực tiếp</span></div>
-        <div class="card-body" style="max-height:260px;overflow-y:auto;">
-          <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--beige-dark);"><div class="avatar avatar-sm avatar-gold">📋</div><div style="flex:1;"><div style="font-weight:600;font-size:0.84rem;">Yêu cầu mới REQ-0183 — Khẩn cấp</div><div style="font-size:0.75rem;color:var(--text-light);">Nước uống cho 50 hộ dân · 15 phút trước</div></div><span class="badge badge-urgent" style="font-size:0.65rem;">URGENT</span></div>
-          <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--beige-dark);"><div class="avatar avatar-sm avatar-green">✅</div><div style="flex:1;"><div style="font-weight:600;font-size:0.84rem;">Phân bổ ALLOC-096 — Đã duyệt</div><div style="font-size:0.75rem;color:var(--text-light);">200 chai nước → REQ-183 · 30 phút trước</div></div><span class="badge badge-approved" style="font-size:0.65rem;">OK</span></div>
-          <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--beige-dark);"><div class="avatar avatar-sm avatar-purple">👤</div><div style="flex:1;"><div style="font-weight:600;font-size:0.84rem;">Tài khoản mới — Trần Thị Mai</div><div style="font-size:0.75rem;color:var(--text-light);">Người dân · Đăng ký hỗ trợ · 1 giờ trước</div></div><span class="badge badge-active" style="font-size:0.65rem;">MỚI</span></div>
-          <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--beige-dark);"><div class="avatar avatar-sm avatar-brown">🚚</div><div style="flex:1;"><div style="font-weight:600;font-size:0.84rem;">Chuyến SHP-056 — Giao thành công</div><div style="font-size:0.75rem;color:var(--text-light);">70 bộ Quần áo cho mái ấm · 2 giờ trước</div></div><span class="badge badge-completed" style="font-size:0.65rem;">XONG</span></div>
-          <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;"><div class="avatar avatar-sm avatar-gold">⚖️</div><div style="flex:1;"><div style="font-weight:600;font-size:0.84rem;">AI đề xuất phân bổ cho REQ-182</div><div style="font-size:0.75rem;color:var(--text-light);">80 thùng Mì + 200kg Gạo · 3 giờ trước</div></div><span class="ai-tag" style="font-size:0.62rem;">AI</span></div>
+        <div class="card-header"><div class="card-title">🔔 Hoạt động gần đây (CSDL Backend)</div><span class="badge badge-active" style="font-size:0.68rem;">Trực tiếp</span></div>
+        <div class="card-body" id="adminRecentActivityList" style="max-height:260px;overflow-y:auto;">
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--beige-dark);"><div class="avatar avatar-sm avatar-gold">📋</div><div style="flex:1;"><div style="font-weight:600;font-size:0.84rem;">Yêu cầu mới REQ-NHS-2026-002 — Khẩn cấp</div><div style="font-size:0.75rem;color:var(--text-light);">Tổ 4, Ven sông Cổ Cò, Phường Hòa Quý · Vừa cập nhật</div></div><span class="badge badge-urgent" style="font-size:0.65rem;">URGENT</span></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--beige-dark);"><div class="avatar avatar-sm avatar-green">✅</div><div style="flex:1;"><div style="font-weight:600;font-size:0.84rem;">Phân bổ AL-NHS-2026-001 — Hoàn tất</div><div style="font-size:0.75rem;color:var(--text-light);">20kg Gạo ST25 → Tổ 12, P. Khuê Mỹ · Đã giao xong</div></div><span class="badge badge-completed" style="font-size:0.65rem;">OK</span></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--beige-dark);"><div class="avatar avatar-sm avatar-purple">👤</div><div style="flex:1;"><div style="font-weight:600;font-size:0.84rem;">Tài khoản mới — Lê Thị Hoa</div><div style="font-size:0.75rem;color:var(--text-light);">Người dân P. Khuê Mỹ · Đã xác minh</div></div><span class="badge badge-active" style="font-size:0.65rem;">MỚI</span></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--beige-dark);"><div class="avatar avatar-sm avatar-brown">🚚</div><div style="flex:1;"><div style="font-weight:600;font-size:0.84rem;">Chuyến SH-NHS-2026-001 — Giao thành công</div><div style="font-size:0.75rem;color:var(--text-light);">Đội Xung Kích Cứu Nạn Q. Ngũ Hành Sơn</div></div><span class="badge badge-completed" style="font-size:0.65rem;">XONG</span></div>
         </div>
       </div>
     </div>
@@ -185,7 +193,112 @@
       renderMarkers(ward);
     }
 
-    document.addEventListener('DOMContentLoaded', initAdminMap);
+    function initAdminUser() {
+      if (!window.CoordSystemApi) return;
+      const user = window.CoordSystemApi.getCurrentUser();
+      if (user) {
+        const name = user.fullName || user.email || 'Quản trị viên';
+        const nameEl = document.getElementById('adminSidebarName');
+        const welcomeEl = document.getElementById('adminWelcomeName');
+        const avatarEl = document.getElementById('adminSidebarAvatar');
+        const roleEl = document.getElementById('adminSidebarRole');
+
+        if (nameEl) nameEl.textContent = name;
+        if (welcomeEl) welcomeEl.textContent = name;
+        if (avatarEl) {
+          const initials = name.split(' ').map(p => p.charAt(0)).slice(-2).join('').toUpperCase();
+          avatarEl.textContent = initials || 'AD';
+        }
+        if (roleEl) {
+          roleEl.textContent = window.CoordSystemApi.hasRole('ADMIN') ? 'Quản trị viên hệ thống' : 'Cán bộ điều phối';
+        }
+      }
+    }
+
+    async function loadAdminRealData() {
+      if (!window.CoordSystemApi) return;
+
+      try {
+        const [reqRes, allocRes, donRes, userRes] = await Promise.all([
+          window.CoordSystemApi.requestApi.getAll(),
+          window.CoordSystemApi.allocationApi.getAll(),
+          window.CoordSystemApi.donationApi.getAll(),
+          window.CoordSystemApi.request('/users')
+        ]);
+
+        // 1. Process Assistance Requests
+        if (reqRes && reqRes.success && Array.isArray(reqRes.data)) {
+          const reqs = reqRes.data;
+          const urgentReqs = reqs.filter(r => r.priority === 'URGENT');
+          const highReqs = reqs.filter(r => r.priority === 'HIGH');
+          const normalReqs = reqs.filter(r => r.priority === 'NORMAL');
+          const lowReqs = reqs.filter(r => r.priority === 'LOW');
+
+          const reqCountEl = document.getElementById('adminRequestsCount');
+          const urgentCountEl = document.getElementById('adminUrgentCount');
+          if (reqCountEl && reqs.length > 0) reqCountEl.textContent = reqs.length;
+          if (urgentCountEl && urgentReqs.length > 0) urgentCountEl.textContent = urgentReqs.length;
+
+          const uStat = document.getElementById('adminUrgentStat');
+          const hStat = document.getElementById('adminHighStat');
+          const nStat = document.getElementById('adminNormalStat');
+          const lStat = document.getElementById('adminLowStat');
+          if (uStat) uStat.textContent = urgentReqs.length;
+          if (hStat) hStat.textContent = highReqs.length;
+          if (nStat) nStat.textContent = normalReqs.length;
+          if (lStat) lStat.textContent = lowReqs.length;
+
+          // Render Real Recent Activity from Backend
+          const actList = document.getElementById('adminRecentActivityList');
+          if (actList && reqs.length > 0) {
+            actList.innerHTML = reqs.slice(0, 6).map(r => {
+              const code = r.requestCode || ('REQ-' + r.id);
+              const title = r.title || 'Yêu cầu cứu trợ';
+              const isUrgent = r.priority === 'URGENT';
+              const badgeClass = isUrgent ? 'badge-urgent' : (r.status === 'COMPLETED' ? 'badge-completed' : 'badge-active');
+              const iconClass = isUrgent ? 'avatar-gold' : 'avatar-green';
+              const icon = isUrgent ? '🚨' : (r.status === 'COMPLETED' ? '✅' : '📋');
+
+              return `
+                <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--beige-dark);">
+                  <div class="avatar avatar-sm ${iconClass}">${icon}</div>
+                  <div style="flex:1;">
+                    <div style="font-weight:600;font-size:0.84rem;">${code} — ${title}</div>
+                    <div style="font-size:0.75rem;color:var(--text-light);">${r.deliveryAddress || 'Quận Ngũ Hành Sơn'} · Trạng thái: ${r.status}</div>
+                  </div>
+                  <span class="badge ${badgeClass}" style="font-size:0.65rem;">${r.priority || r.status}</span>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+
+        // 2. Process Allocations
+        if (allocRes && allocRes.success && Array.isArray(allocRes.data)) {
+          const allocCountEl = document.getElementById('adminAllocationsCount');
+          if (allocCountEl && allocRes.data.length > 0) {
+            allocCountEl.textContent = allocRes.data.length;
+          }
+        }
+
+        // 3. Process Users Count
+        if (userRes && userRes.success && Array.isArray(userRes.data)) {
+          const userCountEl = document.getElementById('adminRegisteredCount');
+          if (userCountEl && userRes.data.length > 0) {
+            userCountEl.textContent = userRes.data.length;
+          }
+        }
+
+      } catch (err) {
+        console.log('[Admin Dashboard] Đang hiển thị số liệu mặc định offline');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initAdminUser();
+      initAdminMap();
+      loadAdminRealData();
+    });
   </script>
   <script src="../api-client.js"></script><script src="api-bindings.js"></script>
 </body>

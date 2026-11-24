@@ -1180,8 +1180,8 @@
           class="brand-logo-img" />
       </a>
 
-      <!-- Chỉ chứa Nút Đăng Nhập -->
-      <div class="portal-nav-actions">
+      <!-- Nút Đăng Nhập / Phiên người dùng -->
+      <div class="portal-nav-actions" id="navAuthContainer">
         <button class="btn-gold" onclick="openLoginModal()" style="font-size:0.9rem; padding: 10px 22px;">
           Đăng nhập
         </button>
@@ -1865,13 +1865,13 @@
       <!-- 1. FORM ĐĂNG NHẬP NGƯỜI DÂN -->
       <form id="formCitizenLogin" onsubmit="handleCitizenLogin(event)">
         <div class="form-group">
-          <label class="form-label">Số điện thoại hoặc Số CCCD / Định danh</label>
-          <input type="text" class="form-control" placeholder="Ví dụ: 0912345678 hoặc 048xxxxxxxxx" required />
+          <label class="form-label">Email hoặc Số điện thoại / CCCD</label>
+          <input type="text" id="citizenLoginEmail" class="form-control" placeholder="Nhập email, số điện thoại hoặc CCCD" required />
         </div>
         <div class="form-group">
           <label class="form-label">Mật khẩu</label>
           <div class="pwd-wrap">
-            <input type="password" id="citizenLoginPwd" class="form-control" placeholder="Nhập mật khẩu..." required />
+            <input type="password" id="citizenLoginPwd" class="form-control" placeholder="Nhập mật khẩu" required />
             <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('citizenLoginPwd', this)">👁️</button>
           </div>
         </div>
@@ -1887,13 +1887,13 @@
       <!-- 2. FORM ĐĂNG NHẬP ADMIN / CÁN BỘ -->
       <form id="formAdminLogin" style="display:none;" onsubmit="handleAdminLogin(event)">
         <div class="form-group">
-          <label class="form-label">Email công vụ cán bộ (@danang.gov.vn)</label>
-          <input type="email" class="form-control" placeholder="canbo.nhs@danang.gov.vn" required />
+          <label class="form-label">Email công vụ cán bộ / Quản trị viên</label>
+          <input type="email" id="adminLoginEmail" class="form-control" placeholder="Email công vụ" required />
         </div>
         <div class="form-group">
           <label class="form-label">Mật khẩu quản trị</label>
           <div class="pwd-wrap">
-            <input type="password" id="adminLoginPwd" class="form-control" placeholder="Nhập mật khẩu quản trị..." required />
+            <input type="password" id="adminLoginPwd" class="form-control" placeholder="Nhập mật khẩu" required />
             <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('adminLoginPwd', this)">👁️</button>
           </div>
         </div>
@@ -1908,80 +1908,50 @@
 
       <!-- 3. FORM ĐĂNG KÝ TÀI KHOẢN NGƯỜI DÂN -->
       <form id="formCitizenRegister" style="display:none;" onsubmit="handleCitizenRegister(event)">
-        <div class="form-group">
-          <label class="form-label">Họ và tên *</label>
-          <input type="text" class="form-control" placeholder="Nguyễn Văn A" required />
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="form-group"><label class="form-label" for="regCitizenName">Họ và tên *</label><input type="text" id="regCitizenName" class="form-control" placeholder="Nguyễn Văn A" autocomplete="name" required /></div>
+          <div class="form-group"><label class="form-label" for="regCitizenEmail">Email đăng nhập *</label><input type="email" id="regCitizenEmail" class="form-control" placeholder="email@example.com" autocomplete="email" required /></div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Số điện thoại *</label>
-          <input type="tel" class="form-control" placeholder="0912345678" required />
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="form-group"><label class="form-label" for="regCitizenPhone">Số điện thoại *</label><input type="tel" id="regCitizenPhone" class="form-control" placeholder="0912345678" autocomplete="tel" required /></div>
+          <div class="form-group"><label class="form-label" for="regCitizenCccd">Số CCCD (12 số)</label><input type="text" id="regCitizenCccd" class="form-control" placeholder="Để trống nếu chưa có" inputmode="numeric" minlength="12" maxlength="12" pattern="[0-9]{12}" title="CCCD phải gồm đúng 12 chữ số hoặc để trống" autocomplete="off" /></div>
         </div>
         <div class="citizen-registration-pair">
-          <div class="form-group">
-            <label class="form-label">Số CCCD / Định danh (12 số)</label>
-            <input type="text" class="form-control" placeholder="12 chữ số" inputmode="numeric" minlength="12" maxlength="12" pattern="[0-9]{12}" title="CCCD phải gồm đúng 12 chữ số" autocomplete="off" required />
+          <div class="form-group"><label class="form-label" for="regCitizenWard">Phường cư trú *</label>
+            <select class="form-control" id="regCitizenWard" required>
+              <option value="Phường Mỹ An">Phường Mỹ An</option><option value="Phường Khuê Mỹ" selected>Phường Khuê Mỹ</option><option value="Phường Hòa Quý">Phường Hòa Quý</option><option value="Phường Hòa Hải">Phường Hòa Hải</option>
+            </select>
           </div>
-          <div class="form-group">
-            <label class="form-label">Phường cư trú (Q. NHS) *</label>
-            <select class="form-control" required>
-              <option value="myan">Phường Mỹ An</option>
-              <option value="khuemy" selected>Phường Khuê Mỹ</option>
-              <option value="hoaquy">Phường Hòa Quý (Ven sông)</option>
-              <option value="hoahai">Phường Hòa Hải (Ven biển)</option>
+          <div class="form-group"><label class="form-label" for="regCitizenGroup">Nhóm an sinh / Hoàn cảnh</label>
+            <select class="form-control" id="regCitizenGroup" onchange="toggleBeneficiaryGroupOther(this)">
+              <option value="Hộ vùng trũng ngập lụt">Hộ vùng trũng ngập lụt</option><option value="Hộ nghèo / Hộ cận nghèo">Hộ nghèo / Hộ cận nghèo</option><option value="Người cao tuổi neo đơn">Người cao tuổi neo đơn</option><option value="Gia đình khó khăn đột xuất" selected>Gia đình khó khăn đột xuất</option><option value="other">Khác</option>
             </select>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Địa chỉ cư trú cụ thể (Tổ dân phố, tên đường) *</label>
-          <input type="text" class="form-control" placeholder="Ví dụ: Tổ 12, Đường Lê Văn Hiến, Phường Khuê Mỹ" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Nhóm an sinh / Hoàn cảnh</label>
-          <select class="form-control" onchange="toggleBeneficiaryGroupOther(this)">
-            <option value="flood">Hộ vùng trũng ngập lụt ven sông Cổ Cò / Đô Lương</option>
-            <option value="poor">Hộ nghèo / Hộ cận nghèo của Phường</option>
-            <option value="elderly">Người cao tuổi neo đơn / Người khuyết tật</option>
-            <option value="normal" selected>Gia đình cần trợ cấp đột xuất / Khó khăn</option>
-            <option value="other">Khác</option>
-          </select>
-        </div>
-        <div class="form-group" id="otherBeneficiaryGroupWrap" style="display:none;">
-          <label class="form-label" for="otherBeneficiaryGroup">Nhập nhóm an sinh khác</label>
-          <input id="otherBeneficiaryGroup" type="text" class="form-control" maxlength="100" placeholder="Nhập nhóm an sinh / hoàn cảnh" />
-        </div>
+        <div class="form-group"><label class="form-label" for="regCitizenAddress">Địa chỉ cư trú cụ thể *</label><input type="text" id="regCitizenAddress" class="form-control" placeholder="Tổ dân phố, tên đường, số nhà" autocomplete="street-address" required /></div>
+        <div class="form-group" id="otherBeneficiaryGroupWrap" style="display:none;"><label class="form-label" for="otherBeneficiaryGroup">Nhập nhóm an sinh khác *</label><input id="otherBeneficiaryGroup" type="text" class="form-control" maxlength="100" placeholder="Nhập nhóm an sinh / hoàn cảnh" /></div>
         <div class="citizen-password-grid">
-          <div class="form-group">
-            <label class="form-label">Mật khẩu *</label>
-            <input type="password" class="form-control" placeholder="Tối thiểu 8 ký tự" minlength="8" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Nhập lại mật khẩu *</label>
-            <input type="password" class="form-control" placeholder="Khớp mật khẩu" minlength="8" required />
-          </div>
+          <div class="form-group"><label class="form-label" for="regCitizenPwd">Mật khẩu *</label><input type="password" id="regCitizenPwd" class="form-control" placeholder="Tối thiểu 8 ký tự" minlength="8" maxlength="72" autocomplete="new-password" required /></div>
+          <div class="form-group"><label class="form-label" for="regCitizenConfirmPwd">Nhập lại mật khẩu *</label><input type="password" id="regCitizenConfirmPwd" class="form-control" placeholder="Nhập lại mật khẩu" minlength="8" maxlength="72" autocomplete="new-password" required /></div>
         </div>
-        <div style="margin-bottom:14px; font-size:0.76rem; color:rgba(249,243,232,0.85); display:flex; align-items:flex-start; gap:8px;">
-          <input type="checkbox" required style="margin-top:2px;" />
-          <span>Tôi cam kết các thông tin cư trú tại <strong>Quận Ngũ Hành Sơn</strong> là chính xác để phục vụ công tác an sinh xã hội.</span>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-weight:700;">
-          ✅ Hoàn Tất Đăng Ký Tài Khoản Người Dân
-        </button>
+        <div style="margin-bottom:14px; font-size:0.76rem; color:rgba(249,243,232,0.85); display:flex; align-items:flex-start; gap:8px;"><input type="checkbox" required style="margin-top:2px;" /><span>Tôi cam kết thông tin đã khai là chính xác để phục vụ công tác an sinh xã hội.</span></div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-weight:700;">✅ Hoàn Tất Đăng Ký Tài Khoản Người Dân</button>
       </form>
 
       <!-- 4. FORM ĐĂNG KÝ CÁN BỘ / ADMIN -->
       <form id="formAdminRegister" style="display:none;" onsubmit="handleAdminRegister(event)">
         <div class="form-group">
           <label class="form-label">Họ và tên cán bộ công chức *</label>
-          <input type="text" class="form-control" placeholder="Ví dụ: Nguyễn Duy" required />
+          <input type="text" id="regAdminName" class="form-control" placeholder="Ví dụ: Nguyễn Duy" required />
         </div>
         <div class="form-group">
-          <label class="form-label">Email công vụ xác thực (@danang.gov.vn) *</label>
-          <input type="email" class="form-control" placeholder="canbo.nhs@danang.gov.vn" required />
+          <label class="form-label">Email công vụ xác thực (@danang.gov.vn hoặc @coordination.local) *</label>
+          <input type="email" id="regAdminEmail" class="form-control" placeholder="canbo.nhs@danang.gov.vn" required />
         </div>
         <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:10px;">
           <div class="form-group">
             <label class="form-label">Cơ quan / Đơn vị công tác</label>
-            <select class="form-control" required>
+            <select class="form-control" id="regAdminOrg" required>
               <option value="ubnd_nhs">UBND Quận Ngũ Hành Sơn</option>
               <option value="ban_pctt">Ban Chỉ huy PCTT &amp; TKCN Quận</option>
               <option value="phuong_myan">UBND Phường Mỹ An</option>
@@ -1992,17 +1962,17 @@
           </div>
           <div class="form-group">
             <label class="form-label">Mã PIN ủy quyền *</label>
-            <input type="password" class="form-control" placeholder="Mã PIN 6 số" required />
+            <input type="password" id="regAdminPin" class="form-control" placeholder="Mã PIN 6 số" inputmode="numeric" minlength="6" maxlength="6" pattern="[0-9]{6}" required />
           </div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <div class="form-group">
             <label class="form-label">Mật khẩu quản trị *</label>
-            <input type="password" class="form-control" placeholder="Tối thiểu 8 ký tự" required />
+            <input type="password" id="regAdminPwd" class="form-control" placeholder="Tối thiểu 8 ký tự" required />
           </div>
           <div class="form-group">
             <label class="form-label">Nhập lại mật khẩu *</label>
-            <input type="password" class="form-control" placeholder="Khớp mật khẩu" required />
+            <input type="password" id="regAdminConfirmPwd" class="form-control" placeholder="Khớp mật khẩu" required />
           </div>
         </div>
         <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center; padding:12px; font-weight:700;">
@@ -2090,47 +2060,77 @@
       }
     }
 
-    function handleCitizenLogin(e) {
-      e.preventDefault();
-      const [identifier, password] = e.currentTarget.querySelectorAll('input');
-      CoordAPI.login(identifier.value.trim(), password.value)
-        .then(auth => {
-          if (!auth.roles.includes('USER')) throw new Error('Tài khoản này không thuộc cổng người dân.');
-          location.href = 'citizen/dashboard.html';
-        })
-        .catch(error => { CoordAPI.clearSession(); CoordAPI.error(error); });
+    function normalizedRoles(auth) {
+      return (auth?.roles || []).map(role => String(role).replace(/^ROLE_/, '').toUpperCase());
     }
 
-    function handleAdminLogin(e) {
+    async function handleCitizenLogin(e) {
       e.preventDefault();
       const [identifier, password] = e.currentTarget.querySelectorAll('input');
-      CoordAPI.login(identifier.value.trim(), password.value)
-        .then(auth => {
-          if (!auth.roles.some(role => ['ADMIN', 'COORDINATOR'].includes(role))) throw new Error('Tài khoản chưa được cấp quyền điều phối.');
-          location.href = 'admin/dashboard.html';
-        })
-        .catch(error => { CoordAPI.clearSession(); CoordAPI.error(error); });
+      try {
+        const auth = await CoordAPI.login(identifier.value.trim(), password.value);
+        if (!normalizedRoles(auth).some(role => ['USER', 'CITIZEN'].includes(role))) {
+          CoordAPI.clearSession();
+          throw new Error('Tài khoản này không thuộc cổng người dân.');
+        }
+        location.href = 'citizen/dashboard.html';
+      } catch (error) {
+        CoordAPI.clearSession();
+        CoordAPI.error(error);
+      }
     }
 
-    function handleCitizenRegister(e) {
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const [identifier, password] = e.currentTarget.querySelectorAll('input');
+      try {
+        const auth = await CoordAPI.login(identifier.value.trim(), password.value);
+        if (!normalizedRoles(auth).some(role => ['ADMIN', 'COORDINATOR'].includes(role))) {
+          CoordAPI.clearSession();
+          throw new Error('Tài khoản chưa được cấp quyền điều phối.');
+        }
+        location.href = 'admin/dashboard.html';
+      } catch (error) {
+        CoordAPI.clearSession();
+        CoordAPI.error(error);
+      }
+    }
+
+    async function handleCitizenRegister(e) {
       e.preventDefault();
       const form = e.currentTarget;
-      const identityFields = Array.from(form.querySelectorAll('input')).filter(input => ['text', 'tel'].includes(input.type));
-      const selects = form.querySelectorAll('select');
-      const passwords = form.querySelectorAll('input[type="password"]');
-      if (passwords[0].value !== passwords[1].value) return alert('Mật khẩu xác nhận chưa khớp.');
-      const selectedGroup = selects[1].value === 'other'
+      const password = document.getElementById('regCitizenPwd').value;
+      const confirmPassword = document.getElementById('regCitizenConfirmPwd').value;
+      if (password !== confirmPassword) return CoordAPI.error(new Error('Mật khẩu xác nhận chưa khớp.'));
+      const groupSelect = document.getElementById('regCitizenGroup');
+      const beneficiaryGroup = groupSelect.value === 'other'
         ? document.getElementById('otherBeneficiaryGroup').value.trim()
-        : selects[1].selectedOptions[0].textContent.trim();
-      if (selects[1].value === 'other' && !selectedGroup) return alert('Vui lòng nhập nhóm an sinh khác.');
-      CoordAPI.register({
-        fullName: identityFields[0].value.trim(), phone: identityFields[1].value.trim(),
-        citizenId: identityFields[2].value.trim(), address: identityFields[3].value.trim(),
-        ward: selects[0].selectedOptions[0].textContent.trim(), beneficiaryGroup: selectedGroup, password: passwords[0].value
-      }).then(() => {
-        alert('Đăng ký thành công. Bạn có thể đăng nhập bằng số điện thoại hoặc CCCD.');
-        switchAuthMode('login'); switchLoginRole('citizen');
-      }).catch(CoordAPI.error);
+        : groupSelect.value;
+      if (groupSelect.value === 'other' && !beneficiaryGroup) {
+        return CoordAPI.error(new Error('Vui lòng nhập nhóm an sinh khác.'));
+      }
+      const submitButton = form.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      try {
+        await CoordAPI.register({
+          fullName: document.getElementById('regCitizenName').value.trim(),
+          email: document.getElementById('regCitizenEmail').value.trim(),
+          phone: document.getElementById('regCitizenPhone').value.trim(),
+          citizenId: document.getElementById('regCitizenCccd').value.trim(),
+          ward: document.getElementById('regCitizenWard').value,
+          address: document.getElementById('regCitizenAddress').value.trim(),
+          beneficiaryGroup,
+          password
+        });
+        alert('Đăng ký thành công. Bạn có thể đăng nhập bằng email, số điện thoại hoặc CCCD.');
+        switchAuthMode('login');
+        switchLoginRole('citizen');
+        document.getElementById('citizenLoginEmail').value = document.getElementById('regCitizenEmail').value.trim();
+      } catch (error) {
+        CoordAPI.error(error);
+      } finally {
+        submitButton.disabled = false;
+      }
     }
 
     function toggleBeneficiaryGroupOther(select) {
@@ -2142,22 +2142,31 @@
       if (!isOther) input.value = '';
     }
 
-    function handleAdminRegister(e) {
+    async function handleAdminRegister(e) {
       e.preventDefault();
       const form = e.currentTarget;
-      const textFields = Array.from(form.querySelectorAll('input')).filter(input => input.type === 'text' || input.type === 'email');
-      const department = form.querySelector('select').value;
-      const passwords = form.querySelectorAll('input[type="password"]');
-      if (passwords[1].value !== passwords[2].value) return alert('Mật khẩu xác nhận chưa khớp.');
-      CoordAPI.post('/auth/staff-registration', {
-        fullName: textFields[0].value.trim(), email: textFields[1].value.trim(), department,
-        authorizationPin: passwords[0].value, password: passwords[1].value
-      }).then(() => {
+      const password = document.getElementById('regAdminPwd').value;
+      const confirmPassword = document.getElementById('regAdminConfirmPwd').value;
+      if (password !== confirmPassword) return CoordAPI.error(new Error('Mật khẩu xác nhận chưa khớp.'));
+      const submitButton = form.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      try {
+        await CoordAPI.post('/auth/staff-registration', {
+          fullName: document.getElementById('regAdminName').value.trim(),
+          email: document.getElementById('regAdminEmail').value.trim(),
+          department: document.getElementById('regAdminOrg').value,
+          authorizationPin: document.getElementById('regAdminPin').value,
+          password
+        });
         alert('Hồ sơ cán bộ đã được gửi để phê duyệt.');
-        switchAuthMode('login'); switchLoginRole('admin');
-      }).catch(CoordAPI.error);
+        switchAuthMode('login');
+        switchLoginRole('admin');
+      } catch (error) {
+        CoordAPI.error(error);
+      } finally {
+        submitButton.disabled = false;
+      }
     }
-
     // ==========================================
     // REACT LEAFLET MAP COMPONENT (NGŨ HÀNH SƠN)
     // ==========================================
@@ -2609,8 +2618,138 @@
       });
     }
 
+    // Update Topbar navigation based on Auth status
+    function updateNavAuth() {
+      if (!window.CoordAPI) return;
+      const user = window.CoordAPI.user();
+      const container = document.getElementById('navAuthContainer');
+      if (!container) return;
+
+      if (user && user.token) {
+        const roles = (user.roles || []).map(role => String(role).replace(/^ROLE_/, '').toUpperCase());
+        const isAdmin = roles.includes('ADMIN') || roles.includes('COORDINATOR');
+        const targetUrl = isAdmin ? 'admin/dashboard.html' : 'citizen/dashboard.html';
+        const roleLabel = isAdmin ? 'Admin' : 'Người dân';
+        const displayName = user.fullName || user.email || 'Thành viên';
+        const safeName = String(displayName).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+
+        container.innerHTML = `
+          <div style="display:flex; align-items:center; gap:10px;">
+            <a href="${targetUrl}" class="btn-gold" style="font-size:0.85rem; padding:8px 16px; display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
+              <span>👤</span> ${safeName} (${roleLabel})
+            </a>
+            <button onclick="window.CoordAPI.clearSession(); location.reload();" class="btn btn-ghost btn-sm" style="color:rgba(255,120,120,0.9); border:1px solid rgba(255,100,100,0.3); padding:7px 12px; font-size:0.82rem;" title="Đăng xuất khỏi hệ thống">
+              🚪 Thoát
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    // Synchronize catalog items and live stats with Spring Boot backend
+    async function syncLiveCatalog() {
+      if (!window.CoordAPI) return;
+
+      try {
+        const items = await CoordAPI.get('/items');
+        if (Array.isArray(items) && items.length > 0) renderLiveCatalog(items);
+      } catch (err) {
+        console.warn('[CoordSystem API] Không thể đồng bộ danh mục vật tư:', err);
+      }
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    }
+
+    // Render live backend items into the catalog grid
+    function renderLiveCatalog(items) {
+      const grid = document.getElementById('catalogGrid');
+      if (!grid || !items || items.length === 0) return;
+
+      // Show live database status badge in catalog header
+      const headerSubtitle = document.querySelector('.catalog-section-header p');
+      if (headerSubtitle && !document.getElementById('liveSyncBadge')) {
+        const badge = document.createElement('span');
+        badge.id = 'liveSyncBadge';
+        badge.style.cssText = 'display:inline-block; margin-left:10px; padding:3px 8px; border-radius:12px; background:rgba(46,107,40,0.3); border:1px solid #4A7A42; color:#6CE88A; font-size:0.75rem; font-weight:700;';
+        badge.innerHTML = '🟢 Kết nối dữ liệu thật từ Spring Boot (' + items.length + ' vật tư)';
+        headerSubtitle.appendChild(badge);
+      }
+
+      // Generate HTML for each item from backend
+      const itemCardsHtml = items.map((item, idx) => {
+        const catName = (item.category && item.category.name) || '';
+        let categoryClass = 'supplies';
+        let icon = '📦';
+        let badgeText = 'Nhu Yếu Phẩm';
+        let badgeClass = 'badge-pending';
+        let qtyEstimate = 'Dự trữ an toàn tại các Phường';
+
+        if (catName.indexOf('Thiết bị') !== -1 || catName.indexOf('Cứu nạn') !== -1) {
+          categoryClass = 'equipment';
+          icon = item.name.indexOf('Ca-nô') !== -1 ? '🚤' : (item.name.indexOf('bơm') !== -1 ? '⚡' : '🦺');
+          badgeText = 'Thiết Bị Cứu Hộ';
+          badgeClass = 'badge-urgent';
+        } else if (catName.indexOf('Y tế') !== -1) {
+          categoryClass = 'supplies';
+          icon = '💊';
+          badgeText = 'Vật Tư Y Tế';
+          badgeClass = 'badge-approved';
+        } else if (catName.indexOf('Nước') !== -1) {
+          categoryClass = 'supplies';
+          icon = '💧';
+          badgeText = 'Nước Sạch';
+          badgeClass = 'badge-approved';
+        } else if (catName.indexOf('Thực phẩm') !== -1) {
+          categoryClass = 'supplies';
+          icon = item.name.indexOf('Gạo') !== -1 ? '🌾' : '🍜';
+          badgeText = 'Lương Thực Khô';
+          badgeClass = 'badge-approved';
+        }
+
+        const unitSymbol = (item.unit && (item.unit.symbol || item.unit.unitName)) || 'Đơn vị';
+
+        return `
+          <div class="showcase-card" data-category="${categoryClass}">
+            <div>
+              <div class="sc-header">
+                <div class="sc-icon-wrap sc-icon-gold">${icon}</div>
+                <span class="sc-badge ${badgeClass}">${badgeText}</span>
+              </div>
+              <h3>${escapeHTML(item.name)}</h3>
+              <div class="sc-tagline">🏛️ Quản lý nguồn lực: CSDL An Sinh Q. Ngũ Hành Sơn</div>
+              <div class="sc-qty-box">
+                <span class="sc-qty-title">📊 Đơn vị tính:</span>
+              <span class="sc-qty-number" style="color:var(--gold-2); font-weight:800;">100% chuẩn định mức (${escapeHTML(unitSymbol)})</span>
+              </div>
+
+              <div class="sc-detail-box">
+                <strong>🎯 Thông tin vật tư:</strong>
+                ${escapeHTML(item.description || 'Vật tư an sinh thiết yếu dự trữ tại các trạm điều phối.')}
+              </div>
+
+              <div class="sc-meaning-box">
+                <strong>❤️ Mục tiêu điều phối:</strong>
+                Cấp phát đúng người, đúng thời điểm, đảm bảo an toàn tính mạng và an sinh xã hội cho nhân dân 4 Phường.
+              </div>
+            </div>
+            <div class="sc-footer">
+              <span>📍 Trạng thái: <strong style="color:#6CE88A;">${escapeHTML(item.status === 'ACTIVE' ? 'Sẵn sàng điều phối' : item.status)}</strong></span>
+              <button class="btn btn-outline btn-sm" onclick="openLoginModal('citizen')">Đăng ký tiếp nhận</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Keep service items and prepend or replace with real items
+      grid.innerHTML = itemCardsHtml;
+    }
+
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
+      updateNavAuth();
+      syncLiveCatalog();
       setTimeout(animateCounters, 300);
       initReactMap();
     });
