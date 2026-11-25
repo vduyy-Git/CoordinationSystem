@@ -4,7 +4,11 @@
   const USER_KEY = 'coord.currentUser';
 
   function baseUrl() {
-    return (localStorage.getItem(API_BASE_KEY) || 'http://localhost:8080/api').replace(/\/+$/, '');
+    const custom = localStorage.getItem(API_BASE_KEY);
+    if (custom && custom.indexOf(':8080') !== -1) {
+      localStorage.setItem(API_BASE_KEY, custom.replace(':8080', ':8088'));
+    }
+    return (localStorage.getItem(API_BASE_KEY) || 'http://localhost:8088/api').replace(/\/+$/, '');
   }
 
   async function request(path, options = {}) {
@@ -12,7 +16,12 @@
     if (options.body && !(options.body instanceof FormData)) headers.set('Content-Type', 'application/json');
     const token = localStorage.getItem(TOKEN_KEY);
     if (token) headers.set('Authorization', `Bearer ${token}`);
-    const response = await fetch(`${baseUrl()}${path.startsWith('/') ? path : `/${path}`}`, { ...options, headers });
+    let response;
+    try {
+      response = await fetch(`${baseUrl()}${path.startsWith('/') ? path : `/${path}`}`, { ...options, headers });
+    } catch (networkError) {
+      throw new Error(`Không thể kết nối đến máy chủ Backend (${baseUrl()}). Vui lòng kiểm tra và chạy file start.bat!`);
+    }
     const contentType = response.headers.get('content-type') || '';
     const payload = contentType.includes('application/json') ? await response.json() : await response.text();
     if (!response.ok || (payload && payload.success === false)) {

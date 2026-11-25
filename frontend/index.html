@@ -2066,9 +2066,14 @@
 
     async function handleCitizenLogin(e) {
       e.preventDefault();
-      const [identifier, password] = e.currentTarget.querySelectorAll('input');
+      const emailInput = document.getElementById('citizenLoginEmail') || e.currentTarget.querySelector('input[type="text"], input[type="email"]');
+      const pwdInput = document.getElementById('citizenLoginPwd') || e.currentTarget.querySelector('input[type="password"]');
+      const submitBtn = e.currentTarget.querySelector('button[type="submit"]');
+      const origText = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) { submitBtn.textContent = '⏳ Đang đăng nhập...'; submitBtn.disabled = true; }
+
       try {
-        const auth = await CoordAPI.login(identifier.value.trim(), password.value);
+        const auth = await CoordAPI.login(emailInput.value.trim(), pwdInput.value);
         if (!normalizedRoles(auth).some(role => ['USER', 'CITIZEN'].includes(role))) {
           CoordAPI.clearSession();
           throw new Error('Tài khoản này không thuộc cổng người dân.');
@@ -2077,14 +2082,21 @@
       } catch (error) {
         CoordAPI.clearSession();
         CoordAPI.error(error);
+      } finally {
+        if (submitBtn) { submitBtn.textContent = origText; submitBtn.disabled = false; }
       }
     }
 
     async function handleAdminLogin(e) {
       e.preventDefault();
-      const [identifier, password] = e.currentTarget.querySelectorAll('input');
+      const emailInput = document.getElementById('adminLoginEmail') || e.currentTarget.querySelector('input[type="email"], input[type="text"]');
+      const pwdInput = document.getElementById('adminLoginPwd') || e.currentTarget.querySelector('input[type="password"]');
+      const submitBtn = e.currentTarget.querySelector('button[type="submit"]');
+      const origText = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) { submitBtn.textContent = '⏳ Đang đăng nhập...'; submitBtn.disabled = true; }
+
       try {
-        const auth = await CoordAPI.login(identifier.value.trim(), password.value);
+        const auth = await CoordAPI.login(emailInput.value.trim(), pwdInput.value);
         if (!normalizedRoles(auth).some(role => ['ADMIN', 'COORDINATOR'].includes(role))) {
           CoordAPI.clearSession();
           throw new Error('Tài khoản chưa được cấp quyền điều phối.');
@@ -2093,6 +2105,8 @@
       } catch (error) {
         CoordAPI.clearSession();
         CoordAPI.error(error);
+      } finally {
+        if (submitBtn) { submitBtn.textContent = origText; submitBtn.disabled = false; }
       }
     }
 

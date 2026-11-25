@@ -10,7 +10,7 @@
   var API_CONFIG = {
     BASE_URL: (typeof window !== 'undefined' && window.__API_BASE__) ||
               (typeof localStorage !== 'undefined' && localStorage.getItem('api_base')) ||
-              'http://localhost:8080/api',
+              'http://localhost:8088/api',
     STORAGE_TOKEN_KEY: 'coords_token',
     STORAGE_USER_KEY: 'coords_user'
   };
