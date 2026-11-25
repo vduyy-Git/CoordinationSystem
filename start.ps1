@@ -1,4 +1,4 @@
-﻿# Script khoi dong tu dong toan bo he thong CoordSystem (Backend + Web)
+# Script khoi dong tu dong toan bo he thong CoordSystem (Backend + Web)
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 Write-Host "========================================================" -ForegroundColor Cyan
 Write-Host " 🚀 KHỞI ĐỘNG HỆ THỐNG ĐIỀU PHỐI AN SINH XÃ HỘI (COORDSYSTEM)" -ForegroundColor Yellow
